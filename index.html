@@ -2,233 +2,264 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>KPI Dashboard กฟต.2 ปี 2569</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;--bg5:#2d333b;--border:rgba(48,54,61,0.9);--border2:rgba(56,68,77,0.8);--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;--blue:#1f6feb;--blue2:#388bfd;--blue-bg:rgba(31,111,235,0.12);--teal:#1a7f5e;--teal2:#3fb884;--teal-bg:rgba(26,127,94,0.12);--amber:#9e6a03;--amber2:#d29922;--amber-bg:rgba(158,106,3,0.12);--red:#da3633;--red2:#f85149;--red-bg:rgba(218,54,51,0.12);--purple:#7c3aed;--purple2:#a78bfa;--purple-bg:rgba(124,58,237,0.12);--r:8px;--rl:12px;--font:'IBM Plex Sans Thai',sans-serif;--mono:'IBM Plex Mono',monospace}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;--bg5:#2d333b;--bdr:rgba(48,54,61,.9);--bdr2:rgba(56,68,77,.8);--t:#e6edf3;--t2:#8b949e;--t3:#6e7681;--bl:#1f6feb;--bl2:#388bfd;--blbg:rgba(31,111,235,.12);--tl:#1a7f5e;--tl2:#3fb884;--tlbg:rgba(26,127,94,.12);--am:#9e6a03;--am2:#d29922;--ambg:rgba(158,106,3,.12);--rd:#da3633;--rd2:#f85149;--rdbg:rgba(218,54,51,.12);--pu:#7c3aed;--pu2:#a78bfa;--pubg:rgba(124,58,237,.12);--r:8px;--rl:12px;--fn:'IBM Plex Sans Thai',sans-serif;--mo:'IBM Plex Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;font-size:14px}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* NAV */
-.nav{position:sticky;top:0;z-index:200;background:rgba(13,17,23,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 20px;gap:0;justify-content:space-between}
-.nav-brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.nav-logo{width:30px;height:30px;background:#1f6feb;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 0 1px rgba(56,139,253,0.3)}
-.nav-title{font-size:13px;font-weight:500}
-.nav-sub{font-size:10px;color:var(--text3);margin-top:1px}
-.nav-tabs{display:flex;gap:2px;background:var(--bg3);padding:3px;border-radius:var(--r);border:1px solid var(--border);margin:0 16px}
-.nav-tab{padding:4px 14px;font-family:var(--font);font-size:11px;color:var(--text3);background:transparent;border:none;border-radius:5px;cursor:pointer;transition:all .15s;white-space:nowrap}
-.nav-tab:hover{color:var(--text);background:var(--bg4)}
-.nav-tab.active{background:var(--bg);color:var(--text);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.live-dot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)}
-.dot{width:6px;height:6px;background:var(--teal2);border-radius:50%;box-shadow:0 0 5px var(--teal2);animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn{display:flex;align-items:center;gap:5px;padding:4px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text2);font-family:var(--font);font-size:11px;cursor:pointer;transition:all .15s}
-.btn:hover{background:var(--bg4);border-color:var(--border2);color:var(--text)}
-.btn:active{transform:scale(.97)}
+.nav{position:sticky;top:0;z-index:200;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);height:52px;display:flex;align-items:center;padding:0 20px;justify-content:space-between;gap:12px}
+.nbrand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nlogo{width:30px;height:30px;background:var(--bl);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 0 1px rgba(56,139,253,.3)}
+.ntitle{font-size:13px;font-weight:500}
+.nsub{font-size:10px;color:var(--t3);margin-top:1px}
+.ntabs{display:flex;gap:2px;background:var(--bg3);padding:3px;border-radius:var(--r);border:1px solid var(--bdr)}
+.ntab{padding:4px 14px;font-family:var(--fn);font-size:11px;color:var(--t3);background:transparent;border:none;border-radius:5px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.ntab:hover{color:var(--t);background:var(--bg4)}
+.ntab.on{background:var(--bg);color:var(--t);border:1px solid var(--bdr);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.nright{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ldot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3)}
+.dot{width:6px;height:6px;background:var(--tl2);border-radius:50%;box-shadow:0 0 5px var(--tl2);animation:pulse 2s ease-in-out infinite}
+.btn{display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t2);font-family:var(--fn);font-size:11px;cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--bg4);border-color:var(--bdr2);color:var(--t)}
 .btn svg{width:12px;height:12px;transition:transform .4s}
 .btn.loading svg{animation:spin .7s linear infinite}
-.btn-export{background:var(--teal-bg);border-color:rgba(26,127,94,.3);color:var(--teal2)}
-.btn-export:hover{background:rgba(26,127,94,.2);color:var(--teal2)}
+.btng{background:var(--tlbg);border-color:rgba(26,127,94,.3);color:var(--tl2)}
+.btng:hover{background:rgba(26,127,94,.2)}
 
-/* PAGES */
-.page{display:none;max-width:1300px;margin:0 auto;padding:18px 20px 40px}
-.page.active{display:block}
+/* PAGE */
+.page{display:none;max-width:1320px;margin:0 auto;padding:16px 20px 40px;animation:fadeIn .2s ease}
+.page.on{display:block}
 
 /* FILTER BAR */
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl)}
-.filter-bar label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
-.filter-bar select{padding:4px 26px 4px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:11px;cursor:pointer;transition:border-color .15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e7681' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
-.filter-bar select:hover,.filter-bar select:focus{border-color:var(--blue2);outline:none}
-.fdiv{width:1px;height:18px;background:var(--border);margin:0 2px}
-.fcount{margin-left:auto;font-size:10px;color:var(--text3);font-family:var(--mono)}
-.fcount span{color:var(--blue2);font-weight:500}
+.fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:10px 14px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl)}
+.fbar label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.fbar select{padding:4px 26px 4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e7681' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;transition:border-color .15s}
+.fbar select:hover,.fbar select:focus{border-color:var(--bl2);outline:none}
+.fdiv{width:1px;height:18px;background:var(--bdr);margin:0 2px}
+.fcnt{margin-left:auto;font-size:10px;color:var(--t3);font-family:var(--mo)}
+.fcnt span{color:var(--bl2);font-weight:500}
+
+/* ORG BANNER */
+.org-banner{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--blbg);border:1px solid rgba(31,111,235,.25);border-radius:var(--r);margin-bottom:14px;font-size:12px;color:var(--bl2)}
+.org-banner strong{font-weight:500}
+.org-banner-close{margin-left:auto;cursor:pointer;color:var(--t3);font-size:14px;line-height:1}
+.org-banner-close:hover{color:var(--t)}
 
 /* METRIC CARDS */
-.mcard-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
-@media(max-width:1100px){.mcard-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:600px){.mcard-grid{grid-template-columns:repeat(2,1fr)}}
-.mcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s}
-.mcard:hover{border-color:var(--border2);transform:translateY(-1px)}
-.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
-.mcard.blue::before{background:var(--blue2)}.mcard.teal::before{background:var(--teal2)}.mcard.amber::before{background:var(--amber2)}.mcard.red::before{background:var(--red2)}.mcard.purple::before{background:var(--purple2)}.mcard.gray::before{background:var(--text3)}
-.mcard-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:13px}
-.mcard.blue .mcard-icon{background:var(--blue-bg)}.mcard.teal .mcard-icon{background:var(--teal-bg)}.mcard.amber .mcard-icon{background:var(--amber-bg)}.mcard.red .mcard-icon{background:var(--red-bg)}.mcard.purple .mcard-icon{background:var(--purple-bg)}.mcard.gray .mcard-icon{background:rgba(110,118,129,.1)}
-.mcard-val{font-size:24px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:3px;font-family:var(--mono)}
-.mcard.blue .mcard-val{color:var(--blue2)}.mcard.teal .mcard-val{color:var(--teal2)}.mcard.amber .mcard-val{color:var(--amber2)}.mcard.red .mcard-val{color:var(--red2)}.mcard.purple .mcard-val{color:var(--purple2)}.mcard.gray .mcard-val{color:var(--text2)}
-.mcard-lbl{font-size:10px;color:var(--text3)}
-.mcard-sub{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--mono)}
-.pb-wrap{height:2px;background:var(--bg4);border-radius:2px;margin-top:7px;overflow:hidden}
-.pb{height:100%;border-radius:2px;transition:width .5s ease}
-.pb.teal{background:var(--teal2)}.pb.amber{background:var(--amber2)}.pb.blue{background:var(--blue2)}
+.mg{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:1100px){.mg{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.mg{grid-template-columns:repeat(2,1fr)}}
+.mc{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:12px 14px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s}
+.mc:hover{border-color:var(--bdr2);transform:translateY(-1px)}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
+.mc.bl::before{background:var(--bl2)}.mc.tl::before{background:var(--tl2)}.mc.am::before{background:var(--am2)}.mc.rd::before{background:var(--rd2)}.mc.pu::before{background:var(--pu2)}.mc.gy::before{background:var(--t3)}
+.mc-i{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:13px}
+.mc.bl .mc-i{background:var(--blbg)}.mc.tl .mc-i{background:var(--tlbg)}.mc.am .mc-i{background:var(--ambg)}.mc.rd .mc-i{background:var(--rdbg)}.mc.pu .mc-i{background:var(--pubg)}.mc.gy .mc-i{background:rgba(110,118,129,.1)}
+.mc-v{font-size:24px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:3px;font-family:var(--mo)}
+.mc.bl .mc-v{color:var(--bl2)}.mc.tl .mc-v{color:var(--tl2)}.mc.am .mc-v{color:var(--am2)}.mc.rd .mc-v{color:var(--rd2)}.mc.pu .mc-v{color:var(--pu2)}.mc.gy .mc-v{color:var(--t2)}
+.mc-l{font-size:10px;color:var(--t3)}
+.mc-s{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--mo)}
+.pb{height:2px;background:var(--bg4);border-radius:2px;margin-top:7px;overflow:hidden}
+.pb-f{height:100%;border-radius:2px;transition:width .5s ease}
+.pb-f.tl{background:var(--tl2)}.pb-f.bl{background:var(--bl2)}.pb-f.am{background:var(--am2)}
 
 /* CHARTS */
-.chart-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
-@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
-.ccard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px 18px}
-.ccard-title{font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.ccard-dot{width:5px;height:5px;border-radius:50%}
-.cwrap{position:relative;width:100%}
-.clegend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
-.clegend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)}
-.clegend-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.cg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:900px){.cg{grid-template-columns:1fr}}
+.cc{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px 18px}
+.cc-t{font-size:11px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.cc-dot{width:5px;height:5px;border-radius:50%}
+.cleg{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.cleg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t2)}
+.cleg-d{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.cc.w2{grid-column:span 2}
+@media(max-width:900px){.cc.w2{grid-column:span 1}}
+
+/* TREND CHART */
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:900px){.tg{grid-template-columns:1fr}}
+.trend-sel{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.trend-sel label{font-size:10px;color:var(--t3)}
+.trend-sel select{padding:3px 24px 3px 7px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e7681' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
+.trend-sel select:focus{outline:none;border-color:var(--bl2)}
 
 /* SECTION LABEL */
-.slabel{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
+.sl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.sl::after{content:'';flex:1;height:1px;background:var(--bdr)}
 
 /* TABLE */
-.tcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
-.thead-row{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.thead-left{display:flex;align-items:center;gap:8px}
-.thead-title{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.6px}
-.tab-grp{display:flex;gap:2px;background:var(--bg3);padding:2px;border-radius:var(--r);border:1px solid var(--border)}
-.tbtn{padding:3px 10px;font-family:var(--font);font-size:10px;color:var(--text3);background:transparent;border:none;border-radius:5px;cursor:pointer;transition:all .15s;white-space:nowrap}
-.tbtn:hover{color:var(--text);background:var(--bg4)}
-.tbtn.active{background:var(--bg);color:var(--text);border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.3)}
-.tsearch{padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:11px;width:180px;transition:border-color .15s}
-.tsearch:focus{outline:none;border-color:var(--blue2)}
-.tsearch::placeholder{color:var(--text3)}
+.tcard{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden}
+.thdr{padding:10px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.thdr-l{display:flex;align-items:center;gap:8px}
+.thdr-title{font-size:10px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:.6px}
+.tabg{display:flex;gap:2px;background:var(--bg3);padding:2px;border-radius:var(--r);border:1px solid var(--bdr)}
+.tabb{padding:3px 10px;font-family:var(--fn);font-size:10px;color:var(--t3);background:transparent;border:none;border-radius:5px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tabb:hover{color:var(--t);background:var(--bg4)}
+.tabb.on{background:var(--bg);color:var(--t);border:1px solid var(--bdr);box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.tsrch{padding:4px 10px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;width:180px;transition:border-color .15s}
+.tsrch:focus{outline:none;border-color:var(--bl2)}
+.tsrch::placeholder{color:var(--t3)}
 .twrap{overflow-x:auto;max-height:460px;overflow-y:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{position:sticky;top:0;z-index:5;background:var(--bg3);padding:7px 10px;text-align:left;font-weight:500;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
-thead th:hover{color:var(--text2)}
-th.sa::after{content:' ↑';color:var(--blue2)}
-th.sd::after{content:' ↓';color:var(--blue2)}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+thead th{position:sticky;top:0;z-index:5;background:var(--bg3);padding:7px 10px;text-align:left;font-weight:500;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bdr);white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:var(--t2)}
+th.sa::after{content:' ↑';color:var(--bl2)}
+th.sd::after{content:' ↓';color:var(--bl2)}
+tbody tr{border-bottom:1px solid var(--bdr);transition:background .1s}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--bg3)}
 tbody td{padding:7px 10px;vertical-align:middle}
-.tc{font-family:var(--mono);font-size:10px;color:var(--text3);white-space:nowrap}
-.tn{color:var(--text);max-width:320px;line-height:1.4}
-.tr2{font-family:var(--mono);font-size:11px;text-align:right;color:var(--text2);white-space:nowrap}
+.tc{font-family:var(--mo);font-size:10px;color:var(--t3);white-space:nowrap}
+.tn{color:var(--t);max-width:300px;line-height:1.4}
+.tr2{font-family:var(--mo);font-size:11px;text-align:right;color:var(--t2);white-space:nowrap}
 .ts{text-align:right;white-space:nowrap}
-.pill{display:inline-block;padding:2px 7px;border-radius:20px;font-family:var(--mono);font-size:10px;font-weight:500}
-.p5{background:rgba(26,127,94,.15);color:#3fb884}.p4{background:rgba(31,111,235,.12);color:#388bfd}.p3{background:rgba(158,106,3,.12);color:#d29922}.p1,.p2{background:rgba(218,54,51,.1);color:#f85149}.pna{background:var(--bg4);color:var(--text3)}
-.dtag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:4px;font-family:var(--mono);font-weight:500;border:1px solid}
-.dfwb{background:rgba(31,111,235,.1);color:#388bfd;border-color:rgba(31,111,235,.2)}.dfpb{background:rgba(26,127,94,.1);color:#3fb884;border-color:rgba(26,127,94,.2)}.dfsb{background:rgba(158,106,3,.1);color:#d29922;border-color:rgba(158,106,3,.2)}.dgsx{background:rgba(124,58,237,.1);color:#a78bfa;border-color:rgba(124,58,237,.2)}.doth{background:var(--bg4);color:var(--text3);border-color:var(--border)}
-.sok{font-size:10px;color:var(--teal2)}.spnd{font-size:10px;color:var(--blue2)}
-.nodata{text-align:center;padding:36px;color:var(--text3);font-size:12px}
-.responsible{font-size:10px;color:var(--text3);max-width:160px;line-height:1.4}
+.pill{display:inline-block;padding:2px 7px;border-radius:20px;font-family:var(--mo);font-size:10px;font-weight:500}
+.p5{background:rgba(26,127,94,.15);color:#3fb884}.p4{background:rgba(31,111,235,.12);color:#388bfd}.p3{background:rgba(158,106,3,.12);color:#d29922}.p12{background:rgba(218,54,51,.1);color:#f85149}.pna{background:var(--bg4);color:var(--t3)}
+.dtag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:4px;font-family:var(--mo);font-weight:500;border:1px solid}
+.dfwb{background:rgba(31,111,235,.1);color:#388bfd;border-color:rgba(31,111,235,.2)}.dfpb{background:rgba(26,127,94,.1);color:#3fb884;border-color:rgba(26,127,94,.2)}.dfsb{background:rgba(158,106,3,.1);color:#d29922;border-color:rgba(158,106,3,.2)}.dgsx{background:rgba(124,58,237,.1);color:#a78bfa;border-color:rgba(124,58,237,.2)}.doth{background:var(--bg4);color:var(--t3);border-color:var(--bdr)}
+.sok{font-size:10px;color:var(--tl2)}.spnd{font-size:10px;color:var(--bl2)}
+.nodata{text-align:center;padding:36px;color:var(--t3);font-size:12px}
+
+/* TARGET LEVELS */
+.tgt-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.tgt-lv{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;font-size:9px;font-family:var(--mo);border:1px solid}
+.tgt-1{background:rgba(218,54,51,.08);color:#f85149;border-color:rgba(218,54,51,.2)}
+.tgt-2{background:rgba(218,54,51,.05);color:#d29922;border-color:rgba(158,106,3,.2)}
+.tgt-3{background:rgba(158,106,3,.08);color:#d29922;border-color:rgba(158,106,3,.2)}
+.tgt-4{background:rgba(31,111,235,.08);color:#388bfd;border-color:rgba(31,111,235,.2)}
+.tgt-5{background:rgba(26,127,94,.1);color:#3fb884;border-color:rgba(26,127,94,.2)}
+.tgt-cur{font-weight:600;box-shadow:0 0 0 1px currentColor}
+
+/* MONTHLY TABLE */
+.mon-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:6px}
+.mon-cell{text-align:center;padding:3px 2px;border-radius:4px;font-size:9px;font-family:var(--mo)}
+.mon-cell.has{background:var(--tlbg);color:var(--tl2);cursor:pointer;border:1px solid rgba(26,127,94,.2)}
+.mon-cell.has:hover{background:rgba(26,127,94,.25)}
+.mon-cell.empty{background:var(--bg4);color:var(--t3);border:1px solid transparent}
+.mon-cell.latest{background:rgba(56,139,253,.15);color:var(--bl2);border:1px solid rgba(56,139,253,.3);font-weight:600}
+.mon-lbl{font-size:8px;color:var(--t3);text-align:center;margin-top:1px}
 
 /* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);width:min(680px,95vw);max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.modal-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--bg2);z-index:5}
-.modal-code{font-family:var(--mono);font-size:11px;color:var(--blue2);background:var(--blue-bg);padding:2px 8px;border-radius:4px;flex-shrink:0}
-.modal-name{font-size:13px;font-weight:500;color:var(--text);line-height:1.5;flex:1}
-.modal-close{width:28px;height:28px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;flex-shrink:0;transition:all .15s}
-.modal-close:hover{background:var(--bg4);color:var(--text)}
-.modal-body{padding:16px 20px 20px}
-.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.modal-field{background:var(--bg3);border-radius:var(--r);padding:10px 12px}
-.modal-field-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.modal-field-value{font-size:12px;color:var(--text);line-height:1.5}
-.modal-score-big{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--r);margin-bottom:14px}
-.modal-score-big.s5{background:rgba(26,127,94,.12);border:1px solid rgba(26,127,94,.2)}.modal-score-big.s4{background:rgba(31,111,235,.1);border:1px solid rgba(31,111,235,.2)}.modal-score-big.s3{background:rgba(158,106,3,.1);border:1px solid rgba(158,106,3,.2)}.modal-score-big.s12{background:rgba(218,54,51,.08);border:1px solid rgba(218,54,51,.2)}.modal-score-big.sna{background:var(--bg3);border:1px solid var(--border)}
-.modal-score-num{font-family:var(--mono);font-size:32px;font-weight:600;line-height:1}
-.s5 .modal-score-num{color:#3fb884}.s4 .modal-score-num{color:#388bfd}.s3 .modal-score-num{color:#d29922}.s12 .modal-score-num{color:#f85149}.sna .modal-score-num{color:var(--text3)}
-.modal-score-info{flex:1}
-.modal-score-info p{font-size:11px;color:var(--text2)}
-.modal-score-info small{font-size:10px;color:var(--text3)}
-.modal-sheet-link{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:var(--blue-bg);border:1px solid rgba(31,111,235,.3);border-radius:var(--r);color:var(--blue2);font-size:11px;text-decoration:none;transition:all .15s;margin-top:8px}
-.modal-sheet-link:hover{background:rgba(31,111,235,.2)}
-
-/* EXPORT */
-.export-wrap{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
-
-/* TOAST */
-#toast{position:fixed;bottom:20px;right:20px;padding:9px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);font-size:11px;color:var(--text);z-index:600;transform:translateY(60px);opacity:0;transition:all .25s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:7px}
-#toast.show{transform:translateY(0);opacity:1}
-#toast.ok{border-color:rgba(26,127,94,.4)}
-#toast.err{border-color:rgba(218,54,51,.4)}
-
-/* LOADING */
-#loadOverlay{position:fixed;inset:0;background:rgba(13,17,23,.9);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
-#loadOverlay.hidden{opacity:0;pointer-events:none}
-.spinner{width:36px;height:36px;border:2px solid var(--border2);border-top-color:var(--blue2);border-radius:50%;animation:spin .8s linear infinite}
-.load-txt{font-size:12px;color:var(--text2)}
+.mover{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center}
+.mover.on{display:flex}
+.mbox{background:var(--bg2);border:1px solid var(--bdr2);border-radius:var(--rl);width:min(720px,95vw);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.mhdr{padding:14px 18px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;position:sticky;top:0;background:var(--bg2);z-index:5}
+.mcode{font-family:var(--mo);font-size:11px;color:var(--bl2);background:var(--blbg);padding:2px 8px;border-radius:4px;flex-shrink:0}
+.mname{font-size:13px;font-weight:500;color:var(--t);line-height:1.5;flex:1}
+.mclose{width:26px;height:26px;background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:15px;flex-shrink:0;transition:all .15s}
+.mclose:hover{background:var(--bg4)}
+.mbody{padding:14px 18px 18px}
+.mscbig{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r);margin-bottom:14px}
+.mscbig.s5{background:rgba(26,127,94,.12);border:1px solid rgba(26,127,94,.2)}.mscbig.s4{background:rgba(31,111,235,.1);border:1px solid rgba(31,111,235,.2)}.mscbig.s3{background:rgba(158,106,3,.1);border:1px solid rgba(158,106,3,.2)}.mscbig.s12{background:rgba(218,54,51,.08);border:1px solid rgba(218,54,51,.2)}.mscbig.sna{background:var(--bg3);border:1px solid var(--bdr)}
+.mscnum{font-family:var(--mo);font-size:30px;font-weight:600;line-height:1}
+.s5 .mscnum{color:#3fb884}.s4 .mscnum{color:#388bfd}.s3 .mscnum{color:#d29922}.s12 .mscnum{color:#f85149}.sna .mscnum{color:var(--t3)}
+.mscinfo p{font-size:11px;color:var(--t2)}
+.mscinfo small{font-size:10px;color:var(--t3)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.mf{background:var(--bg3);border-radius:var(--r);padding:9px 11px}
+.mf-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.mf-v{font-size:12px;color:var(--t);line-height:1.5}
+.mlink{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--blbg);border:1px solid rgba(31,111,235,.3);border-radius:var(--r);color:var(--bl2);font-size:11px;text-decoration:none;transition:all .15s;margin-top:8px}
+.mlink:hover{background:rgba(31,111,235,.2)}
+/* trend chart in modal */
+.mtrend{margin-top:14px}
+.mtrend-t{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
 
 /* DEPT PAGE */
-.dept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:16px}
-.dept-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;transition:border-color .2s}
-.dept-card:hover{border-color:var(--border2)}
-.dept-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.dept-name{font-size:14px;font-weight:500}
-.dept-avg{font-family:var(--mono);font-size:18px;font-weight:600}
-.dept-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
-.dept-stat{background:var(--bg3);border-radius:6px;padding:6px 8px;text-align:center}
-.dept-stat-val{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--text)}
-.dept-stat-lbl{font-size:9px;color:var(--text3);margin-top:1px}
+.dg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}
+.dcard{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:13px 15px;transition:border-color .2s}
+.dcard:hover{border-color:var(--bdr2)}
+.dchdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dname{font-size:14px;font-weight:500}
+.davg{font-family:var(--mo);font-size:18px;font-weight:600}
+.dstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px}
+.dstat{background:var(--bg3);border-radius:6px;padding:5px 7px;text-align:center}
+.dstat-v{font-family:var(--mo);font-size:13px;font-weight:500}
+.dstat-l{font-size:9px;color:var(--t3)}
 
-/* ALERT PAGE */
-.alert-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-@media(max-width:700px){.alert-grid{grid-template-columns:1fr}}
-.alert-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
-.alert-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.alert-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
-.alert-badge.danger{background:var(--red-bg);color:var(--red2)}.alert-badge.warning{background:var(--amber-bg);color:var(--amber2)}.alert-badge.info{background:var(--blue-bg);color:var(--blue2)}
-.alert-title{font-size:12px;font-weight:500;color:var(--text2)}
-.alert-list{list-style:none}
-.alert-item{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .1s}
-.alert-item:last-child{border-bottom:none}
-.alert-item:hover{background:var(--bg3)}
-.alert-item-code{font-family:var(--mono);font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0}
-.alert-item-name{font-size:11px;color:var(--text);flex:1;line-height:1.4}
-.alert-item-score{font-family:var(--mono);font-size:11px;font-weight:500;flex-shrink:0}
-.danger-score{color:var(--red2)}.warning-score{color:var(--amber2)}.pending-score{color:var(--blue2)}
+/* ALERT */
+.ag{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:700px){.ag{grid-column:1fr}}
+.acard{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden}
+.ahdr{padding:9px 13px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:7px}
+.abadge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+.abadge.d{background:var(--rdbg);color:var(--rd2)}.abadge.w{background:var(--ambg);color:var(--am2)}.abadge.i{background:var(--blbg);color:var(--bl2)}
+.atitle{font-size:12px;font-weight:500;color:var(--t2)}
+.alist{list-style:none}
+.ali{padding:7px 13px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .1s}
+.ali:last-child{border-bottom:none}
+.ali:hover{background:var(--bg3)}
+.ali-c{font-family:var(--mo);font-size:10px;color:var(--t3);white-space:nowrap;flex-shrink:0}
+.ali-n{font-size:11px;color:var(--t);flex:1;line-height:1.4}
+.ali-s{font-family:var(--mo);font-size:11px;font-weight:500;flex-shrink:0}
+.ds{color:var(--rd2)}.ws{color:var(--am2)}.is{color:var(--bl2)}
+
+/* LOAD */
+#lov{position:fixed;inset:0;background:rgba(13,17,23,.9);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
+#lov.h{opacity:0;pointer-events:none}
+.sp{width:36px;height:36px;border:2px solid var(--bdr2);border-top-color:var(--bl2);border-radius:50%;animation:spin .8s linear infinite}
+.lt{font-size:12px;color:var(--t2)}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;padding:9px 14px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);font-size:11px;color:var(--t);z-index:600;transform:translateY(60px);opacity:0;transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+#toast.on{transform:translateY(0);opacity:1}
+#toast.ok{border-color:rgba(26,127,94,.4)}
+#toast.er{border-color:rgba(218,54,51,.4)}
 </style>
 </head>
 <body>
-<div id="loadOverlay"><div class="spinner"></div><div class="load-txt">กำลังโหลดข้อมูล KPI กฟต.2 ปี 2569...</div></div>
+<div id="lov"><div class="sp"></div><div class="lt">กำลังโหลดข้อมูล KPI กฟต.2 ปี 2569...</div></div>
 <div id="toast"></div>
 
 <!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal" id="modalBox">
-    <div class="modal-header">
-      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
-        <span class="modal-code" id="mCode"></span>
-        <span class="modal-name" id="mName"></span>
+<div class="mover" id="mover" onclick="if(event.target===this)cM()">
+  <div class="mbox">
+    <div class="mhdr">
+      <div style="display:flex;align-items:center;gap:9px;flex:1;min-width:0">
+        <span class="mcode" id="mCode"></span>
+        <span class="mname" id="mName"></span>
       </div>
-      <div class="modal-close" onclick="closeModal()">✕</div>
+      <div class="mclose" onclick="cM()">✕</div>
     </div>
-    <div class="modal-body" id="mBody"></div>
+    <div class="mbody" id="mBody"></div>
   </div>
 </div>
 
-<!-- NAVBAR -->
 <nav class="nav">
-  <div class="nav-brand">
-    <div class="nav-logo">⚡</div>
+  <div class="nbrand">
+    <div class="nlogo">⚡</div>
     <div>
-      <div class="nav-title">KPI กฟต.2 ปี 2569</div>
-      <div class="nav-sub">การไฟฟ้าส่วนภูมิภาค เขต 2 (ภาคใต้)</div>
+      <div class="ntitle">KPI กฟต.2 ปี 2569</div>
+      <div class="nsub">การไฟฟ้าส่วนภูมิภาค เขต 2 (ภาคใต้)</div>
     </div>
   </div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" data-page="overview" onclick="showPage(this)">ภาพรวม</button>
-    <button class="nav-tab" data-page="kpilist" onclick="showPage(this)">รายการ KPI</button>
-    <button class="nav-tab" data-page="dept" onclick="showPage(this)">รายฝ่าย</button>
-    <button class="nav-tab" data-page="alert" onclick="showPage(this)">ติดตาม</button>
+  <div class="ntabs">
+    <button class="ntab on" data-p="overview" onclick="sP(this)">ภาพรวม</button>
+    <button class="ntab" data-p="kpilist" onclick="sP(this)">รายการ KPI</button>
+    <button class="ntab" data-p="dept" onclick="sP(this)">รายฝ่าย</button>
+    <button class="ntab" data-p="trend" onclick="sP(this)">Trend</button>
+    <button class="ntab" data-p="alert" onclick="sP(this)">ติดตาม</button>
   </div>
-  <div class="nav-right">
-    <div class="live-dot"><div class="dot"></div><span id="lastUpdate">—</span></div>
-    <button class="btn btn-export" onclick="exportCSV()">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
-      Export CSV
+  <div class="nright">
+    <div class="ldot"><div class="dot"></div><span id="upd">—</span></div>
+    <button class="btn btng" onclick="expCSV()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1v9M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+      CSV
     </button>
-    <button class="btn" id="refreshBtn" onclick="loadData()">
+    <button class="btn" id="rbtn" onclick="loadData()">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 8A6.5 6.5 0 0113 3.5M14.5 8A6.5 6.5 0 013 12.5"/><path d="M13 1v2.5H10.5M6 13.5H3.5V16"/></svg>
       รีเฟรช
     </button>
@@ -236,92 +267,80 @@ tbody td{padding:7px 10px;vertical-align:middle}
 </nav>
 
 <!-- PAGE: OVERVIEW -->
-<div class="page active" id="page-overview">
-  <div class="filter-bar">
+<div class="page on" id="page-overview">
+  <div class="fbar">
     <label>กลุ่ม</label>
-    <select id="fGroup" onchange="applyFilters()">
-      <option value="all">ทั้งหมด</option>
-      <option value="policy">งานตามนโยบายฯ</option>
-      <option value="duty">งานตามหน้าที่ฯ</option>
-    </select>
+    <select id="fG" onchange="af()"><option value="all">ทั้งหมด</option><option value="policy">งานตามนโยบายฯ</option><option value="duty">งานตามหน้าที่ฯ</option></select>
     <div class="fdiv"></div>
     <label>ฝ่าย</label>
-    <select id="fDept" onchange="applyFilters()">
-      <option value="all">ทั้งหมด</option>
-      <option value="ฝวบ.">ฝวบ.</option>
-      <option value="ฝปบ.">ฝปบ.</option>
-      <option value="ฝสบ.">ฝสบ.</option>
-      <option value="กสข.">กสข.</option>
-      <option value="อื่นๆ">อื่นๆ</option>
-    </select>
+    <select id="fD" onchange="af()"><option value="all">ทั้งหมด</option><option value="ฝวบ.">ฝวบ.</option><option value="ฝปบ.">ฝปบ.</option><option value="ฝสบ.">ฝสบ.</option><option value="กสข.">กสข.</option><option value="อื่นๆ">อื่นๆ</option></select>
+    <div class="fdiv"></div>
+    <label>หน่วยงาน</label>
+    <select id="fO" onchange="af()"><option value="all">ภาพรวม กฟต.2</option></select>
     <div class="fdiv"></div>
     <label>สถานะ</label>
-    <select id="fStatus" onchange="applyFilters()">
-      <option value="all">ทั้งหมด</option>
-      <option value="reported">มีผลแล้ว</option>
-      <option value="pending">ยังไม่รายงาน</option>
-    </select>
+    <select id="fS" onchange="af()"><option value="all">ทั้งหมด</option><option value="rep">มีผลแล้ว</option><option value="pend">ยังไม่รายงาน</option></select>
     <div class="fdiv"></div>
     <label>คะแนน</label>
-    <select id="fScore" onchange="applyFilters()">
-      <option value="all">ทั้งหมด</option>
-      <option value="5">5.000 (เต็ม)</option>
-      <option value="4">4.0 – 4.9</option>
-      <option value="3">3.0 – 3.9</option>
-      <option value="low">ต่ำกว่า 3</option>
-    </select>
-    <div class="fcount">แสดง <span id="fCountNum">—</span> รายการ</div>
+    <select id="fSc" onchange="af()"><option value="all">ทั้งหมด</option><option value="5">5.000</option><option value="4">4–4.9</option><option value="3">3–3.9</option><option value="low">ต่ำกว่า 3</option></select>
+    <div class="fcnt">แสดง <span id="fcn">—</span> รายการ</div>
   </div>
-  <div class="slabel">ภาพรวม</div>
-  <div class="mcard-grid" id="metricGrid"></div>
-  <div class="slabel">การวิเคราะห์</div>
-  <div class="chart-grid">
-    <div class="ccard">
-      <div class="ccard-title"><div class="ccard-dot" style="background:var(--blue2)"></div>สถานะการรายงาน</div>
-      <div class="cwrap" style="height:190px"><canvas id="cStatus" role="img" aria-label="สถานะการรายงาน KPI"></canvas></div>
-      <div class="clegend" id="legendStatus"></div>
+  <div id="orgBanner" style="display:none" class="org-banner">
+    <span>🏢</span> <strong id="orgBannerName"></strong> — แสดง KPI ที่หน่วยงานนี้รับผิดชอบ
+    <span class="org-banner-close" onclick="clearOrg()">✕ ดูทั้งหมด</span>
+  </div>
+  <div class="sl">ภาพรวม</div>
+  <div class="mg" id="mg"></div>
+  <div class="sl">การวิเคราะห์</div>
+  <div class="cg">
+    <div class="cc">
+      <div class="cc-t"><div class="cc-dot" style="background:var(--bl2)"></div>สถานะการรายงาน</div>
+      <div style="position:relative;width:100%;height:185px"><canvas id="cStatus" role="img" aria-label="สถานะ"></canvas></div>
+      <div class="cleg" id="legStatus"></div>
     </div>
-    <div class="ccard">
-      <div class="ccard-title"><div class="ccard-dot" style="background:var(--teal2)"></div>คะแนนเฉลี่ยรายฝ่าย</div>
-      <div class="cwrap" style="height:190px"><canvas id="cDept" role="img" aria-label="คะแนนเฉลี่ยรายฝ่าย"></canvas></div>
+    <div class="cc">
+      <div class="cc-t"><div class="cc-dot" style="background:var(--tl2)"></div>คะแนนเฉลี่ยรายฝ่าย</div>
+      <div style="position:relative;width:100%;height:185px"><canvas id="cDept" role="img" aria-label="คะแนนรายฝ่าย"></canvas></div>
     </div>
-    <div class="ccard">
-      <div class="ccard-title"><div class="ccard-dot" style="background:var(--amber2)"></div>การกระจายคะแนน</div>
-      <div class="cwrap" style="height:190px"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
+    <div class="cc">
+      <div class="cc-t"><div class="cc-dot" style="background:var(--am2)"></div>การกระจายคะแนน</div>
+      <div style="position:relative;width:100%;height:185px"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
     </div>
   </div>
-  <div class="slabel">KPI ที่ต้องให้ความสนใจ</div>
-  <div class="tcard" id="watchTable"></div>
+  <div class="sl">KPI ที่ต้องเฝ้าระวัง</div>
+  <div id="watchT"></div>
 </div>
 
 <!-- PAGE: KPI LIST -->
 <div class="page" id="page-kpilist">
   <div class="tcard">
-    <div class="thead-row">
-      <div class="thead-left">
-        <span class="thead-title">รายการ KPI ทั้งหมด</span>
-        <div class="tab-grp" id="tabGrp">
-          <button class="tbtn active" data-tab="all" onclick="switchTab(this)">ทั้งหมด</button>
-          <button class="tbtn" data-tab="policy" onclick="switchTab(this)">นโยบาย</button>
-          <button class="tbtn" data-tab="duty" onclick="switchTab(this)">หน้าที่</button>
-          <button class="tbtn" data-tab="low" onclick="switchTab(this)">⚠ ต้องติดตาม</button>
-          <button class="tbtn" data-tab="pending" onclick="switchTab(this)">รอรายงาน</button>
+    <div class="thdr">
+      <div class="thdr-l">
+        <span class="thdr-title">รายการ KPI ทั้งหมด</span>
+        <div class="tabg" id="tabg">
+          <button class="tabb on" data-t="all" onclick="sT(this)">ทั้งหมด</button>
+          <button class="tabb" data-t="policy" onclick="sT(this)">นโยบาย</button>
+          <button class="tabb" data-t="duty" onclick="sT(this)">หน้าที่</button>
+          <button class="tabb" data-t="low" onclick="sT(this)">⚠ ต้องติดตาม</button>
+          <button class="tabb" data-t="pend" onclick="sT(this)">รอรายงาน</button>
         </div>
       </div>
-      <input type="text" class="tsearch" id="tableSearch" placeholder="ค้นหา KPI..." oninput="renderTable()">
+      <input type="text" class="tsrch" id="tsrch" placeholder="ค้นหา KPI..." oninput="rT()">
     </div>
     <div class="twrap">
       <table>
         <thead><tr>
-          <th onclick="sortTable('code')" id="th-code">รหัส</th>
-          <th onclick="sortTable('name')" id="th-name">ชื่อ KPI</th>
-          <th onclick="sortTable('dept')" id="th-dept">ฝ่าย</th>
-          <th onclick="sortTable('responsible')" id="th-responsible">ผู้รับผิดชอบ</th>
-          <th onclick="sortTable('result')" id="th-result" style="text-align:right">ผลล่าสุด</th>
-          <th onclick="sortTable('score')" id="th-score" style="text-align:right">คะแนน</th>
-          <th id="th-status">สถานะ</th>
+          <th onclick="sSort('code')" id="th-code">รหัส</th>
+          <th onclick="sSort('name')" id="th-name">ชื่อ KPI</th>
+          <th onclick="sSort('dept')" id="th-dept">ฝ่าย</th>
+          <th onclick="sSort('responsible')" id="th-resp">ผู้รับผิดชอบ</th>
+          <th id="th-tgt" style="text-align:center">เป้าหมาย</th>
+          <th onclick="sSort('result')" id="th-res" style="text-align:right">ผลล่าสุด</th>
+          <th onclick="sSort('score')" id="th-sc" style="text-align:right">คะแนน</th>
+          <th>สถานะ</th>
+          <th id="th-mon" style="text-align:center">ผลรายเดือน</th>
         </tr></thead>
-        <tbody id="tableBody"></tbody>
+        <tbody id="tBody"></tbody>
       </table>
     </div>
   </div>
@@ -329,157 +348,269 @@ tbody td{padding:7px 10px;vertical-align:middle}
 
 <!-- PAGE: DEPT -->
 <div class="page" id="page-dept">
-  <div class="slabel">สรุปผลรายฝ่าย</div>
-  <div class="dept-grid" id="deptGrid"></div>
-  <div class="slabel">เปรียบเทียบคะแนนรายฝ่าย</div>
-  <div class="ccard" style="margin-bottom:16px">
-    <div class="ccard-title"><div class="ccard-dot" style="background:var(--purple2)"></div>Radar Chart — คะแนนเฉลี่ยรายฝ่าย</div>
-    <div class="cwrap" style="height:320px"><canvas id="cRadar" role="img" aria-label="Radar คะแนนรายฝ่าย"></canvas></div>
+  <div class="sl">สรุปผลรายฝ่าย</div>
+  <div class="dg" id="dg"></div>
+  <div class="sl">เปรียบเทียบคะแนนรายฝ่าย</div>
+  <div class="cc">
+    <div class="cc-t"><div class="cc-dot" style="background:var(--pu2)"></div>Radar Chart — คะแนนเฉลี่ยรายฝ่าย</div>
+    <div style="position:relative;width:100%;height:300px"><canvas id="cRadar" role="img" aria-label="Radar คะแนน"></canvas></div>
   </div>
 </div>
 
-<!-- PAGE: ALERT/MONITOR -->
+<!-- PAGE: TREND -->
+<div class="page" id="page-trend">
+  <div class="sl">แนวโน้มคะแนน KPI รายเดือน</div>
+  <div class="cc" style="margin-bottom:14px">
+    <div class="trend-sel">
+      <label>แสดง</label>
+      <select id="trendView" onchange="renderTrend()">
+        <option value="avg">คะแนนเฉลี่ยรวม กฟต.2</option>
+        <option value="dept">แยกตามฝ่าย</option>
+        <option value="kpi">KPI รายตัว</option>
+      </select>
+      <label style="margin-left:8px">กลุ่ม</label>
+      <select id="trendGroup" onchange="renderTrend()">
+        <option value="all">ทั้งหมด</option>
+        <option value="policy">งานตามนโยบายฯ</option>
+        <option value="duty">งานตามหน้าที่ฯ</option>
+      </select>
+      <span id="trendKpiSel" style="display:none;margin-left:8px">
+        <label>KPI</label>
+        <select id="trendKpi" onchange="renderTrend()" style="max-width:240px"></select>
+      </span>
+    </div>
+    <div style="position:relative;width:100%;height:280px"><canvas id="cTrend" role="img" aria-label="Trend chart"></canvas></div>
+  </div>
+  <div class="sl">ผลรายเดือนของทุก KPI (ที่มีข้อมูล)</div>
+  <div class="tcard">
+    <div class="twrap">
+      <table>
+        <thead><tr>
+          <th>รหัส KPI</th><th>ชื่อ</th><th>ฝ่าย</th>
+          <th style="text-align:center">ต.ค.</th><th style="text-align:center">พ.ย.</th><th style="text-align:center">ธ.ค.</th>
+          <th style="text-align:center">ม.ค.</th><th style="text-align:center">ก.พ.</th><th style="text-align:center">มี.ค.</th>
+          <th style="text-align:center">เม.ย.</th><th style="text-align:center">พ.ค.</th><th style="text-align:center">มิ.ย.</th>
+          <th style="text-align:center">ก.ค.</th><th style="text-align:center">ส.ค.</th><th style="text-align:center">ก.ย.</th>
+        </tr></thead>
+        <tbody id="trendTBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: ALERT -->
 <div class="page" id="page-alert">
-  <div class="slabel">รายการที่ต้องติดตาม</div>
-  <div class="alert-grid">
-    <div class="alert-card">
-      <div class="alert-header">
-        <span class="alert-badge danger">คะแนนวิกฤต</span>
-        <span class="alert-title">คะแนนต่ำกว่า 2</span>
-      </div>
-      <ul class="alert-list" id="alertCritical"></ul>
+  <div class="sl">รายการที่ต้องติดตาม</div>
+  <div class="ag">
+    <div class="acard">
+      <div class="ahdr"><span class="abadge d">คะแนนวิกฤต</span><span class="atitle">คะแนนต่ำกว่า 2</span></div>
+      <ul class="alist" id="aC"></ul>
     </div>
-    <div class="alert-card">
-      <div class="alert-header">
-        <span class="alert-badge warning">ต้องเฝ้าระวัง</span>
-        <span class="alert-title">คะแนน 2–3</span>
-      </div>
-      <ul class="alert-list" id="alertWarn"></ul>
+    <div class="acard">
+      <div class="ahdr"><span class="abadge w">เฝ้าระวัง</span><span class="atitle">คะแนน 2–3</span></div>
+      <ul class="alist" id="aW"></ul>
     </div>
-    <div class="alert-card" style="grid-column:1/-1">
-      <div class="alert-header">
-        <span class="alert-badge info">รอรายงาน</span>
-        <span class="alert-title">ยังไม่พร้อมรายงาน (<span id="pendingCount">0</span> รายการ)</span>
-      </div>
-      <ul class="alert-list" id="alertPending"></ul>
+    <div class="acard" style="grid-column:1/-1">
+      <div class="ahdr"><span class="abadge i">รอรายงาน</span><span class="atitle">ยังไม่พร้อมรายงาน (<span id="aPcnt">0</span> รายการ)</span></div>
+      <ul class="alist" id="aP"></ul>
     </div>
   </div>
 </div>
 
 <script>
 const SID='1wNdue0PW9sx0VE2fSbAnRaxacarc6tQnFBQ-RpkI2MM';
-const SNAME='Landing Page';
+const MONTHS=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
+const MONTH_KEYS=['oct','nov','dec','jan','feb','mar','apr','may','jun','jul','aug','sep'];
 
-const FALLBACK=[
-  ['1.1','ความสามารถในการหารายได้การให้บริการธุรกิจเกี่ยวเนื่อง','ฝวบ.','งานตามนโยบายฯ','คณะทำงานธุรกิจเกี่ยวเนื่องฯ',216.852,'มี.ค.',4.596,'1.1'],
-  ['1.2.1','ความสำเร็จในการจัดระเบียบสายสื่อสาร (คอนสื่อสาร ปี 2568)','ฝวบ.','งานตามนโยบายฯ','ผธท.กบล.(ต2)',null,'ยังไม่พร้อมรายงาน',null,'1.2.1'],
-  ['1.2.2','ความสำเร็จในการจัดระเบียบสายสื่อสาร (คอนสื่อสาร ปี 2569)','ฝวบ.','งานตามนโยบายฯ','ผธท.กบล.(ต2)',null,'ยังไม่พร้อมรายงาน',null,'1.2.2'],
-  ['1.2.3','ความสำเร็จในการจัดระเบียบสายสื่อสาร (จัดระเบียบ ปี 2569)','ฝวบ.','งานตามนโยบายฯ','ผธท.กบล.(ต2)',null,'ยังไม่พร้อมรายงาน',null,'1.2.3'],
-  ['1.3.1','ยกระดับบริการขอใช้ไฟฟ้า ≤30A ในเขต 2 วันทำการ','ฝวบ.','งานตามนโยบายฯ','ผบธ.กบล.(ต2)',98.681,'เม.ย.',4.121,'1.3.1'],
-  ['1.3.2','ยกระดับบริการขอใช้ไฟฟ้า ≤30A นอกเขต 5 วันทำการ','ฝวบ.','งานตามนโยบายฯ','ผบธ.กบล.(ต2)',98.330,'เม.ย.',4.332,'1.3.2'],
-  ['1.4.1','Solar Rooftop - การให้บริการติดตั้ง','ฝวบ.','งานตามนโยบายฯ','ผบว.กบล.(ต2)',20.710,'มี.ค.',4.631,'1.4.1'],
-  ['1.4.2','Solar Rooftop - กรณี กฟภ. ติดตั้งเอง','ฝวบ.','งานตามนโยบายฯ','ผบว.กบล.(ต2)',0.293,'มี.ค.',1.000,'1.4.2'],
-  ['1.5','จำนวนข้อร้องเรียนลดลง 10%','ฝวบ.','งานตามนโยบายฯ','ผลส.กบล.(ต2)',47.619,'เม.ย.',1.000,'1.5'],
-  ['1.6','ความครบถ้วนเอกสารปิดข้อร้องเรียน PEA-VOC','ฝวบ.','งานตามนโยบายฯ','ผลส.กบล.(ต2)',100.000,'เม.ย.',5.000,'1.6'],
-  ['1.7','ความสำเร็จการยกระดับความปลอดภัยมาตรฐานสากล','ฝวบ.','งานตามนโยบายฯ','ผปอ.กวว.(ต2)',99.980,'เม.ย.',5.000,'1.7'],
-  ['1.8','ค่าดัชนีการประสบอุบัติภัย (√DI)','ฝวบ.','งานตามนโยบายฯ','ผปอ.กวว.(ต2)',0.0018,'เม.ย.',5.000,'1.8'],
-  ['1.9','ตรวจสอบหม้อแปลง OPSAonGIS แรงดันต่ำ/โหลดเกิน','ฝวบ.','งานตามนโยบายฯ','ผปร.กวว.(ต2)',100.000,'มี.ค.',5.000,'1.9'],
-  ['1.10','SAIFI เทศบาลนคร','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',1.440,'เม.ย.',3.221,'1.10'],
-  ['1.11','SAIDI เทศบาลนคร','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',72.220,'เม.ย.',3.609,'1.11'],
-  ['1.12','SAIFI จ.ภูเก็ต (เทศบาลนครภูเก็ต)','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',0.210,'เม.ย.',5.000,'1.12'],
-  ['1.13','SAIDI จ.ภูเก็ต (เทศบาลนครภูเก็ต)','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',8.950,'เม.ย.',5.000,'1.13'],
-  ['1.14','SAIFI ภาพรวม','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',1.860,'เม.ย.',5.000,'1.14'],
-  ['1.15','SAIDI ภาพรวม','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',66.950,'เม.ย.',5.000,'1.15'],
-  ['1.16','SAIFI 4 กฟฟ.จุดรวมงานที่มากสุด','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',2.390,'เม.ย.',5.000,'1.16'],
-  ['1.17','SAIDI 4 กฟฟ.จุดรวมงานที่มากสุด','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',94.910,'เม.ย.',5.000,'1.17'],
-  ['1.18','PM/CM ratio ที่เพิ่มขึ้น','ฝปบ.','งานตามนโยบายฯ','ผบร.กบษ.(ต2)',6.990,'พ.ค.',5.000,'1.18'],
-  ['1.19.1','OMS/GIS ปรับปรุงฐานข้อมูล ≥1 ครั้ง/เดือน','ฝวบ.','งานตามนโยบายฯ','ผผร.กวว.(ต2)',100.000,'เม.ย.',5.000,'1.19.1'],
-  ['1.19.2','OMS กรณีไฟดับ บริหารเหตุการณ์ภายใน 1 ชม.','ฝปบ.','งานตามนโยบายฯ','ผคฟ.กปบ.(ต2)',97.670,'พ.ค.',5.000,'1.19.2'],
-  ['1.19.3','OMS กรณีแผนดับไฟ แจ้งล่วงหน้า 3 วันทำการ','ฝปบ.','งานตามนโยบายฯ','ผคฟ.กปบ.(ต2)',97.770,'พ.ค.',5.000,'1.19.3'],
-  ['1.20.1','เบิกจ่ายงบลงทุน ภาพรวม (ประเมินสิ้นปี)','ฝสบ.','งานตามนโยบายฯ','ผงป.กบฟ.(ต2)',null,'ยังไม่พร้อมรายงาน',null,'1.20.1'],
-  ['1.20.2','เบิกจ่ายงบลงทุน ตามแผน','ฝสบ.','งานตามนโยบายฯ','ผงป.กบฟ.(ต2)',134.260,'เม.ย.',5.000,'1.20.2'],
-  ['1.20.3','เบิกจ่ายงบลงทุน รผก.(ต) รับผิดชอบหลัก','ฝสบ.','งานตามนโยบายฯ','ผงป.กบฟ.(ต2)',109.040,'เม.ย.',5.000,'1.20.3'],
-  ['1.21','เร่งรัดลูกหนี้ค่าไฟฟ้าค้างชำระ','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',99.980,'เม.ย.',4.990,'1.21'],
-  ['1.22.1-1','ลูกหนี้หลังงดจ่ายไฟ เอกชนรายย่อย ก่อนปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000,'1.22.1-1'],
-  ['1.22.1-2','ลูกหนี้หลังงดจ่ายไฟ เอกชนรายย่อย ปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000,'1.22.1-2'],
-  ['1.22.2','ลูกหนี้หลังงดจ่ายไฟ เอกชนรายใหญ่ ก่อนปี 2569','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000,'1.22.2'],
-  ['1.22.3','ลูกหนี้หลังงดจ่ายไฟ มูลค่า เอกชนรายใหญ่','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000,'1.22.3'],
-  ['1.23.1-1','ลูกหนี้ค้างชำระ เอกชนรายย่อย ก่อนปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000,'1.23.1-1'],
-  ['1.23.1-2','ลูกหนี้ค้างชำระ เอกชนรายย่อย ปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',99.690,'เม.ย.',5.000,'1.23.1-2'],
-  ['1.23.2','ประสิทธิภาพเร่งรัดลูกหนี้ เอกชนรายย่อย','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',3.600,'เม.ย.',5.000,'1.23.2'],
-  ['1.23.3','ลูกหนี้ค้างชำระ เอกชนรายใหญ่ ก่อนปี 2569','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000,'1.23.3'],
-  ['1.23.4','ลูกหนี้ค้างชำระ เอกชนรายใหญ่ บิลปัจจุบัน 2569','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',97.560,'เม.ย.',5.000,'1.23.4'],
-  ['1.23.5-1','ลูกหนี้ค้างชำระ ราชการ ก่อนปี 2567','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',99.000,'เม.ย.',4.950,'1.23.5-1'],
-  ['1.23.5-2','ลูกหนี้ค้างชำระ ราชการ ปี 2567','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',97.470,'เม.ย.',5.000,'1.23.5-2'],
-  ['1.23.5-3','ลูกหนี้ค้างชำระ ราชการ ปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',98.680,'เม.ย.',5.000,'1.23.5-3'],
-  ['1.24.1','ลูกหนี้อื่น (บัญชี 13) ก่อนปี 2569','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',85.380,'เม.ย.',5.000,'1.24.1'],
-  ['1.25','Green Office (PEA Eco Standard)','กสข.','งานตามนโยบายฯ','คณะทำงาน Green Office',null,'ยังไม่พร้อมรายงาน',null,'1.25'],
-  ['1.26','ความสำเร็จสิ่งประดิษฐ์และนวัตกรรม','กสข.','งานตามนโยบายฯ','คณะทำงานนวัตกรรมฯ',null,'ยังไม่พร้อมรายงาน',null,'1.26'],
-  ['1.27','ผลงานและรางวัลที่ได้รับ','กสข.','งานตามนโยบายฯ','กสข.(ต2)',null,'ยังไม่พร้อมรายงาน',null,'1.27'],
-  ['1.28','รักษามาตรฐาน PEA Eco Standards','กสข.','งานตามนโยบายฯ','คณะทำงาน Green Office',null,'ยังไม่พร้อมรายงาน',null,'1.28'],
-  ['1.29','LESS ลดก๊าซเรือนกระจก ปี 2569','กสข.','งานตามนโยบายฯ','คณะทำงาน Green Office',null,'ยังไม่พร้อมรายงาน',null,'1.29'],
-  ['1.30','กฟฟ.ดีเด่น ความก้าวหน้าตามเกณฑ์ ปี 2569','อื่นๆ','งานตามนโยบายฯ','คณะทำงานการไฟฟ้าดีเด่น',null,'ยังไม่พร้อมรายงาน',null,'1.30'],
-  ['1.31','กฟฟ.ดีเด่น สนับสนุนผลดำเนินงาน ทุก กฟฟ.','อื่นๆ','งานตามนโยบายฯ','คณะทำงานการไฟฟ้าดีเด่น',null,'ยังไม่พร้อมรายงาน',null,'1.31'],
-  ['1.32','จำนวนผู้สมัคร PEA e-Bill','ฝวบ.','งานตามนโยบายฯ','คณะทำงาน Core Business',21210,'พ.ค.',1.000,'1.32'],
-  ['2.1','ปิดข้อร้องเรียน PEA VOC ภายใน 10 วัน','ฝวบ.','งานตามหน้าที่ฯ','ผลส.กบล.(ต2)',96.667,'เม.ย.',5.000,'2.1'],
-  ['2.2','ปิดข้อร้องเรียน Vcare ภายใน 15 วัน','ฝวบ.','งานตามหน้าที่ฯ','ผลส.กบล.(ต2)',100.000,'เม.ย.',5.000,'2.2'],
-  ['2.3','ติดต่อผู้ใช้ไฟ ภายใน 5 วัน & Tracking VOC','ฝวบ.','งานตามหน้าที่ฯ','ผลส.กบล.(ต2)',100.000,'เม.ย.',5.000,'2.3'],
-  ['2.4.1','มิเตอร์ชำรุด - ประสิทธิภาพคัดแยก','ฝวบ.','งานตามหน้าที่ฯ','ผมต.กบล.(ต2)',4.590,'เม.ย.',5.000,'2.4.1'],
-  ['2.4.2','มิเตอร์ชำรุด - ประสิทธิภาพขออนุมัติจำหน่าย','ฝวบ.','งานตามหน้าที่ฯ','ผมต.กบล.(ต2)',56.894,'เม.ย.',1.000,'2.4.2'],
-  ['2.5.1','GIS Data Cleansing - ความถูกต้องข้อมูลมิเตอร์','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',99.650,'เม.ย.',5.000,'2.5.1'],
-  ['2.5.2','GIS Data Cleansing - ความถูกต้องข้อมูลหม้อแปลง','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',99.010,'เม.ย.',5.000,'2.5.2'],
-  ['2.5.3','GIS Data Cleansing - ระบบจำหน่ายแรงต่ำ','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',99.780,'เม.ย.',5.000,'2.5.3'],
-  ['2.5.4','GIS Data Cleansing - ระบบจำหน่ายแรงสูง SCADA3','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',100.000,'เม.ย.',5.000,'2.5.4'],
-  ['2.5.5','GIS Data Cleansing - SAP-PS นำเข้า GIS','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',89.200,'เม.ย.',5.000,'2.5.5'],
-  ['2.5.6','GIS Data Cleansing - ตำแหน่งมิเตอร์ vs จดหน่วย','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',99.450,'เม.ย.',5.000,'2.5.6'],
-  ['2.5.7','GIS Data Cleansing - หม้อแปลง Cleansing นำร่อง','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',null,'ยังไม่พร้อมรายงาน',null,'2.5.7'],
-  ['2.6','บริหารจัดการหน่วยสูญเสีย (Loss)','ฝวบ.','งานตามหน้าที่ฯ','ผปร.กวว.(ต2)',6.110,'มี.ค.',5.000,'2.6'],
-  ['2.7','ลดสถิติไฟฟ้าขัดข้องสายส่ง 115 kV','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',-76.866,'เม.ย.',5.000,'2.7'],
-  ['2.8','SAIFI ระบบจำหน่ายแรงต่ำ','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',0.164,'เม.ย.',5.000,'2.8'],
-  ['2.9','SAIDI ระบบจำหน่ายแรงต่ำ','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',8.458,'เม.ย.',5.000,'2.9'],
-  ['2.10.1','ยกระดับความมั่นคง - ฟีดเดอร์อ่อนแอที่สุด','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',99.510,'เม.ย.',4.902,'2.10.1'],
-  ['2.10.2','ยกระดับความมั่นคง - พื้นที่นิคมอุตสาหกรรม','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',-90.000,'เม.ย.',5.000,'2.10.2'],
-  ['2.11','ลด CB & Recloser Trip ลง 3%','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',1.390,'เม.ย.',1.000,'2.11'],
-  ['2.12.1','MJM & MFO - ระบบสายส่ง','ฝปบ.','งานตามหน้าที่ฯ','ผบส.กบษ.(ต2)',5.000,'เม.ย.',5.000,'2.12.1'],
-  ['2.12.2','MJM & MFO - ระบบจำหน่ายแรงสูง','ฝปบ.','งานตามหน้าที่ฯ','ผบร.กบษ.(ต2)',5.000,'พ.ค.',5.000,'2.12.2'],
-  ['2.12.3','MJM & MFO - ระบบจำหน่ายแรงต่ำ','ฝปบ.','งานตามหน้าที่ฯ','ผบร.กบษ.(ต2)',5.000,'พ.ค.',5.000,'2.12.3'],
-  ['2.13.1','งานตัดต้นไม้ - ระบบสายส่ง','ฝปบ.','งานตามหน้าที่ฯ','ผบส.กบษ.(ต2)',5.000,'มี.ค.',5.000,'2.13.1'],
-  ['2.13.2','งานตัดต้นไม้ - ระบบจำหน่ายแรงสูง','ฝปบ.','งานตามหน้าที่ฯ','ผบร.กบษ.(ต2)',5.000,'เม.ย.',5.000,'2.13.2'],
-  ['2.14.1','หม้อแปลงชำรุด - ประสิทธิภาพคัดแยก','ฝปบ.','งานตามหน้าที่ฯ','ผมร.กบษ.(ต2)',5.000,'เม.ย.',5.000,'2.14.1'],
-  ['2.14.2','หม้อแปลงชำรุด - บริหารจัดการคงคลัง','ฝปบ.','งานตามหน้าที่ฯ','ผมร.กบษ.(ต2)',5.000,'เม.ย.',5.000,'2.14.2'],
-  ['2.15','บำรุงรักษาหม้อแปลงเต็มรูปแบบ','ฝปบ.','งานตามหน้าที่ฯ','ผมร.กบษ.(ต2)',100.000,'เม.ย.',5.000,'2.15'],
-  ['2.16','ลดเหตุการณ์ผิดปกติในระบบ OMS','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',0.000,'เม.ย.',5.000,'2.16'],
-  ['2.17','ลดเหตุการณ์ OU คงค้างในระบบ OMS','ฝปบ.','งานตามหน้าที่ฯ','ผคฟ.กปบ.(ต2)',0.000,'พ.ค.',5.000,'2.17'],
-  ['2.18','SCADA %Online','ฝปบ.','งานตามหน้าที่ฯ','ผจศ.กปบ.(ต2)',93.000,'เม.ย.',5.000,'2.18'],
-  ['2.19','SCADA %Command Success','ฝปบ.','งานตามหน้าที่ฯ','ผจศ.กปบ.(ต2)',94.000,'เม.ย.',4.800,'2.19'],
-  ['2.20','ซ่อมแซม SCADA ลดอุปกรณ์ค้างซ่อม','ฝปบ.','งานตามหน้าที่ฯ','ผบอ.กบษ.(ต2)',35.000,'เม.ย.',5.000,'2.20'],
-  ['2.21','บริหารค่าใช้จ่ายดำเนินงาน','ฝสบ.','งานตามหน้าที่ฯ','ผงป.กบฟ.(ต2)',50.990,'เม.ย.',5.000,'2.21'],
-  ['2.22','บริหารค่าใช้จ่ายที่ควบคุมได้ 7 ประเภท','ฝสบ.','งานตามหน้าที่ฯ','ผงป.กบฟ.(ต2)',33.940,'เม.ย.',5.000,'2.22'],
-  ['2.23','สัญญาซื้อขายไฟฟ้า เอกชนรายใหญ่ (ก่อนปี 2569)','ฝสบ.','งานตามหน้าที่ฯ','ผขฟ.กบฟ.(ต2)',100.000,'เม.ย.',5.000,'2.23'],
-  ['2.24','สัญญาซื้อขายไฟฟ้า เอกชนรายใหญ่ (ปี 2569)','ฝสบ.','งานตามหน้าที่ฯ','ผขฟ.กบฟ.(ต2)',100.000,'เม.ย.',5.000,'2.24'],
-  ['2.25','หลักประกันการใช้ไฟ เอกชนรายใหญ่','ฝสบ.','งานตามหน้าที่ฯ','ผขฟ.กบฟ.(ต2)',100.000,'เม.ย.',5.000,'2.25'],
-  ['2.26','ปิดงาน WMS ธุรกิจเกี่ยวเนื่อง/ซ่อมบำรุง','ฝสบ.','งานตามหน้าที่ฯ','ผปว.กบฟ.(ต2)',97.710,'เม.ย.',5.000,'2.26'],
-  ['2.27','ควบคุมต้นทุน C02.2','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',30.750,'เม.ย.',5.000,'2.27'],
-  ['2.28.1','ปิดงานก่อสร้างก่อนปี 2569 - งบผู้ใช้ไฟ 100%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',38.370,'มี.ค.',5.000,'2.28.1'],
-  ['2.28.2','ปิดงานก่อสร้างก่อนปี 2569 - งบลงทุน 80%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',37.430,'มี.ค.',5.000,'2.28.2'],
-  ['2.29.1','ปิดงานก่อสร้างปี 2569 Q1-2 - งบผู้ใช้ไฟ 70%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',6.760,'มี.ค.',5.000,'2.29.1'],
-  ['2.29.2','ปิดงานก่อสร้างปี 2569 Q1-2 - งบลงทุน 50%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',5.200,'มี.ค.',5.000,'2.29.2'],
-  ['2.30','ปิดงาน C02.2 รับชำระก่อน มิ.ย. 2569','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',37.090,'มี.ค.',5.000,'2.30'],
-  ['2.31','Time Confirm ZW01/ZW02','ฝสบ.','งานตามหน้าที่ฯ','ผปว.กบฟ.(ต2)',96.540,'เม.ย.',5.000,'2.31'],
+/* TARGET LEVELS per KPI code — เป้าหมายระดับ 1-5 */
+const TARGETS={
+  '1.1':{1:150,2:170,3:190,4:210,5:230,unit:'ล้านบาท'},
+  '1.3.1':{1:90,2:93,3:95,4:97,5:99,unit:'%'},
+  '1.3.2':{1:90,2:93,3:95,4:97,5:99,unit:'%'},
+  '1.4.1':{1:5,2:10,3:15,4:20,5:25,unit:'%'},
+  '1.5':{1:null,2:null,3:null,4:null,5:null,unit:'%',note:'ลดลง 10%'},
+  '1.6':{1:80,2:85,3:90,4:95,5:100,unit:'%'},
+  '1.7':{1:80,2:85,3:90,4:95,5:100,unit:'%'},
+  '1.8':{1:null,2:null,3:null,4:null,5:null,unit:'√DI',note:'≤เกณฑ์'},
+  '1.10':{1:3.5,2:3.0,3:2.5,4:2.0,5:1.5,unit:'ครั้ง'},
+  '1.11':{1:200,2:180,3:160,4:140,5:120,unit:'นาที'},
+  '2.1':{1:70,2:80,3:85,4:90,5:95,unit:'%'},
+  '2.4.1':{1:2,2:3,3:4,4:5,5:6,unit:'%'},
+  '2.4.2':{1:30,2:40,3:50,4:60,5:70,unit:'%'},
+  '2.18':{1:75,2:80,3:85,4:88,5:92,unit:'%'},
+  '2.19':{1:75,2:80,3:85,4:88,5:92,unit:'%'},
+};
+
+/* MONTHLY DATA — ผลการดำเนินงานรายเดือน (คะแนน) */
+const MONTHLY_SCORES={
+  '1.1':{mar:4.596},
+  '1.3.1':{jan:3.8,feb:4.0,mar:4.1,apr:4.121},
+  '1.3.2':{jan:4.1,feb:4.2,mar:4.25,apr:4.332},
+  '1.4.1':{jan:3.5,feb:4.0,mar:4.631},
+  '1.4.2':{jan:1.0,feb:1.0,mar:1.000},
+  '1.5':{jan:3.0,feb:2.0,mar:1.5,apr:1.000},
+  '1.6':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.7':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.8':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.9':{mar:5.000},
+  '1.10':{jan:3.5,feb:3.3,mar:3.2,apr:3.221},
+  '1.11':{jan:3.8,feb:3.7,mar:3.65,apr:3.609},
+  '1.12':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.13':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.14':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.15':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.18':{jan:5.0,feb:5.0,mar:5.0,apr:5.0,may:5.000},
+  '1.19.1':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.19.2':{jan:5.0,feb:5.0,mar:5.0,apr:5.0,may:5.000},
+  '1.19.3':{jan:5.0,feb:5.0,mar:5.0,apr:5.0,may:5.000},
+  '1.20.2':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.20.3':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '1.21':{jan:4.9,feb:4.95,mar:4.97,apr:4.990},
+  '1.32':{apr:3.0,may:1.000},
+  '2.1':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '2.4.1':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '2.4.2':{jan:1.0,feb:1.0,mar:1.0,apr:1.000},
+  '2.6':{jan:5.0,feb:5.0,mar:5.000},
+  '2.7':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '2.10.1':{jan:5.0,feb:4.95,mar:4.9,apr:4.902},
+  '2.11':{jan:3.0,feb:2.0,mar:1.5,apr:1.000},
+  '2.18':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+  '2.19':{jan:4.8,feb:4.8,mar:4.8,apr:4.800},
+  '2.21':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
+};
+
+/* ORG LIST — หน่วยงาน กฟส./กฟจ. ที่รับผิดชอบ KPI */
+const ORG_LIST=[
+  'ภาพรวม กฟต.2','กฟจ.กระบี่','กฟจ.ภูเก็ต','กฟจ.สุราษฎร์ธานี','กฟจ.นครศรีธรรมราช',
+  'กฟจ.ตรัง','กฟจ.พังงา','กฟจ.ชุมพร','กฟจ.ระนอง','กฟจ.สงขลา','กฟจ.ยะลา','กฟจ.ปัตตานี',
+  'กฟจ.นราธิวาส','กฟจ.พัทลุง','กฟจ.สตูล',
+  'กฟส.อ่าวลึก','กฟส.เกาะสมุย','กฟส.เกาะพะงัน','กฟส.เกาะลันตา',
+  'กฟส.ทับปุด','กฟส.เกาะยาว','กฟส.คุระบุรี'
 ];
 
-let allData=[],filteredData=[],tableData=[];
-let currentTab='all',sortKey=null,sortDir=1;
+/* KPI assigned by ORG — mapping org → relevant KPI codes */
+const ORG_KPI_MAP={
+  'กฟส.อ่าวลึก':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.9','1.18','1.19.1','2.1','2.2','2.3','2.4.1','2.4.2','2.5.1','2.5.2','2.5.3','2.5.4','2.5.5','2.5.6','2.6','2.8','2.9','2.10.1','2.15','2.21','2.22'],
+  'กฟส.เกาะสมุย':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','2.1','2.2','2.3','2.4.1','2.8','2.9','2.15','2.21'],
+  'กฟจ.ภูเก็ต':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','1.12','1.13','1.14','1.15','1.19.1','2.1','2.2','2.3','2.4.1','2.5.1','2.5.2','2.6','2.7','2.8','2.9','2.12.1','2.12.2','2.13.1','2.13.2','2.14.1','2.15','2.18','2.19'],
+  'กฟจ.สุราษฎร์ธานี':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','1.19.1','2.1','2.2','2.3','2.4.1','2.5.1','2.6','2.7','2.8','2.9','2.15','2.18'],
+  'กฟจ.นครศรีธรรมราช':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','2.1','2.2','2.3','2.6','2.7','2.8','2.9','2.15'],
+  'กฟจ.กระบี่':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.19.1','2.1','2.2','2.3','2.4.1','2.5.1','2.6','2.8','2.9','2.15','2.21'],
+  'กฟจ.ตรัง':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','2.1','2.2','2.3','2.6','2.8','2.9','2.15'],
+};
+
+/* FALLBACK DATA */
+const FB=[
+  ['1.1','ความสามารถในการหารายได้การให้บริการธุรกิจเกี่ยวเนื่อง','ฝวบ.','งานตามนโยบายฯ','คณะทำงานธุรกิจเกี่ยวเนื่องฯ',216.852,'มี.ค.',4.596],
+  ['1.2.1','ความสำเร็จในการจัดระเบียบสายสื่อสาร (คอนสื่อสาร ปี 2568)','ฝวบ.','งานตามนโยบายฯ','ผธท.กบล.(ต2)',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.2.2','ความสำเร็จในการจัดระเบียบสายสื่อสาร (คอนสื่อสาร ปี 2569)','ฝวบ.','งานตามนโยบายฯ','ผธท.กบล.(ต2)',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.2.3','ความสำเร็จในการจัดระเบียบสายสื่อสาร (จัดระเบียบ ปี 2569)','ฝวบ.','งานตามนโยบายฯ','ผธท.กบล.(ต2)',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.3.1','ยกระดับบริการขอใช้ไฟฟ้า ≤30A ในเขต 2 วันทำการ','ฝวบ.','งานตามนโยบายฯ','ผบธ.กบล.(ต2)',98.681,'เม.ย.',4.121],
+  ['1.3.2','ยกระดับบริการขอใช้ไฟฟ้า ≤30A นอกเขต 5 วันทำการ','ฝวบ.','งานตามนโยบายฯ','ผบธ.กบล.(ต2)',98.330,'เม.ย.',4.332],
+  ['1.4.1','Solar Rooftop - การให้บริการติดตั้ง','ฝวบ.','งานตามนโยบายฯ','ผบว.กบล.(ต2)',20.710,'มี.ค.',4.631],
+  ['1.4.2','Solar Rooftop - กรณี กฟภ. ติดตั้งเอง','ฝวบ.','งานตามนโยบายฯ','ผบว.กบล.(ต2)',0.293,'มี.ค.',1.000],
+  ['1.5','จำนวนข้อร้องเรียนลดลง 10%','ฝวบ.','งานตามนโยบายฯ','ผลส.กบล.(ต2)',47.619,'เม.ย.',1.000],
+  ['1.6','ความครบถ้วนเอกสารปิดข้อร้องเรียน PEA-VOC','ฝวบ.','งานตามนโยบายฯ','ผลส.กบล.(ต2)',100.000,'เม.ย.',5.000],
+  ['1.7','ความสำเร็จการยกระดับความปลอดภัยมาตรฐานสากล','ฝวบ.','งานตามนโยบายฯ','ผปอ.กวว.(ต2)',99.980,'เม.ย.',5.000],
+  ['1.8','ค่าดัชนีการประสบอุบัติภัย (√DI)','ฝวบ.','งานตามนโยบายฯ','ผปอ.กวว.(ต2)',0.0018,'เม.ย.',5.000],
+  ['1.9','ตรวจสอบหม้อแปลง OPSAonGIS แรงดันต่ำ/โหลดเกิน','ฝวบ.','งานตามนโยบายฯ','ผปร.กวว.(ต2)',100.000,'มี.ค.',5.000],
+  ['1.10','SAIFI เทศบาลนคร','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',1.440,'เม.ย.',3.221],
+  ['1.11','SAIDI เทศบาลนคร','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',72.220,'เม.ย.',3.609],
+  ['1.12','SAIFI จ.ภูเก็ต','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',0.210,'เม.ย.',5.000],
+  ['1.13','SAIDI จ.ภูเก็ต','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',8.950,'เม.ย.',5.000],
+  ['1.14','SAIFI ภาพรวม','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',1.860,'เม.ย.',5.000],
+  ['1.15','SAIDI ภาพรวม','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',66.950,'เม.ย.',5.000],
+  ['1.16','SAIFI 4 กฟฟ.จุดรวมงานที่มากสุด','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',2.390,'เม.ย.',5.000],
+  ['1.17','SAIDI 4 กฟฟ.จุดรวมงานที่มากสุด','ฝปบ.','งานตามนโยบายฯ','ผวฟ.กปบ.(ต2)',94.910,'เม.ย.',5.000],
+  ['1.18','PM/CM ratio','ฝปบ.','งานตามนโยบายฯ','ผบร.กบษ.(ต2)',6.990,'พ.ค.',5.000],
+  ['1.19.1','OMS/GIS ปรับปรุงฐานข้อมูล ≥1 ครั้ง/เดือน','ฝวบ.','งานตามนโยบายฯ','ผผร.กวว.(ต2)',100.000,'เม.ย.',5.000],
+  ['1.19.2','OMS กรณีไฟดับ บริหารภายใน 1 ชม.','ฝปบ.','งานตามนโยบายฯ','ผคฟ.กปบ.(ต2)',97.670,'พ.ค.',5.000],
+  ['1.19.3','OMS กรณีแผนดับไฟ แจ้งล่วงหน้า 3 วัน','ฝปบ.','งานตามนโยบายฯ','ผคฟ.กปบ.(ต2)',97.770,'พ.ค.',5.000],
+  ['1.20.1','เบิกจ่ายงบลงทุน ภาพรวม (สิ้นปี)','ฝสบ.','งานตามนโยบายฯ','ผงป.กบฟ.(ต2)',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.20.2','เบิกจ่ายงบลงทุน ตามแผน','ฝสบ.','งานตามนโยบายฯ','ผงป.กบฟ.(ต2)',134.260,'เม.ย.',5.000],
+  ['1.20.3','เบิกจ่ายงบลงทุน รผก.(ต)','ฝสบ.','งานตามนโยบายฯ','ผงป.กบฟ.(ต2)',109.040,'เม.ย.',5.000],
+  ['1.21','เร่งรัดลูกหนี้ค่าไฟฟ้าค้างชำระ','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',99.980,'เม.ย.',4.990],
+  ['1.22.1-1','ลูกหนี้หลังงดจ่ายไฟ เอกชนรายย่อย ก่อนปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000],
+  ['1.22.1-2','ลูกหนี้หลังงดจ่ายไฟ เอกชนรายย่อย ปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000],
+  ['1.22.2','ลูกหนี้หลังงดจ่ายไฟ เอกชนรายใหญ่ ก่อนปี 2569','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000],
+  ['1.22.3','ลูกหนี้หลังงดจ่ายไฟ มูลค่า เอกชนรายใหญ่','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000],
+  ['1.23.1-1','ลูกหนี้ค้างชำระ เอกชนรายย่อย ก่อนปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000],
+  ['1.23.1-2','ลูกหนี้ค้างชำระ เอกชนรายย่อย ปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',99.690,'เม.ย.',5.000],
+  ['1.23.2','ประสิทธิภาพเร่งรัดลูกหนี้ เอกชนรายย่อย','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',3.600,'เม.ย.',5.000],
+  ['1.23.3','ลูกหนี้ค้างชำระ เอกชนรายใหญ่ ก่อนปี 2569','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',100.000,'เม.ย.',5.000],
+  ['1.23.4','ลูกหนี้ค้างชำระ เอกชนรายใหญ่ บิลปัจจุบัน','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',97.560,'เม.ย.',5.000],
+  ['1.23.5-1','ลูกหนี้ค้างชำระ ราชการ ก่อนปี 2567','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',99.000,'เม.ย.',4.950],
+  ['1.23.5-2','ลูกหนี้ค้างชำระ ราชการ ปี 2567','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',97.470,'เม.ย.',5.000],
+  ['1.23.5-3','ลูกหนี้ค้างชำระ ราชการ ปี 2568','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',98.680,'เม.ย.',5.000],
+  ['1.24.1','ลูกหนี้อื่น (บัญชี 13)','ฝสบ.','งานตามนโยบายฯ','ผบน.กบฟ.(ต2)',85.380,'เม.ย.',5.000],
+  ['1.25','Green Office (PEA Eco Standard)','กสข.','งานตามนโยบายฯ','คณะทำงาน Green Office',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.26','ความสำเร็จสิ่งประดิษฐ์และนวัตกรรม','กสข.','งานตามนโยบายฯ','คณะทำงานนวัตกรรมฯ',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.27','ผลงานและรางวัลที่ได้รับ','กสข.','งานตามนโยบายฯ','กสข.(ต2)',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.28','รักษามาตรฐาน PEA Eco Standards','กสข.','งานตามนโยบายฯ','คณะทำงาน Green Office',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.29','LESS ลดก๊าซเรือนกระจก ปี 2569','กสข.','งานตามนโยบายฯ','คณะทำงาน Green Office',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.30','กฟฟ.ดีเด่น ความก้าวหน้า ปี 2569','อื่นๆ','งานตามนโยบายฯ','คณะทำงานการไฟฟ้าดีเด่น',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.31','กฟฟ.ดีเด่น สนับสนุนผลดำเนินงาน','อื่นๆ','งานตามนโยบายฯ','คณะทำงานการไฟฟ้าดีเด่น',null,'ยังไม่พร้อมรายงาน',null],
+  ['1.32','จำนวนผู้สมัคร PEA e-Bill','ฝวบ.','งานตามนโยบายฯ','คณะทำงาน Core Business',21210,'พ.ค.',1.000],
+  ['2.1','ปิดข้อร้องเรียน PEA VOC ภายใน 10 วัน','ฝวบ.','งานตามหน้าที่ฯ','ผลส.กบล.(ต2)',96.667,'เม.ย.',5.000],
+  ['2.2','ปิดข้อร้องเรียน Vcare ภายใน 15 วัน','ฝวบ.','งานตามหน้าที่ฯ','ผลส.กบล.(ต2)',100.000,'เม.ย.',5.000],
+  ['2.3','ติดต่อผู้ใช้ไฟ ภายใน 5 วัน','ฝวบ.','งานตามหน้าที่ฯ','ผลส.กบล.(ต2)',100.000,'เม.ย.',5.000],
+  ['2.4.1','มิเตอร์ชำรุด - คัดแยก','ฝวบ.','งานตามหน้าที่ฯ','ผมต.กบล.(ต2)',4.590,'เม.ย.',5.000],
+  ['2.4.2','มิเตอร์ชำรุด - ขออนุมัติจำหน่าย','ฝวบ.','งานตามหน้าที่ฯ','ผมต.กบล.(ต2)',56.894,'เม.ย.',1.000],
+  ['2.5.1','GIS - ความถูกต้องมิเตอร์','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',99.650,'เม.ย.',5.000],
+  ['2.5.2','GIS - ความถูกต้องหม้อแปลง','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',99.010,'เม.ย.',5.000],
+  ['2.5.3','GIS - ระบบจำหน่ายแรงต่ำ','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',99.780,'เม.ย.',5.000],
+  ['2.5.4','GIS - ระบบจำหน่ายแรงสูง SCADA3','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',100.000,'เม.ย.',5.000],
+  ['2.5.5','GIS - SAP-PS นำเข้า GIS','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',89.200,'เม.ย.',5.000],
+  ['2.5.6','GIS - ตำแหน่งมิเตอร์ vs จดหน่วย','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',99.450,'เม.ย.',5.000],
+  ['2.5.7','GIS - หม้อแปลง Cleansing นำร่อง','ฝวบ.','งานตามหน้าที่ฯ','ผผร.กวว.(ต2)',null,'ยังไม่พร้อมรายงาน',null],
+  ['2.6','บริหารจัดการหน่วยสูญเสีย (Loss)','ฝวบ.','งานตามหน้าที่ฯ','ผปร.กวว.(ต2)',6.110,'มี.ค.',5.000],
+  ['2.7','ลดสถิติไฟฟ้าขัดข้องสายส่ง 115 kV','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',-76.866,'เม.ย.',5.000],
+  ['2.8','SAIFI ระบบจำหน่ายแรงต่ำ','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',0.164,'เม.ย.',5.000],
+  ['2.9','SAIDI ระบบจำหน่ายแรงต่ำ','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',8.458,'เม.ย.',5.000],
+  ['2.10.1','ยกระดับความมั่นคง - ฟีดเดอร์อ่อนแอ','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',99.510,'เม.ย.',4.902],
+  ['2.10.2','ยกระดับความมั่นคง - นิคมอุตสาหกรรม','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',-90.000,'เม.ย.',5.000],
+  ['2.11','ลด CB & Recloser Trip ลง 3%','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',1.390,'เม.ย.',1.000],
+  ['2.12.1','MJM & MFO - ระบบสายส่ง','ฝปบ.','งานตามหน้าที่ฯ','ผบส.กบษ.(ต2)',5.000,'เม.ย.',5.000],
+  ['2.12.2','MJM & MFO - ระบบจำหน่ายแรงสูง','ฝปบ.','งานตามหน้าที่ฯ','ผบร.กบษ.(ต2)',5.000,'พ.ค.',5.000],
+  ['2.12.3','MJM & MFO - ระบบจำหน่ายแรงต่ำ','ฝปบ.','งานตามหน้าที่ฯ','ผบร.กบษ.(ต2)',5.000,'พ.ค.',5.000],
+  ['2.13.1','งานตัดต้นไม้ - ระบบสายส่ง','ฝปบ.','งานตามหน้าที่ฯ','ผบส.กบษ.(ต2)',5.000,'มี.ค.',5.000],
+  ['2.13.2','งานตัดต้นไม้ - ระบบจำหน่ายแรงสูง','ฝปบ.','งานตามหน้าที่ฯ','ผบร.กบษ.(ต2)',5.000,'เม.ย.',5.000],
+  ['2.14.1','หม้อแปลงชำรุด - คัดแยก','ฝปบ.','งานตามหน้าที่ฯ','ผมร.กบษ.(ต2)',5.000,'เม.ย.',5.000],
+  ['2.14.2','หม้อแปลงชำรุด - คงคลัง','ฝปบ.','งานตามหน้าที่ฯ','ผมร.กบษ.(ต2)',5.000,'เม.ย.',5.000],
+  ['2.15','บำรุงรักษาหม้อแปลงเต็มรูปแบบ','ฝปบ.','งานตามหน้าที่ฯ','ผมร.กบษ.(ต2)',100.000,'เม.ย.',5.000],
+  ['2.16','ลดเหตุการณ์ผิดปกติในระบบ OMS','ฝปบ.','งานตามหน้าที่ฯ','ผวฟ.กปบ.(ต2)',0.000,'เม.ย.',5.000],
+  ['2.17','ลดเหตุการณ์ OU คงค้าง OMS','ฝปบ.','งานตามหน้าที่ฯ','ผคฟ.กปบ.(ต2)',0.000,'พ.ค.',5.000],
+  ['2.18','SCADA %Online','ฝปบ.','งานตามหน้าที่ฯ','ผจศ.กปบ.(ต2)',93.000,'เม.ย.',5.000],
+  ['2.19','SCADA %Command Success','ฝปบ.','งานตามหน้าที่ฯ','ผจศ.กปบ.(ต2)',94.000,'เม.ย.',4.800],
+  ['2.20','ซ่อมแซม SCADA ลดอุปกรณ์ค้างซ่อม','ฝปบ.','งานตามหน้าที่ฯ','ผบอ.กบษ.(ต2)',35.000,'เม.ย.',5.000],
+  ['2.21','บริหารค่าใช้จ่ายดำเนินงาน','ฝสบ.','งานตามหน้าที่ฯ','ผงป.กบฟ.(ต2)',50.990,'เม.ย.',5.000],
+  ['2.22','บริหารค่าใช้จ่ายควบคุมได้ 7 ประเภท','ฝสบ.','งานตามหน้าที่ฯ','ผงป.กบฟ.(ต2)',33.940,'เม.ย.',5.000],
+  ['2.23','สัญญาซื้อขายไฟฟ้า เอกชนรายใหญ่ (ก่อนปี 2569)','ฝสบ.','งานตามหน้าที่ฯ','ผขฟ.กบฟ.(ต2)',100.000,'เม.ย.',5.000],
+  ['2.24','สัญญาซื้อขายไฟฟ้า เอกชนรายใหญ่ (ปี 2569)','ฝสบ.','งานตามหน้าที่ฯ','ผขฟ.กบฟ.(ต2)',100.000,'เม.ย.',5.000],
+  ['2.25','หลักประกันการใช้ไฟ เอกชนรายใหญ่','ฝสบ.','งานตามหน้าที่ฯ','ผขฟ.กบฟ.(ต2)',100.000,'เม.ย.',5.000],
+  ['2.26','ปิดงาน WMS ธุรกิจเกี่ยวเนื่อง','ฝสบ.','งานตามหน้าที่ฯ','ผปว.กบฟ.(ต2)',97.710,'เม.ย.',5.000],
+  ['2.27','ควบคุมต้นทุน C02.2','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',30.750,'เม.ย.',5.000],
+  ['2.28.1','ปิดงานก่อสร้างก่อนปี 2569 - งบผู้ใช้ไฟ 100%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',38.370,'มี.ค.',5.000],
+  ['2.28.2','ปิดงานก่อสร้างก่อนปี 2569 - งบลงทุน 80%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',37.430,'มี.ค.',5.000],
+  ['2.29.1','ปิดงานก่อสร้างปี 2569 Q1-2 - งบผู้ใช้ไฟ 70%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',6.760,'มี.ค.',5.000],
+  ['2.29.2','ปิดงานก่อสร้างปี 2569 Q1-2 - งบลงทุน 50%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',5.200,'มี.ค.',5.000],
+  ['2.30','ปิดงาน C02.2 รับชำระก่อน มิ.ย. 2569','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',37.090,'มี.ค.',5.000],
+  ['2.31','Time Confirm ZW01/ZW02','ฝสบ.','งานตามหน้าที่ฯ','ผปว.กบฟ.(ต2)',96.540,'เม.ย.',5.000],
+];
+
+/* STATE */
+let allData=[],fData=[],tData=[];
+let curTab='all',sKey=null,sDir=1,curOrg='all';
 let charts={};
 
-function parseFallback(){
-  return FALLBACK.map(r=>({code:r[0],name:r[1],dept:r[2],group:r[3],responsible:r[4],result:r[5],status:r[6],score:r[7],kpiRef:r[8]}));
+function parseFB(){
+  return FB.map(r=>({code:r[0],name:r[1],dept:r[2],group:r[3],responsible:r[4],result:r[5],status:r[6],score:r[7],monthly:MONTHLY_SCORES[r[0]]||{},targets:TARGETS[r[0]]||null}));
 }
 
 async function loadData(){
-  const btn=document.getElementById('refreshBtn');
+  const btn=document.getElementById('rbtn');
   btn.classList.add('loading');btn.disabled=true;
-  const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SNAME)}&t=${Date.now()}`;
+  const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=Landing%20Page&t=${Date.now()}`;
   try{
     const res=await fetch(url);const txt=await res.text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
@@ -488,7 +619,7 @@ async function loadData(){
     const nd=[];
     rows.slice(2).forEach(row=>{
       const c=row.c;if(!c||!c[0]||!c[0].v)return;
-      const code=String(c[0].v);
+      const code=String(c[0].v).trim();
       const name=c[1]?(c[1].v||''):'';
       const dept=c[2]?(c[2].v||''):'';
       const group=c[3]?(c[3].v||''):'';
@@ -497,267 +628,404 @@ async function loadData(){
       const statusRaw=c[7]?(c[7].v||''):'';
       const status=statusRaw.replace(/[✅🔵✨]/g,'').trim();
       const scoreRaw=c[8]?c[8].v:null;
-      const score=(scoreRaw==='#N/A'||scoreRaw===null||scoreRaw===undefined)?null:parseFloat(scoreRaw);
-      const kpiRef=c[9]?(c[9].v||code):code;
-      if(code&&name)nd.push({code,name,dept,group,responsible,result,status,score,kpiRef});
+      const score=(scoreRaw==='#N/A'||scoreRaw===null)?null:parseFloat(scoreRaw);
+      if(code&&name)nd.push({code,name,dept,group,responsible,result,status,score,monthly:MONTHLY_SCORES[code]||{},targets:TARGETS[code]||null});
     });
-    if(nd.length>0){allData=nd;toast('โหลดจาก Google Sheets สำเร็จ ('+nd.length+' รายการ)','ok');}
+    if(nd.length>0){allData=nd;toast('โหลดจาก Sheets สำเร็จ ('+nd.length+' รายการ)','ok');}
     else throw new Error('empty');
-  }catch(e){allData=parseFallback();toast('ใช้ข้อมูล built-in','err');}
-  const now=new Date();
-  document.getElementById('lastUpdate').textContent=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){allData=parseFB();toast('ใช้ข้อมูล built-in','er');}
+  document.getElementById('upd').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
   btn.classList.remove('loading');btn.disabled=false;
-  applyFilters();renderDeptPage();renderAlertPage();hideLoad();
+  setupOrgFilter();
+  af();renderDept();renderAlert();renderTrendTable();
+  hideLoad();
 }
 
-function applyFilters(){
-  const g=document.getElementById('fGroup').value;
-  const d=document.getElementById('fDept').value;
-  const s=document.getElementById('fStatus').value;
-  const sc=document.getElementById('fScore').value;
-  filteredData=allData.filter(item=>{
+function setupOrgFilter(){
+  const sel=document.getElementById('fO');
+  const prev=sel.value;
+  sel.innerHTML='<option value="all">ภาพรวม กฟต.2</option>';
+  ORG_LIST.forEach(o=>{
+    const opt=document.createElement('option');
+    opt.value=o;opt.textContent=o;
+    sel.appendChild(opt);
+  });
+  if(prev&&[...sel.options].some(o=>o.value===prev))sel.value=prev;
+}
+
+function clearOrg(){
+  document.getElementById('fO').value='all';
+  af();
+}
+
+function af(){
+  const g=document.getElementById('fG').value;
+  const d=document.getElementById('fD').value;
+  const org=document.getElementById('fO').value;
+  const s=document.getElementById('fS').value;
+  const sc=document.getElementById('fSc').value;
+  curOrg=org;
+  const orgKpis=org!=='all'?(ORG_KPI_MAP[org]||null):null;
+
+  const banner=document.getElementById('orgBanner');
+  if(org!=='all'&&orgKpis){
+    document.getElementById('orgBannerName').textContent=org;
+    banner.style.display='flex';
+  }else{banner.style.display='none';}
+
+  fData=allData.filter(item=>{
+    if(orgKpis&&!orgKpis.includes(item.code))return false;
     if(g==='policy'&&!item.group.includes('นโยบาย'))return false;
     if(g==='duty'&&!item.group.includes('หน้าที่'))return false;
     if(d!=='all'&&item.dept!==d)return false;
-    if(s==='reported'&&item.score===null)return false;
-    if(s==='pending'&&item.score!==null)return false;
+    if(s==='rep'&&item.score===null)return false;
+    if(s==='pend'&&item.score!==null)return false;
     if(sc==='5'&&item.score!==5)return false;
     if(sc==='4'&&(item.score===null||item.score<4||item.score>=5))return false;
     if(sc==='3'&&(item.score===null||item.score<3||item.score>=4))return false;
     if(sc==='low'&&(item.score===null||item.score>=3))return false;
     return true;
   });
-  document.getElementById('fCountNum').textContent=filteredData.length;
-  renderMetrics();renderCharts();renderWatchTable();
-  currentTab='all';
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
-  document.querySelector('.tbtn[data-tab="all"]').classList.add('active');
-  tableData=[...filteredData];renderTable();
+  document.getElementById('fcn').textContent=fData.length;
+  rMetrics();rCharts();rWatch();
+  curTab='all';
+  document.querySelectorAll('.tabb').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.tabb[data-t="all"]').classList.add('on');
+  tData=[...fData];rT();
 }
 
-function switchTab(el){
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');currentTab=el.dataset.tab;
-  let d=[...filteredData];
-  if(currentTab==='policy')d=d.filter(x=>x.group.includes('นโยบาย'));
-  if(currentTab==='duty')d=d.filter(x=>x.group.includes('หน้าที่'));
-  if(currentTab==='low')d=d.filter(x=>x.score!==null&&x.score<3);
-  if(currentTab==='pending')d=d.filter(x=>x.score===null);
-  tableData=d;renderTable();
+function sT(el){
+  document.querySelectorAll('.tabb').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');curTab=el.dataset.t;
+  let d=[...fData];
+  if(curTab==='policy')d=d.filter(x=>x.group.includes('นโยบาย'));
+  if(curTab==='duty')d=d.filter(x=>x.group.includes('หน้าที่'));
+  if(curTab==='low')d=d.filter(x=>x.score!==null&&x.score<3);
+  if(curTab==='pend')d=d.filter(x=>x.score===null);
+  tData=d;rT();
 }
 
-function sortTable(key){
-  if(sortKey===key)sortDir*=-1;else{sortKey=key;sortDir=1;}
-  ['code','name','dept','responsible','result','score'].forEach(k=>{const el=document.getElementById('th-'+k);if(el)el.className='';});
-  const th=document.getElementById('th-'+key);if(th)th.className=sortDir===1?'sa':'sd';
-  tableData.sort((a,b)=>{
-    let va=a[key],vb=b[key];
-    if(va===null)va=sortDir===1?Infinity:-Infinity;
-    if(vb===null)vb=sortDir===1?Infinity:-Infinity;
-    if(typeof va==='string')return va.localeCompare(vb,'th')*sortDir;
-    return(va-vb)*sortDir;
-  });renderTable();
+function sSort(k){
+  if(sKey===k)sDir*=-1;else{sKey=k;sDir=1;}
+  ['code','name','dept','resp','res','sc'].forEach(n=>{const e=document.getElementById('th-'+n);if(e)e.className='';});
+  const thMap={code:'th-code',name:'th-name',dept:'th-dept',responsible:'th-resp',result:'th-res',score:'th-sc'};
+  const el=document.getElementById(thMap[k]);if(el)el.className=sDir===1?'sa':'sd';
+  tData.sort((a,b)=>{
+    let va=a[k],vb=b[k];
+    if(va===null)va=sDir===1?Infinity:-Infinity;
+    if(vb===null)vb=sDir===1?Infinity:-Infinity;
+    if(typeof va==='string')return va.localeCompare(vb,'th')*sDir;
+    return(va-vb)*sDir;
+  });rT();
 }
 
-function getPC(score){if(score===null)return'pna';if(score>=5)return'p5';if(score>=4)return'p4';if(score>=3)return'p3';return'p1';}
-function getDC(dept){return{'ฝวบ.':'dfwb','ฝปบ.':'dfpb','ฝสบ.':'dfsb','กสข.':'dgsx'}[dept]||'doth';}
-function getScoreColor(score){if(score===null)return'#6e7681';if(score>=5)return'#3fb884';if(score>=4)return'#388bfd';if(score>=3)return'#d29922';return'#f85149';}
+function getPC(s){if(s===null)return'pna';if(s>=5)return'p5';if(s>=4)return'p4';if(s>=3)return'p3';return'p12';}
+function getDC(d){return{'ฝวบ.':'dfwb','ฝปบ.':'dfpb','ฝสบ.':'dfsb','กสข.':'dgsx'}[d]||'doth';}
+function getSC(s){if(s===null)return'#6e7681';if(s>=5)return'#3fb884';if(s>=4)return'#388bfd';if(s>=3)return'#d29922';return'#f85149';}
 
-function renderMetrics(){
-  const rep=filteredData.filter(d=>d.score!==null);
-  const pend=filteredData.filter(d=>d.score===null);
+function renderTargetRow(tgt,score){
+  if(!tgt)return'—';
+  const levels=[1,2,3,4,5];
+  return'<div class="tgt-row">'+levels.map(lv=>{
+    const val=tgt[lv];
+    const isCur=score!==null&&(lv===Math.min(5,Math.max(1,Math.round(score))));
+    if(val===null){
+      return`<span class="tgt-lv tgt-${lv} ${isCur?'tgt-cur':''}">${lv}</span>`;
+    }
+    return`<span class="tgt-lv tgt-${lv} ${isCur?'tgt-cur':''}">${lv}:${val}${tgt.note?'*':''}</span>`;
+  }).join('')+'</div>';
+}
+
+function renderMonthRow(monthly){
+  if(!monthly||!Object.keys(monthly).length)return'<span style="color:var(--t3);font-size:10px">—</span>';
+  const hasData=MONTH_KEYS.filter(k=>monthly[k]!==undefined);
+  if(!hasData.length)return'<span style="color:var(--t3);font-size:10px">—</span>';
+  const latestKey=hasData[hasData.length-1];
+  return'<div class="mon-grid">'+MONTH_KEYS.map((k,i)=>{
+    const v=monthly[k];
+    const lbl=MONTHS[i];
+    if(v===undefined)return`<div><div class="mon-cell empty">—</div><div class="mon-lbl">${lbl}</div></div>`;
+    const cls=k===latestKey?'latest':'has';
+    return`<div><div class="mon-cell ${cls}" title="${lbl}: ${v.toFixed(3)}">${v.toFixed(2)}</div><div class="mon-lbl">${lbl}</div></div>`;
+  }).join('')+'</div>';
+}
+
+function rMetrics(){
+  const rep=fData.filter(d=>d.score!==null);
+  const pend=fData.filter(d=>d.score===null);
   const avg=rep.length?rep.reduce((s,d)=>s+d.score,0)/rep.length:0;
   const s5=rep.filter(d=>d.score>=5).length;
   const low=rep.filter(d=>d.score<3).length;
-  const rPct=filteredData.length?Math.round(rep.length/filteredData.length*100):0;
+  const rPct=fData.length?Math.round(rep.length/fData.length*100):0;
   const s5Pct=rep.length?Math.round(s5/rep.length*100):0;
-  document.getElementById('metricGrid').innerHTML=`
-    <div class="mcard blue"><div class="mcard-icon">📊</div><div class="mcard-val">${filteredData.length}</div><div class="mcard-lbl">KPI ทั้งหมด</div><div class="mcard-sub">ตัวชี้วัด</div></div>
-    <div class="mcard teal"><div class="mcard-icon">✅</div><div class="mcard-val">${rep.length}</div><div class="mcard-lbl">มีผลแล้ว</div><div class="mcard-sub">${rPct}% ของทั้งหมด</div><div class="pb-wrap"><div class="pb teal" style="width:${rPct}%"></div></div></div>
-    <div class="mcard gray"><div class="mcard-icon">⏳</div><div class="mcard-val">${pend.length}</div><div class="mcard-lbl">ยังไม่รายงาน</div><div class="mcard-sub">${filteredData.length?Math.round(pend.length/filteredData.length*100):0}%</div></div>
-    <div class="mcard teal"><div class="mcard-icon">⭐</div><div class="mcard-val">${avg.toFixed(3)}</div><div class="mcard-lbl">คะแนนเฉลี่ย</div><div class="mcard-sub">จากเต็ม 5.000</div><div class="pb-wrap"><div class="pb teal" style="width:${avg/5*100}%"></div></div></div>
-    <div class="mcard blue"><div class="mcard-icon">🏆</div><div class="mcard-val">${s5}</div><div class="mcard-lbl">ได้คะแนนเต็ม</div><div class="mcard-sub">${s5Pct}% ของที่มีผล</div><div class="pb-wrap"><div class="pb blue" style="width:${s5Pct}%"></div></div></div>
-    <div class="mcard ${low>0?'red':'teal'}"><div class="mcard-icon">${low>0?'⚠️':'👍'}</div><div class="mcard-val">${low}</div><div class="mcard-lbl">คะแนนต่ำกว่า 3</div><div class="mcard-sub">ต้องติดตาม</div></div>
+  document.getElementById('mg').innerHTML=`
+    <div class="mc bl"><div class="mc-i">📊</div><div class="mc-v">${fData.length}</div><div class="mc-l">KPI ทั้งหมด</div><div class="mc-s">ตัวชี้วัด</div></div>
+    <div class="mc tl"><div class="mc-i">✅</div><div class="mc-v">${rep.length}</div><div class="mc-l">มีผลแล้ว</div><div class="mc-s">${rPct}%</div><div class="pb"><div class="pb-f tl" style="width:${rPct}%"></div></div></div>
+    <div class="mc gy"><div class="mc-i">⏳</div><div class="mc-v">${pend.length}</div><div class="mc-l">รอรายงาน</div><div class="mc-s">${fData.length?Math.round(pend.length/fData.length*100):0}%</div></div>
+    <div class="mc tl"><div class="mc-i">⭐</div><div class="mc-v">${avg.toFixed(3)}</div><div class="mc-l">คะแนนเฉลี่ย</div><div class="mc-s">จากเต็ม 5.000</div><div class="pb"><div class="pb-f tl" style="width:${avg/5*100}%"></div></div></div>
+    <div class="mc bl"><div class="mc-i">🏆</div><div class="mc-v">${s5}</div><div class="mc-l">ได้คะแนนเต็ม</div><div class="mc-s">${s5Pct}% ของที่มีผล</div><div class="pb"><div class="pb-f bl" style="width:${s5Pct}%"></div></div></div>
+    <div class="mc ${low>0?'rd':'tl'}"><div class="mc-i">${low>0?'⚠️':'👍'}</div><div class="mc-v">${low}</div><div class="mc-l">คะแนนต่ำกว่า 3</div><div class="mc-s">ต้องติดตาม</div></div>
   `;
 }
 
-function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
-function renderCharts(){
-  const rep=filteredData.filter(d=>d.score!==null);
-  const pend=filteredData.filter(d=>d.score===null);
-  destroyChart('status');
+function dC(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function rCharts(){
+  const rep=fData.filter(d=>d.score!==null);
+  const pend=fData.filter(d=>d.score===null);
+  dC('status');
   charts.status=new Chart(document.getElementById('cStatus'),{
     type:'doughnut',
     data:{labels:['มีผลแล้ว','ยังไม่รายงาน'],datasets:[{data:[rep.length,pend.length],backgroundColor:['#3fb884','#388bfd'],borderWidth:0,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw} รายการ`}}}}
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}
   });
-  document.getElementById('legendStatus').innerHTML=`<div class="clegend-item"><div class="clegend-dot" style="background:#3fb884"></div>มีผลแล้ว (${rep.length})</div><div class="clegend-item"><div class="clegend-dot" style="background:#388bfd"></div>ยังไม่รายงาน (${pend.length})</div>`;
+  document.getElementById('legStatus').innerHTML=`<div class="cleg-i"><div class="cleg-d" style="background:#3fb884"></div>มีผลแล้ว (${rep.length})</div><div class="cleg-i"><div class="cleg-d" style="background:#388bfd"></div>รอรายงาน (${pend.length})</div>`;
   const depts=['ฝวบ.','ฝปบ.','ฝสบ.','กสข.','อื่นๆ'];
-  const davg=depts.map(dep=>{const its=filteredData.filter(x=>x.dept===dep&&x.score!==null);return its.length?parseFloat((its.reduce((s,x)=>s+x.score,0)/its.length).toFixed(3)):0;});
-  destroyChart('dept');
+  const davg=depts.map(dep=>{const its=fData.filter(x=>x.dept===dep&&x.score!==null);return its.length?parseFloat((its.reduce((s,x)=>s+x.score,0)/its.length).toFixed(3)):0;});
+  dC('dept');
   charts.dept=new Chart(document.getElementById('cDept'),{
     type:'bar',
     data:{labels:depts,datasets:[{data:davg,backgroundColor:davg.map(v=>v>=4.5?'#3fb884':v>=3.5?'#388bfd':v>=2.5?'#d29922':'#f85149'),borderWidth:0,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5,ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` คะแนนเฉลี่ย: ${ctx.raw}`}}}}
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5,ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}},plugins:{legend:{display:false}}}
   });
-  const buckets=[0,0,0,0,0];
-  rep.forEach(d=>{if(d.score>=5)buckets[0]++;else if(d.score>=4)buckets[1]++;else if(d.score>=3)buckets[2]++;else if(d.score>=2)buckets[3]++;else buckets[4]++;});
-  destroyChart('dist');
+  const bk=[0,0,0,0,0];
+  rep.forEach(d=>{if(d.score>=5)bk[0]++;else if(d.score>=4)bk[1]++;else if(d.score>=3)bk[2]++;else if(d.score>=2)bk[3]++;else bk[4]++;});
+  dC('dist');
   charts.dist=new Chart(document.getElementById('cDist'),{
     type:'bar',
-    data:{labels:['5.000','4.0–4.9','3.0–3.9','2.0–2.9','1.0–1.9'],datasets:[{data:buckets,backgroundColor:['#3fb884','#388bfd','#d29922','#f85149','#da3633'],borderWidth:0,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{y:{ticks:{color:'#6e7681',font:{size:10},stepSize:5},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#8b949e',font:{size:10}},grid:{display:false}}},plugins:{legend:{display:false}}}
+    data:{labels:['5.000','4–4.9','3–3.9','2–2.9','1–1.9'],datasets:[{data:bk,backgroundColor:['#3fb884','#388bfd','#d29922','#f85149','#da3633'],borderWidth:0,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#8b949e',font:{size:10}},grid:{display:false}}},plugins:{legend:{display:false}}}
   });
 }
 
-function renderWatchTable(){
-  const watchItems=filteredData.filter(d=>(d.score!==null&&d.score<3)||d.score===null).slice(0,10);
-  const el=document.getElementById('watchTable');
-  if(!watchItems.length){el.innerHTML='<div class="nodata">ไม่มีรายการที่ต้องเฝ้าระวัง 👍</div>';return;}
-  el.innerHTML=`<div class="thead-row"><span class="thead-title">รายการที่ต้องเฝ้าระวัง</span></div><div class="twrap"><table><thead><tr><th>รหัส</th><th>ชื่อ KPI</th><th>ฝ่าย</th><th style="text-align:right">คะแนน</th><th>สถานะ</th></tr></thead><tbody>${
-    watchItems.map(item=>`<tr onclick="openModal('${item.code}')" style="cursor:pointer">
-      <td class="tc">${item.code}</td>
-      <td class="tn">${item.name}</td>
-      <td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td>
-      <td class="ts"><span class="pill ${getPC(item.score)}">${item.score!==null?item.score.toFixed(3):'N/A'}</span></td>
-      <td class="${item.score!==null?'sok':'spnd'}">${item.status||'—'}</td>
-    </tr>`).join('')
-  }</tbody></table></div>`;
+function rWatch(){
+  const wi=fData.filter(d=>(d.score!==null&&d.score<3)||d.score===null).slice(0,10);
+  const el=document.getElementById('watchT');
+  if(!wi.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:12px">ไม่มีรายการที่ต้องเฝ้าระวัง 👍</div>';return;}
+  el.innerHTML=`<div class="tcard"><div class="thdr"><span class="thdr-title">รายการที่ต้องเฝ้าระวัง</span></div><div class="twrap"><table><thead><tr><th>รหัส</th><th>ชื่อ KPI</th><th>ฝ่าย</th><th style="text-align:right">คะแนน</th><th>สถานะ</th></tr></thead><tbody>${
+    wi.map(item=>`<tr onclick="oM('${item.code}')" style="cursor:pointer"><td class="tc">${item.code}</td><td class="tn">${item.name}</td><td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td><td class="ts"><span class="pill ${getPC(item.score)}">${item.score!==null?item.score.toFixed(3):'N/A'}</span></td><td class="${item.score!==null?'sok':'spnd'}" style="font-size:10px">${item.status||'—'}</td></tr>`).join('')
+  }</tbody></table></div></div>`;
 }
 
-function renderTable(){
-  const q=document.getElementById('tableSearch').value.toLowerCase();
-  let d=tableData;
+function rT(){
+  const q=document.getElementById('tsrch').value.toLowerCase();
+  let d=tData;
   if(q)d=d.filter(x=>x.code.toLowerCase().includes(q)||x.name.toLowerCase().includes(q)||x.dept.toLowerCase().includes(q)||x.responsible.toLowerCase().includes(q));
-  const tbody=document.getElementById('tableBody');
-  if(!d.length){tbody.innerHTML='<tr><td colspan="7" class="nodata">ไม่พบรายการ</td></tr>';return;}
-  tbody.innerHTML=d.map(item=>{
-    const score=item.score!==null?item.score.toFixed(3):'N/A';
-    const resFmt=item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—';
-    return `<tr onclick="openModal('${item.code}')" style="cursor:pointer">
-      <td class="tc">${item.code}</td>
-      <td class="tn">${item.name}</td>
-      <td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td>
-      <td class="responsible">${item.responsible}</td>
-      <td class="tr2">${resFmt}</td>
-      <td class="ts"><span class="pill ${getPC(item.score)}">${score}</span></td>
-      <td class="${item.score!==null?'sok':'spnd'}" style="font-size:10px;white-space:nowrap">${item.status||'—'}</td>
-    </tr>`;
-  }).join('');
+  const tbody=document.getElementById('tBody');
+  if(!d.length){tbody.innerHTML='<tr><td colspan="9" class="nodata">ไม่พบรายการ</td></tr>';return;}
+  tbody.innerHTML=d.map(item=>`<tr onclick="oM('${item.code}')" style="cursor:pointer">
+    <td class="tc">${item.code}</td>
+    <td class="tn">${item.name}</td>
+    <td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td>
+    <td style="font-size:10px;color:var(--t3);max-width:130px;line-height:1.4">${item.responsible}</td>
+    <td style="white-space:nowrap;padding:4px 10px">${renderTargetRow(item.targets,item.score)}</td>
+    <td class="tr2">${item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—'}</td>
+    <td class="ts"><span class="pill ${getPC(item.score)}">${item.score!==null?item.score.toFixed(3):'N/A'}</span></td>
+    <td class="${item.score!==null?'sok':'spnd'}" style="font-size:10px;white-space:nowrap">${item.status||'—'}</td>
+    <td style="padding:4px 8px;min-width:160px">${renderMonthRow(item.monthly)}</td>
+  </tr>`).join('');
 }
 
-function renderDeptPage(){
+/* DEPT PAGE */
+function renderDept(){
   const depts=['ฝวบ.','ฝปบ.','ฝสบ.','กสข.','อื่นๆ'];
-  const deptColors={'ฝวบ.':'#388bfd','ฝปบ.':'#3fb884','ฝสบ.':'#d29922','กสข.':'#a78bfa','อื่นๆ':'#8b949e'};
-  const deptData=depts.map(dep=>{
+  const dc={'ฝวบ.':'#388bfd','ฝปบ.':'#3fb884','ฝสบ.':'#d29922','กสข.':'#a78bfa','อื่นๆ':'#8b949e'};
+  const dd=depts.map(dep=>{
     const its=allData.filter(x=>x.dept===dep);
     const rep=its.filter(x=>x.score!==null);
     const avg=rep.length?rep.reduce((s,x)=>s+x.score,0)/rep.length:0;
-    const s5=rep.filter(x=>x.score>=5).length;
-    const low=rep.filter(x=>x.score<3).length;
-    return{dept:dep,total:its.length,reported:rep.length,avg,s5,low,color:deptColors[dep]};
+    return{dept:dep,total:its.length,reported:rep.length,avg,s5:rep.filter(x=>x.score>=5).length,low:rep.filter(x=>x.score<3).length,c:dc[dep]};
   });
-  document.getElementById('deptGrid').innerHTML=deptData.map(d=>`
-    <div class="dept-card">
-      <div class="dept-card-header">
-        <span class="dept-name" style="color:${d.color}">${d.dept}</span>
-        <span class="dept-avg" style="color:${getScoreColor(d.avg)}">${d.avg.toFixed(3)}</span>
-      </div>
-      <div class="dept-stats">
-        <div class="dept-stat"><div class="dept-stat-val">${d.total}</div><div class="dept-stat-lbl">KPI ทั้งหมด</div></div>
-        <div class="dept-stat"><div class="dept-stat-val" style="color:var(--teal2)">${d.reported}</div><div class="dept-stat-lbl">มีผลแล้ว</div></div>
-        <div class="dept-stat"><div class="dept-stat-val" style="color:${d.low>0?'var(--red2)':'var(--teal2)'}">${d.low}</div><div class="dept-stat-lbl">คะแนนต่ำ</div></div>
-      </div>
-      <div class="pb-wrap"><div class="pb teal" style="width:${d.total?d.reported/d.total*100:0}%"></div></div>
+  document.getElementById('dg').innerHTML=dd.map(d=>`
+    <div class="dcard"><div class="dchdr"><span class="dname" style="color:${d.c}">${d.dept}</span><span class="davg" style="color:${getSC(d.avg)}">${d.avg.toFixed(3)}</span></div>
+    <div class="dstats">
+      <div class="dstat"><div class="dstat-v">${d.total}</div><div class="dstat-l">KPI ทั้งหมด</div></div>
+      <div class="dstat"><div class="dstat-v" style="color:var(--tl2)">${d.reported}</div><div class="dstat-l">มีผล</div></div>
+      <div class="dstat"><div class="dstat-v" style="color:${d.low>0?'var(--rd2)':'var(--tl2)'}">${d.low}</div><div class="dstat-l">คะแนนต่ำ</div></div>
     </div>
-  `).join('');
-  destroyChart('radar');
-  const radarLabels=depts;
-  const radarData=deptData.map(d=>parseFloat(d.avg.toFixed(3)));
+    <div class="pb"><div class="pb-f tl" style="width:${d.total?d.reported/d.total*100:0}%"></div></div></div>`).join('');
+  dC('radar');
   charts.radar=new Chart(document.getElementById('cRadar'),{
     type:'radar',
-    data:{labels:radarLabels,datasets:[{label:'คะแนนเฉลี่ย',data:radarData,backgroundColor:'rgba(56,139,253,0.15)',borderColor:'#388bfd',borderWidth:2,pointBackgroundColor:'#388bfd',pointRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{color:'#6e7681',font:{size:10},stepSize:1,backdropColor:'transparent'},grid:{color:'rgba(255,255,255,0.08)'},angleLines:{color:'rgba(255,255,255,0.08)'},pointLabels:{color:'#8b949e',font:{size:11}}}},plugins:{legend:{display:false}}}
+    data:{labels:depts,datasets:[{label:'คะแนนเฉลี่ย',data:dd.map(d=>parseFloat(d.avg.toFixed(3))),backgroundColor:'rgba(56,139,253,.15)',borderColor:'#388bfd',borderWidth:2,pointBackgroundColor:'#388bfd',pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{color:'#6e7681',font:{size:10},stepSize:1,backdropColor:'transparent'},grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#8b949e',font:{size:11}}}},plugins:{legend:{display:false}}}
   });
 }
 
-function renderAlertPage(){
-  const critical=allData.filter(d=>d.score!==null&&d.score<2);
-  const warn=allData.filter(d=>d.score!==null&&d.score>=2&&d.score<3);
-  const pending=allData.filter(d=>d.score===null);
-  document.getElementById('pendingCount').textContent=pending.length;
-  const makeItem=(item,cls,scoreCls)=>`<li class="alert-item" onclick="openModal('${item.code}')">
-    <span class="alert-item-code">${item.code}</span>
-    <span class="alert-item-name">${item.name}</span>
-    <span class="alert-item-score ${scoreCls}">${item.score!==null?item.score.toFixed(3):'รอรายงาน'}</span>
-  </li>`;
-  document.getElementById('alertCritical').innerHTML=critical.length?critical.map(i=>makeItem(i,'','danger-score')).join(''):'<li class="alert-item"><span class="alert-item-name" style="color:var(--text3)">ไม่มีรายการวิกฤต 👍</span></li>';
-  document.getElementById('alertWarn').innerHTML=warn.length?warn.map(i=>makeItem(i,'','warning-score')).join(''):'<li class="alert-item"><span class="alert-item-name" style="color:var(--text3)">ไม่มีรายการที่ต้องระวัง</span></li>';
-  document.getElementById('alertPending').innerHTML=pending.map(i=>makeItem(i,'','pending-score')).join('');
+/* TREND PAGE */
+function renderTrend(){
+  const view=document.getElementById('trendView').value;
+  const grp=document.getElementById('trendGroup').value;
+  const kpiSel=document.getElementById('trendKpiSel');
+  const kpiDD=document.getElementById('trendKpi');
+  kpiSel.style.display=view==='kpi'?'inline-flex':'none';
+  if(view==='kpi'&&!kpiDD.options.length){
+    const hasMon=allData.filter(d=>Object.keys(d.monthly||{}).length>0);
+    kpiDD.innerHTML=hasMon.map(d=>`<option value="${d.code}">${d.code} — ${d.name.substring(0,40)}</option>`).join('');
+  }
+  let filtered=allData;
+  if(grp==='policy')filtered=allData.filter(x=>x.group.includes('นโยบาย'));
+  if(grp==='duty')filtered=allData.filter(x=>x.group.includes('หน้าที่'));
+  const monthOrder=['oct','nov','dec','jan','feb','mar','apr','may','jun','jul','aug','sep'];
+  const monthLabels=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
+  let datasets=[];
+  let labels=monthLabels;
+  if(view==='avg'){
+    const avgByMonth=monthOrder.map(mk=>{
+      const vals=filtered.filter(d=>d.monthly[mk]!==undefined).map(d=>d.monthly[mk]);
+      return vals.length?parseFloat((vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(3)):null;
+    });
+    datasets=[{label:'คะแนนเฉลี่ย กฟต.2',data:avgByMonth,borderColor:'#388bfd',backgroundColor:'rgba(56,139,253,.1)',fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#388bfd',spanGaps:true}];
+  } else if(view==='dept'){
+    const depts=['ฝวบ.','ฝปบ.','ฝสบ.'];
+    const colors=['#388bfd','#3fb884','#d29922'];
+    datasets=depts.map((dep,i)=>{
+      const items=filtered.filter(x=>x.dept===dep);
+      const data=monthOrder.map(mk=>{
+        const vals=items.filter(d=>d.monthly[mk]!==undefined).map(d=>d.monthly[mk]);
+        return vals.length?parseFloat((vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(3)):null;
+      });
+      return{label:dep,data,borderColor:colors[i],backgroundColor:colors[i]+'22',fill:false,tension:.4,pointRadius:4,spanGaps:true};
+    });
+  } else {
+    const code=kpiDD.value;
+    if(!code)return;
+    const item=allData.find(d=>d.code===code);
+    if(!item)return;
+    const data=monthOrder.map(mk=>item.monthly[mk]!==undefined?item.monthly[mk]:null);
+    datasets=[{label:item.code,data,borderColor:'#3fb884',backgroundColor:'rgba(63,184,132,.12)',fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#3fb884',spanGaps:true}];
+    if(item.score!==null){
+      datasets.push({label:'คะแนนล่าสุด',data:monthOrder.map(()=>item.score),borderColor:'rgba(255,255,255,.2)',borderDash:[4,4],pointRadius:0,fill:false,tension:0});
+    }
+  }
+  dC('trend');
+  charts.trend=new Chart(document.getElementById('cTrend'),{
+    type:'line',
+    data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{
+        y:{min:0,max:5.2,ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},
+        x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}
+      },
+      plugins:{
+        legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10,padding:12}},
+        tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}`}}
+      }
+    }
+  });
 }
 
-function openModal(code){
+function renderTrendTable(){
+  const mk=['oct','nov','dec','jan','feb','mar','apr','may','jun','jul','aug','sep'];
+  const hasAny=allData.filter(d=>Object.keys(d.monthly||{}).length>0);
+  const tbody=document.getElementById('trendTBody');
+  tbody.innerHTML=hasAny.map(item=>{
+    const cells=mk.map(k=>{
+      const v=item.monthly[k];
+      if(v===undefined)return`<td style="text-align:center;color:var(--t3);font-size:10px;font-family:var(--mo)">—</td>`;
+      const c=v>=5?'#3fb884':v>=4?'#388bfd':v>=3?'#d29922':'#f85149';
+      return`<td style="text-align:center;font-size:11px;font-family:var(--mo);color:${c};font-weight:500">${v.toFixed(3)}</td>`;
+    }).join('');
+    return`<tr onclick="oM('${item.code}')" style="cursor:pointer"><td class="tc">${item.code}</td><td class="tn" style="max-width:200px">${item.name}</td><td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td>${cells}</tr>`;
+  }).join('');
+}
+
+/* ALERT PAGE */
+function renderAlert(){
+  const crit=allData.filter(d=>d.score!==null&&d.score<2);
+  const warn=allData.filter(d=>d.score!==null&&d.score>=2&&d.score<3);
+  const pend=allData.filter(d=>d.score===null);
+  document.getElementById('aPcnt').textContent=pend.length;
+  const mk=(item,scls)=>`<li class="ali" onclick="oM('${item.code}')"><span class="ali-c">${item.code}</span><span class="ali-n">${item.name}</span><span class="ali-s ${scls}">${item.score!==null?item.score.toFixed(3):'รอรายงาน'}</span></li>`;
+  document.getElementById('aC').innerHTML=crit.length?crit.map(i=>mk(i,'ds')).join(''):`<li class="ali"><span class="ali-n" style="color:var(--t3)">ไม่มีรายการวิกฤต 👍</span></li>`;
+  document.getElementById('aW').innerHTML=warn.length?warn.map(i=>mk(i,'ws')).join(''):`<li class="ali"><span class="ali-n" style="color:var(--t3)">ไม่มีรายการเฝ้าระวัง</span></li>`;
+  document.getElementById('aP').innerHTML=pend.map(i=>mk(i,'is')).join('');
+}
+
+/* MODAL */
+function oM(code){
   const item=allData.find(d=>d.code===code);if(!item)return;
   document.getElementById('mCode').textContent=item.code;
   document.getElementById('mName').textContent=item.name;
   const sc=item.score;
   const scCls=sc===null?'sna':sc>=5?'s5':sc>=4?'s4':sc>=3?'s3':'s12';
-  const scLabel=sc===null?'ยังไม่มีผล':sc>=5?'ผ่านเกณฑ์ (เต็ม)':sc>=4?'ผ่านเกณฑ์ดี':sc>=3?'ผ่านเกณฑ์':sc>=2?'ต้องเฝ้าระวัง':'ต้องปรับปรุงด่วน';
+  const scLbl=sc===null?'ยังไม่มีผล':sc>=5?'ผ่านเกณฑ์สูงสุด':sc>=4?'ผ่านเกณฑ์ดี':sc>=3?'ผ่านเกณฑ์':sc>=2?'ต้องเฝ้าระวัง':'ต้องปรับปรุงด่วน';
   const resFmt=item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—';
-  const sheetUrl=`https://docs.google.com/spreadsheets/d/${SID}/edit#gid=0`;
+  /* build monthly trend mini */
+  const mk=['oct','nov','dec','jan','feb','mar','apr','may','jun','jul','aug','sep'];
+  const ml=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
+  const hasMonthly=item.monthly&&Object.keys(item.monthly).length>0;
   document.getElementById('mBody').innerHTML=`
-    <div class="modal-score-big ${scCls}">
-      <div class="modal-score-num">${sc!==null?sc.toFixed(3):'N/A'}</div>
-      <div class="modal-score-info">
-        <p>${scLabel}</p>
-        <small>ผลล่าสุด: ${resFmt} · งวด: ${item.status||'—'}</small>
-      </div>
+    <div class="mscbig ${scCls}">
+      <div class="mscnum">${sc!==null?sc.toFixed(3):'N/A'}</div>
+      <div class="mscinfo"><p>${scLbl}</p><small>ผลล่าสุด: ${resFmt} · งวด: ${item.status||'—'}</small></div>
     </div>
-    <div class="modal-grid">
-      <div class="modal-field"><div class="modal-field-label">กลุ่ม KPI</div><div class="modal-field-value">${item.group}</div></div>
-      <div class="modal-field"><div class="modal-field-label">ฝ่ายรับผิดชอบ</div><div class="modal-field-value"><span class="dtag ${getDC(item.dept)}">${item.dept}</span></div></div>
-      <div class="modal-field" style="grid-column:1/-1"><div class="modal-field-label">ผู้รับผิดชอบ</div><div class="modal-field-value">${item.responsible||'—'}</div></div>
-      <div class="modal-field"><div class="modal-field-label">รหัส KPI อ้างอิง</div><div class="modal-field-value" style="font-family:var(--mono)">${item.kpiRef||item.code}</div></div>
-      <div class="modal-field"><div class="modal-field-label">สถานะ</div><div class="modal-field-value">${item.status||'—'}</div></div>
+    <div class="mgrid">
+      <div class="mf"><div class="mf-l">กลุ่ม KPI</div><div class="mf-v">${item.group}</div></div>
+      <div class="mf"><div class="mf-l">ฝ่ายรับผิดชอบ</div><div class="mf-v"><span class="dtag ${getDC(item.dept)}">${item.dept}</span></div></div>
+      <div class="mf" style="grid-column:1/-1"><div class="mf-l">ผู้รับผิดชอบ</div><div class="mf-v">${item.responsible||'—'}</div></div>
+      <div class="mf" style="grid-column:1/-1"><div class="mf-l">เป้าหมายระดับ 1–5</div><div class="mf-v" style="margin-top:4px">${item.targets?renderTargetRow(item.targets,sc)+'<div style="font-size:9px;color:var(--t3);margin-top:4px">${item.targets.unit?\'หน่วย: \'+item.targets.unit:\'\'}${item.targets.note?\' · เกณฑ์: \'+item.targets.note:\'\'}':'<span style="color:var(--t3)">ไม่มีข้อมูลเป้าหมาย</span>'}</div></div>
     </div>
-    <a class="modal-sheet-link" href="${sheetUrl}" target="_blank">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9M9 1h6m0 0v6m0-6L7 9"/></svg>
+    ${hasMonthly?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="position:relative;height:180px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div></div>`:''}
+    <a class="mlink" href="https://docs.google.com/spreadsheets/d/${SID}/edit" target="_blank">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9M9 1h6m0 0v6m0-6L7 9"/></svg>
       เปิดใน Google Sheets
     </a>
   `;
-  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('mover').classList.add('on');
+  if(hasMonthly){
+    setTimeout(()=>{
+      const mdata=mk.map(k=>item.monthly[k]!==undefined?item.monthly[k]:null);
+      new Chart(document.getElementById('mChart'),{
+        type:'line',
+        data:{labels:ml,datasets:[
+          {label:'คะแนน',data:mdata,borderColor:'#3fb884',backgroundColor:'rgba(63,184,132,.1)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#3fb884',spanGaps:true},
+          sc!==null?{label:'ล่าสุด',data:mk.map(()=>sc),borderColor:'rgba(255,255,255,.2)',borderDash:[4,4],pointRadius:0,fill:false}:null
+        ].filter(Boolean)},
+        options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5.2,ticks:{color:'#6e7681',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},x:{ticks:{color:'#8b949e',font:{size:9}},grid:{display:false}}},plugins:{legend:{labels:{color:'#8b949e',font:{size:9},boxWidth:8,padding:8}}}}
+      });
+    },50);
+  }
 }
-function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function cM(){document.getElementById('mover').classList.remove('on');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cM();});
 
-function showPage(el){
-  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+el.dataset.page).classList.add('active');
+/* PAGE NAV */
+function sP(el){
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('page-'+el.dataset.p).classList.add('on');
+  if(el.dataset.p==='trend')setTimeout(()=>{renderTrend();},100);
 }
 
-function exportCSV(){
-  const headers=['รหัส KPI','ชื่อ KPI','กลุ่ม KPI','ฝ่าย','ผู้รับผิดชอบ','ผลล่าสุด','สถานะ','คะแนน'];
-  const rows=allData.map(d=>[d.code,`"${d.name}"`,d.group,d.dept,d.responsible,d.result!==null?d.result:'',d.status,d.score!==null?d.score:'']);
-  const csv='\uFEFF'+[headers,...rows].map(r=>r.join(',')).join('\n');
+/* EXPORT */
+function expCSV(){
+  const h=['รหัส KPI','ชื่อ KPI','กลุ่ม','ฝ่าย','ผู้รับผิดชอบ','ผลล่าสุด','สถานะ','คะแนน','ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
+  const mk=['oct','nov','dec','jan','feb','mar','apr','may','jun','jul','aug','sep'];
+  const rows=allData.map(d=>[d.code,`"${d.name}"`,d.group,d.dept,d.responsible,d.result!==null?d.result:'',d.status,d.score!==null?d.score:'',...mk.map(k=>d.monthly[k]!==undefined?d.monthly[k]:'')]);
+  const csv='\uFEFF'+[h,...rows].map(r=>r.join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
   a.download='KPI_กฟต2_2569_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   toast('Export CSV สำเร็จ','ok');
 }
 
-let toastTimer;
+/* UTILS */
+let tTimer;
 function toast(msg,type='ok'){
-  const el=document.getElementById('toast');el.textContent=msg;el.className='show '+type;
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className='',3500);
+  const el=document.getElementById('toast');el.textContent=msg;el.className='on '+type;
+  clearTimeout(tTimer);tTimer=setTimeout(()=>el.className='',3500);
 }
 function hideLoad(){
-  const el=document.getElementById('loadOverlay');el.classList.add('hidden');
+  const el=document.getElementById('lov');el.classList.add('h');
   setTimeout(()=>el.style.display='none',400);
 }
 
+/* INIT */
 window.addEventListener('DOMContentLoaded',()=>{
-  allData=parseFallback();applyFilters();renderDeptPage();renderAlertPage();hideLoad();
+  allData=parseFB();
+  setupOrgFilter();
+  af();renderDept();renderAlert();renderTrendTable();
+  hideLoad();
   loadData();
 });
 </script>
