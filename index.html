@@ -740,10 +740,14 @@ async function loadData(){
         const targetsGFT2={1:gv(5),2:gv(6),3:gv(7),4:gv(8),5:gv(9),unit:''};
         // เป้าหมาย กฟส.อล.
         const targetsAOL={1:gv(10),2:gv(11),3:gv(12),4:gv(13),5:gv(14),unit:''};
-        // ใช้เป้าหมาย อล. ถ้ามี ไม่งั้นใช้ กฟต.2
+        // ใช้เป้าหมาย อล. ถ้ามี (รวมถึงค่า 0) ไม่งั้นใช้ กฟต.2
         const targets={
-          1:gv(10)||gv(5), 2:gv(11)||gv(6), 3:gv(12)||gv(7),
-          4:gv(13)||gv(8), 5:gv(14)||gv(9), unit:''
+          1: gv(10)!==null ? gv(10) : gv(5),
+          2: gv(11)!==null ? gv(11) : gv(6),
+          3: gv(12)!==null ? gv(12) : gv(7),
+          4: gv(13)!==null ? gv(13) : gv(8),
+          5: gv(14)!==null ? gv(14) : gv(9),
+          unit:''
         };
         const monthly={};     // คะแนน กฟต.2 รายเดือน
         const monthlyRes={};  // ผล กฟต.2 รายเดือน
