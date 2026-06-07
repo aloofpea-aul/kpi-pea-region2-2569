@@ -739,17 +739,20 @@ async function loadData(){
             return (v===null||v===undefined||v==='') ? null : v;
           }catch(e){if(code==='1.1'&&i===10)console.warn('1.1 gv(10) error:',e.message);return null;}
         };
+        // cache ค่าเป้าหมายก่อนใช้
+        const lv1=gv(5),lv2=gv(6),lv3=gv(7),lv4=gv(8),lv5=gv(9);
+        const al1=gv(10),al2=gv(11),al3=gv(12),al4=gv(13),al5=gv(14);
         // เป้าหมาย กฟต.2
-        const targetsGFT2={1:gv(5),2:gv(6),3:gv(7),4:gv(8),5:gv(9),unit:''};
+        const targetsGFT2={1:lv1,2:lv2,3:lv3,4:lv4,5:lv5,unit:''};
         // เป้าหมาย กฟส.อล.
-        const targetsAOL={1:gv(10),2:gv(11),3:gv(12),4:gv(13),5:gv(14),unit:''};
-        // ใช้เป้าหมาย อล. ถ้ามี (รวมถึงค่า 0) ไม่งั้นใช้ กฟต.2
+        const targetsAOL={1:al1,2:al2,3:al3,4:al4,5:al5,unit:''};
+        // ใช้เป้าหมาย อล. ถ้ามี ไม่งั้นใช้ กฟต.2
         const targets={
-          1: gv(10)!==null ? gv(10) : gv(5),
-          2: gv(11)!==null ? gv(11) : gv(6),
-          3: gv(12)!==null ? gv(12) : gv(7),
-          4: gv(13)!==null ? gv(13) : gv(8),
-          5: gv(14)!==null ? gv(14) : gv(9),
+          1: al1!==null ? al1 : lv1,
+          2: al2!==null ? al2 : lv2,
+          3: al3!==null ? al3 : lv3,
+          4: al4!==null ? al4 : lv4,
+          5: al5!==null ? al5 : lv5,
           unit:''
         };
         const monthly={};     // คะแนน กฟต.2 รายเดือน
