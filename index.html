@@ -776,7 +776,10 @@ async function loadData(){
           if(sc!==null)  monthly[k]=parseFloat(sc)||sc;
           if(aol!==null) monthlyAOL[k]=parseFloat(aol)||aol;
         });
-        ksMap[code]={targets,targetsGFT2,targetsAOL,monthly,monthlyRes,monthlyAOL};
+        ksMap[code]={targets,targetsGFT2,targetsAOL,monthly,monthlyRes,monthlyAOL,
+          resultLatestAOL: gv(46),
+          scoreLatestAOL: gv(47)
+        };
       });
       // merge เข้า nd
       nd.forEach(item=>{
@@ -787,6 +790,9 @@ async function loadData(){
           item.monthly=ks.monthly;
           item.monthlyRes=ks.monthlyRes;
           item.monthlyAOL=ks.monthlyAOL;
+          // ถ้ามีผลล่าสุดของ กฟส.อล. ให้ใช้แทน กฟต.2
+          if(ks.resultLatestAOL!==null&&ks.resultLatestAOL!=='') item.result=ks.resultLatestAOL;
+          if(ks.scoreLatestAOL!==null&&ks.scoreLatestAOL!=='') item.score=parseFloat(ks.scoreLatestAOL)||item.score;
         }
       });
       toast('โหลดข้อมูลจริงครบแล้ว ('+nd.length+' KPI)','ok');
