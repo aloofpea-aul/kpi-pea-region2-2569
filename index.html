@@ -768,19 +768,35 @@ async function loadData(){
 
 async function loadOrgList(){
   try{
-    const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=OrgList&t=${Date.now()}`;
+    // ดึงจากชีต OrgMap ใน Sheet ของเรา (public แล้ว)
+    // col B = รหัส 6 หลัก, col D = ชื่อหน่วยงาน
+    const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=OrgMap&t=${Date.now()}`;
     const res=await fetch(url);const txt=await res.text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(!m)throw new Error('no match');
-    const json=JSON.parse(m[1]);const rows=json.table.rows;
-    const orgs=['ภาพรวม กฟต.2'];
+    const rows=JSON.parse(m[1]).table.rows;
+
+    // เก็บชื่อหน่วยงาน unique จาก col D (index 3)
+    // กรองเอาเฉพาะ กฟจ. และ กฟส. ไม่เอา "จุดรวมงาน" หรือ "ภาพรวม"
+    const seen=new Set();
+    const gfj=[], gfs=[];
     rows.forEach(row=>{
-      if(!row.c||!row.c[0]||!row.c[0].v)return;
-      const v=String(row.c[0].v).trim();
-      if(v&&v!=='ภาพรวม กฟต.2'&&!orgs.includes(v))orgs.push(v);
+      if(!row.c||!row.c[3]||!row.c[3].v) return;
+      const name=String(row.c[3].v).trim()
+        .replace(/\s*\(XS\)|\s*\(S\)|\s*\(M\)|\s*\(L\)|\s*\(LL\)/g,'').trim();
+      if(seen.has(name)||!name) return;
+      if(name.startsWith('กฟจ.')&&!name.includes('จุดรวม')){seen.add(name);gfj.push(name);}
+      else if(name.startsWith('กฟส.')&&!name.includes('จุดรวม')){seen.add(name);gfs.push(name);}
     });
-    if(orgs.length>2){ORG_LIST=orgs;console.log('OrgList loaded:',orgs.length);}
-  }catch(e){console.log('OrgList fallback');}
+
+    const orgs=['ภาพรวม กฟต.2',...gfj.sort(),...gfs.sort()];
+    if(orgs.length>2){
+      ORG_LIST=orgs;
+      console.log('OrgList loaded from OrgMap:',orgs.length,'หน่วยงาน');
+    }
+  }catch(e){
+    console.log('OrgList fallback:',e.message);
+  }
 }
 
 function setupOrgFilter(){
@@ -815,13 +831,22 @@ function af(){
   const s=document.getElementById('fS').value;
   const sc=document.getElementById('fSc').value;
   curOrg=org;
-  const orgKpis=org!=='all'?(ORG_KPI_MAP[org]||null):null;
+
+  // ดึง KPI list ของหน่วยงาน
+  // ถ้ามีใน ORG_KPI_MAP ใช้เลย
+  // ถ้าไม่มี ใช้ GFS_BASE (KPI พื้นฐานทุก กฟฟ.)
+  let orgKpis=null;
+  if(org!=='all'){
+    orgKpis=ORG_KPI_MAP[org]||GFS_BASE;
+  }
 
   const banner=document.getElementById('orgBanner');
-  if(org!=='all'&&orgKpis){
+  if(org!=='all'){
     document.getElementById('orgBannerName').textContent=org;
     banner.style.display='flex';
-  }else{banner.style.display='none';}
+  }else{
+    banner.style.display='none';
+  }
 
   fData=allData.filter(item=>{
     if(orgKpis&&!orgKpis.includes(item.code))return false;
