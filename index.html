@@ -719,14 +719,22 @@ async function loadData(){
     const mKS=txtKS.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(mKS){
       const rowsKS=JSON.parse(mKS[1]).table.rows;
+      // DEBUG: ดู raw columns ของ row แรก
+      if(rowsKS[0]){
+        const dbg=rowsKS[0].c;
+        let dbgOut='KPISummary col debug: ';
+        for(let i=0;i<=20;i++) dbgOut+=`c${i}=${dbg[i]?dbg[i].v:'∅'} | `;
+        console.log(dbgOut);
+      }
       const ksMap={};
       rowsKS.forEach(row=>{
         const c=row.c; if(!c||!c[0]||!c[0].v) return;
         const code=String(c[0].v).trim();
         const gv=(i)=>{
-          if(!c[i]) return null;
-          const v=c[i].v;
-          return (v!==null&&v!==undefined&&v!=='') ? v : null;
+          if(!c[i]&&c[i]!==0) return null;
+          const v=c[i]?c[i].v:null;
+          if(v===null||v===undefined||v==='') return null;
+          return v;
         };
         // เป้าหมาย กฟต.2
         const targetsGFT2={1:gv(5),2:gv(6),3:gv(7),4:gv(8),5:gv(9),unit:''};
