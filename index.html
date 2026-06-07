@@ -709,9 +709,12 @@ async function loadData(){
     });
 
     // --- parse KPISummary ---
-    // header: 0=KPI Code, 1=ชื่อ, 2=หน่วยวัด, 3=ผู้รับผิดชอบ, 4=หน่วยงาน
-    //   5-9=Lv1-5, 10-21=ผล กฟต.2 ม.ค.-ธ.ค., 22-33=คะแนน กฟต.2 ม.ค.-ธ.ค.
-    //   34-45=ผล อล. ม.ค.-ธ.ค.
+    // col 0-4  = KPI Code, ชื่อ, หน่วยวัด, ผู้รับผิดชอบ, หน่วยงาน
+    // col 5-9  = เป้าหมาย กฟต.2 Lv1-5
+    // col 10-14 = เป้าหมาย อล. Lv1-5  ← ใหม่
+    // col 15-26 = ผล กฟต.2 ม.ค.-ธ.ค.
+    // col 27-38 = คะแนน กฟต.2 ม.ค.-ธ.ค.
+    // col 39-50 = ผล อล. ม.ค.-ธ.ค.
     const MKKEYS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
     const mKS=txtKS.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(mKS){
@@ -720,23 +723,32 @@ async function loadData(){
       rowsKS.forEach(row=>{
         const c=row.c; if(!c||!c[0]||!c[0].v) return;
         const code=String(c[0].v).trim();
-        const gv=(i)=>(c[i]&&c[i].v!==null&&c[i].v!=='')?c[i].v:null;
+        const gv=(i)=>{
+          if(!c[i]) return null;
+          const v=c[i].v;
+          return (v!==null&&v!==undefined&&v!=='') ? v : null;
+        };
+        // เป้าหมาย กฟต.2
+        const targetsGFT2={1:gv(5),2:gv(6),3:gv(7),4:gv(8),5:gv(9),unit:''};
+        // เป้าหมาย กฟส.อล.
+        const targetsAOL={1:gv(10),2:gv(11),3:gv(12),4:gv(13),5:gv(14),unit:''};
+        // ใช้เป้าหมาย อล. ถ้ามี ไม่งั้นใช้ กฟต.2
         const targets={
-          1:gv(5),2:gv(6),3:gv(7),4:gv(8),5:gv(9),
-          unit:''
+          1:gv(10)||gv(5), 2:gv(11)||gv(6), 3:gv(12)||gv(7),
+          4:gv(13)||gv(8), 5:gv(14)||gv(9), unit:''
         };
         const monthly={};     // คะแนน กฟต.2 รายเดือน
         const monthlyRes={};  // ผล กฟต.2 รายเดือน
         const monthlyAOL={};  // ผล กฟส.อล. รายเดือน
         MKKEYS.forEach((k,i)=>{
-          const res=gv(10+i);   // ผล กฟต.2
-          const sc=gv(22+i);    // คะแนน กฟต.2
-          const aol=gv(34+i);   // ผล อล.
+          const res=gv(15+i);  // ผล กฟต.2
+          const sc=gv(27+i);   // คะแนน กฟต.2
+          const aol=gv(39+i);  // ผล อล.
           if(res!==null) monthlyRes[k]=parseFloat(res)||res;
           if(sc!==null)  monthly[k]=parseFloat(sc)||sc;
           if(aol!==null) monthlyAOL[k]=parseFloat(aol)||aol;
         });
-        ksMap[code]={targets,monthly,monthlyRes,monthlyAOL};
+        ksMap[code]={targets,targetsGFT2,targetsAOL,monthly,monthlyRes,monthlyAOL};
       });
       // merge เข้า nd
       nd.forEach(item=>{
