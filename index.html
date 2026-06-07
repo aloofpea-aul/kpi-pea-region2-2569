@@ -733,10 +733,11 @@ async function loadData(){
         const gv=(i)=>{
           try{
             const cell=c[i];
-            if(!cell) return null;
+            if(!cell) {if(code==='1.1'&&i===10)console.warn('1.1 gv(10): cell is',cell);return null;}
             const v=cell.v;
+            if(code==='1.1'&&i===10) console.warn('1.1 gv(10): cell=',JSON.stringify(cell),'v=',v);
             return (v===null||v===undefined||v==='') ? null : v;
-          }catch(e){return null;}
+          }catch(e){if(code==='1.1'&&i===10)console.warn('1.1 gv(10) error:',e.message);return null;}
         };
         // เป้าหมาย กฟต.2
         const targetsGFT2={1:gv(5),2:gv(6),3:gv(7),4:gv(8),5:gv(9),unit:''};
