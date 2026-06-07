@@ -756,6 +756,7 @@ async function loadData(){
           const res=gv(15+i);  // ผล กฟต.2
           const sc=gv(27+i);   // คะแนน กฟต.2
           const aol=gv(39+i);  // ผล อล.
+          if(i<5&&code==='1.1') console.log(`KS debug 1.1: i=${i} k=${k} res=${res} sc=${sc} aol=${aol}`);
           if(res!==null) monthlyRes[k]=parseFloat(res)||res;
           if(sc!==null)  monthly[k]=parseFloat(sc)||sc;
           if(aol!==null) monthlyAOL[k]=parseFloat(aol)||aol;
