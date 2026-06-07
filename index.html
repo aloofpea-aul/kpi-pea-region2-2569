@@ -479,25 +479,78 @@ const MONTHLY_SCORES={
   '2.21':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
 };
 
-/* ORG LIST — หน่วยงาน กฟส./กฟจ. ที่รับผิดชอบ KPI */
-const ORG_LIST=[
-  'ภาพรวม กฟต.2','กฟจ.กระบี่','กฟจ.ภูเก็ต','กฟจ.สุราษฎร์ธานี','กฟจ.นครศรีธรรมราช',
-  'กฟจ.ตรัง','กฟจ.พังงา','กฟจ.ชุมพร','กฟจ.ระนอง','กฟจ.สงขลา','กฟจ.ยะลา','กฟจ.ปัตตานี',
-  'กฟจ.นราธิวาส','กฟจ.พัทลุง','กฟจ.สตูล',
-  'กฟส.อ่าวลึก','กฟส.เกาะสมุย','กฟส.เกาะพะงัน','กฟส.เกาะลันตา',
-  'กฟส.ทับปุด','กฟส.เกาะยาว','กฟส.คุระบุรี'
+/* ORG LIST — โหลดจาก OrgList sheet หรือ fallback */
+const ORG_LIST_FALLBACK=[
+  'ภาพรวม กฟต.2',
+  /* กฟจ. 14 แห่ง */
+  'กฟจ.กระบี่','กฟจ.ภูเก็ต','กฟจ.สุราษฎร์ธานี','กฟจ.นครศรีธรรมราช',
+  'กฟจ.ตรัง','กฟจ.พังงา','กฟจ.ชุมพร','กฟจ.ระนอง',
+  'กฟจ.สงขลา','กฟจ.ยะลา','กฟจ.ปัตตานี','กฟจ.นราธิวาส',
+  'กฟจ.พัทลุง','กฟจ.สตูล',
+  /* กฟส. สังกัด กฟจ.กระบี่ */
+  'กฟส.อ่าวลึก','กฟส.เกาะลันตา','กฟส.คลองท่อม',
+  /* กฟส. สังกัด กฟจ.ภูเก็ต */
+  'กฟส.ถลาง',
+  /* กฟส. สังกัด กฟจ.สุราษฎร์ธานี */
+  'กฟส.เกาะสมุย','กฟส.เกาะพะงัน','กฟส.ไชยา','กฟส.พระแสง','กฟส.บ้านนาสาร',
+  'กฟส.บ้านนาเดิม','กฟส.เวียงสระ','กฟส.พุนพิน','กฟส.ท่าฉาง',
+  /* กฟส. สังกัด กฟจ.นครศรีธรรมราช */
+  'กฟส.ทุ่งสง','กฟส.ปากพนัง','กฟส.นาบอน','กฟส.ทุ่งใหญ่','กฟส.ฉวาง',
+  'กฟส.พรหมคีรี','กฟส.บางขัน','กฟส.ลานสกา','กฟส.เชียรใหญ่','กฟส.หัวไทร',
+  /* กฟส. สังกัด กฟจ.ตรัง */
+  'กฟส.กันตัง','กฟส.ห้วยยอด','กฟส.ย่านตาขาว','กฟส.สิเกา','กฟส.ปะเหลียน',
+  'กฟส.นาโยง','กฟส.วังวิเศษ',
+  /* กฟส. สังกัด กฟจ.พังงา */
+  'กฟส.ตะกั่วป่า','กฟส.ท้ายเหมือง','กฟส.ทับปุด','กฟส.เกาะยาว','กฟส.คุระบุรี',
+  /* กฟส. สังกัด กฟจ.ชุมพร */
+  'กฟส.หลังสวน','กฟส.ท่าแซะ','กฟส.พะโต๊ะ','กฟส.สวี','กฟส.ปะทิว','กฟส.ละแม',
+  /* กฟส. สังกัด กฟจ.ระนอง */
+  'กฟส.กระบุรี','กฟส.ละอุ่น','กฟส.กะเปอร์',
+  /* กฟส. สังกัด กฟจ.สงขลา */
+  'กฟส.หาดใหญ่','กฟส.สะเดา','กฟส.นาทวี','กฟส.รัตภูมิ','กฟส.บางกล่ำ',
+  'กฟส.จะนะ','กฟส.สิงหนคร','กฟส.กระแสสินธุ์',
+  /* กฟส. สังกัด กฟจ.ยะลา */
+  'กฟส.เบตง','กฟส.บันนังสตา','กฟส.กาบัง','กฟส.รามัน','กฟส.ธารโต',
+  /* กฟส. สังกัด กฟจ.ปัตตานี */
+  'กฟส.หนองจิก','กฟส.ยะรัง','กฟส.ยะหริ่ง','กฟส.ทุ่งยางแดง','กฟส.โคกโพธิ์',
+  'กฟส.สายบุรี','กฟส.มายอ',
+  /* กฟส. สังกัด กฟจ.นราธิวาส */
+  'กฟส.สุไหงโก-ลก','กฟส.ตากใบ','กฟส.บาเจาะ','กฟส.ศรีสาคร','กฟส.แว้ง',
+  'กฟส.รือเสาะ','กฟส.จะแนะ','กฟส.สุคิริน',
+  /* กฟส. สังกัด กฟจ.พัทลุง */
+  'กฟส.ควนขนุน','กฟส.ปากพะยูน','กฟส.บางแก้ว','กฟส.กงหรา','กฟส.ตะโหมด',
+  /* กฟส. สังกัด กฟจ.สตูล */
+  'กฟส.ละงู','กฟส.ทุ่งหว้า','กฟส.ควนโดน','กฟส.เกาะลิบง',
 ];
+let ORG_LIST=['ภาพรวม กฟต.2',...ORG_LIST_FALLBACK.filter(o=>o!=='ภาพรวม กฟต.2')];
 
-/* KPI assigned by ORG — mapping org → relevant KPI codes */
-const ORG_KPI_MAP={
-  'กฟส.อ่าวลึก':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.9','1.18','1.19.1','2.1','2.2','2.3','2.4.1','2.4.2','2.5.1','2.5.2','2.5.3','2.5.4','2.5.5','2.5.6','2.6','2.8','2.9','2.10.1','2.15','2.21','2.22'],
-  'กฟส.เกาะสมุย':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','2.1','2.2','2.3','2.4.1','2.8','2.9','2.15','2.21'],
-  'กฟจ.ภูเก็ต':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','1.12','1.13','1.14','1.15','1.19.1','2.1','2.2','2.3','2.4.1','2.5.1','2.5.2','2.6','2.7','2.8','2.9','2.12.1','2.12.2','2.13.1','2.13.2','2.14.1','2.15','2.18','2.19'],
-  'กฟจ.สุราษฎร์ธานี':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','1.19.1','2.1','2.2','2.3','2.4.1','2.5.1','2.6','2.7','2.8','2.9','2.15','2.18'],
-  'กฟจ.นครศรีธรรมราช':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','2.1','2.2','2.3','2.6','2.7','2.8','2.9','2.15'],
-  'กฟจ.กระบี่':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.19.1','2.1','2.2','2.3','2.4.1','2.5.1','2.6','2.8','2.9','2.15','2.21'],
-  'กฟจ.ตรัง':['1.3.1','1.3.2','1.5','1.6','1.7','1.8','1.10','1.11','2.1','2.2','2.3','2.6','2.8','2.9','2.15'],
-};
+/* KPI ระดับ กฟฟ. ทุกแห่ง — KPI ที่ กฟส./กฟจ. รับผิดชอบ */
+/* KPI หลักที่ทุก กฟฟ. ต้องรายงาน */
+const KPI_ALL_BRANCHES=['1.3.1','1.3.2','1.5','1.6','1.7','1.8','2.1','2.2','2.3','2.4.1','2.4.2','2.8','2.9','2.15','2.21','2.22','2.31'];
+/* KPI เพิ่มเติมสำหรับ กฟจ. (จุดรวมงาน) */
+const KPI_GFJ_EXTRA=['1.9','1.10','1.11','1.19.1','2.5.1','2.5.2','2.5.3','2.5.4','2.5.5','2.5.6','2.6','2.7','2.10.1','2.12.1','2.12.2','2.12.3','2.13.1','2.13.2','2.14.1','2.14.2','2.16','2.17','2.18','2.19','2.20','2.26','2.27','2.28.1','2.28.2','2.29.1','2.29.2','2.30'];
+/* KPI เฉพาะ กฟจ.ภูเก็ต (เทศบาลนครภูเก็ต) */
+const KPI_PKT=['1.12','1.13','1.14','1.15'];
+/* กฟจ. ที่อยู่ใน SAIFI/SAIDI เทศบาลนคร */
+const KPI_SAIFI_MUNI=['1.10','1.11'];
+
+const ORG_KPI_MAP={};
+/* ทุก กฟจ. */
+['กฟจ.กระบี่','กฟจ.สุราษฎร์ธานี','กฟจ.นครศรีธรรมราช','กฟจ.ตรัง',
+ 'กฟจ.พังงา','กฟจ.ชุมพร','กฟจ.ระนอง','กฟจ.สงขลา','กฟจ.ยะลา',
+ 'กฟจ.ปัตตานี','กฟจ.นราธิวาส','กฟจ.พัทลุง','กฟจ.สตูล'].forEach(o=>{
+  ORG_KPI_MAP[o]=[...KPI_ALL_BRANCHES,...KPI_GFJ_EXTRA,...KPI_SAIFI_MUNI];
+});
+ORG_KPI_MAP['กฟจ.ภูเก็ต']=[...KPI_ALL_BRANCHES,...KPI_GFJ_EXTRA,...KPI_SAIFI_MUNI,...KPI_PKT,'1.16','1.17'];
+/* ทุก กฟส. — KPI พื้นฐาน + บางข้อที่ กฟส.ต้องรายงาน */
+const GFS_BASE=[...KPI_ALL_BRANCHES,'1.9','1.19.1','2.5.1','2.5.2','2.5.3','2.5.6','2.6','2.10.1','2.26'];
+ORG_LIST_FALLBACK.filter(o=>o.startsWith('กฟส.')).forEach(o=>{
+  ORG_KPI_MAP[o]=GFS_BASE;
+});
+/* กฟส. ในกลุ่มเทศบาลนคร (เกาะสมุย อยู่ใน 1.10,1.11) */
+['กฟส.เกาะสมุย'].forEach(o=>{
+  ORG_KPI_MAP[o]=[...GFS_BASE,...KPI_SAIFI_MUNI];
+});
 
 /* FALLBACK DATA */
 const FB=[
@@ -610,6 +663,8 @@ function parseFB(){
 async function loadData(){
   const btn=document.getElementById('rbtn');
   btn.classList.add('loading');btn.disabled=true;
+  /* โหลด OrgList และ Landing Page พร้อมกัน */
+  await loadOrgList();
   const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=Landing%20Page&t=${Date.now()}`;
   try{
     const res=await fetch(url);const txt=await res.text();
@@ -617,23 +672,26 @@ async function loadData(){
     if(!m)throw new Error('parse');
     const json=JSON.parse(m[1]);const rows=json.table.rows;
     const nd=[];
-    rows.slice(2).forEach(row=>{
+    rows.forEach(row=>{
       const c=row.c;if(!c||!c[0]||!c[0].v)return;
       const code=String(c[0].v).trim();
-      const name=c[1]?(c[1].v||''):'';
-      const dept=c[2]?(c[2].v||''):'';
-      const group=c[3]?(c[3].v||''):'';
-      const responsible=c[4]?(c[4].v||''):'';
-      const result=c[6]?c[6].v:null;
-      const statusRaw=c[7]?(c[7].v||''):'';
-      const status=statusRaw.replace(/[✅🔵✨]/g,'').trim();
-      const scoreRaw=c[8]?c[8].v:null;
-      const score=(scoreRaw==='#N/A'||scoreRaw===null)?null:parseFloat(scoreRaw);
+      if(!code||code.length<2)return;
+      const name=(c[1]&&c[1].v)?String(c[1].v).trim():'';
+      const dept=(c[2]&&c[2].v)?String(c[2].v).trim():'';
+      const group=(c[3]&&c[3].v)?String(c[3].v).trim():'';
+      const responsible=(c[4]&&c[4].v)?String(c[4].v).trim():'';
+      const resultRaw=(c[6]&&c[6].v!==null&&c[6].v!==undefined)?c[6].v:null;
+      const result=(resultRaw==='-'||resultRaw==='')?null:resultRaw;
+      const statusRaw=(c[7]&&c[7].v)?String(c[7].v):'';
+      const status=statusRaw.replace(/[✅🔵✨\s]/g,'').trim()||statusRaw.replace(/[✅🔵✨]/g,'').trim();
+      const scoreRaw=(c[8]&&c[8].v!==null&&c[8].v!==undefined)?c[8].v:null;
+      const score=(scoreRaw===null||scoreRaw==='#N/A'||scoreRaw===undefined)?null:parseFloat(scoreRaw);
       if(code&&name)nd.push({code,name,dept,group,responsible,result,status,score,monthly:MONTHLY_SCORES[code]||{},targets:TARGETS[code]||null});
     });
-    if(nd.length>0){allData=nd;toast('โหลดจาก Sheets สำเร็จ ('+nd.length+' รายการ)','ok');}
+    if(nd.length>=90){allData=nd;toast('โหลดจาก Sheets สำเร็จ ('+nd.length+' รายการ)','ok');}
+    else if(nd.length>0){allData=nd;toast('โหลดได้ '+nd.length+' รายการ (คาดว่าครบ 95)','ok');}
     else throw new Error('empty');
-  }catch(e){allData=parseFB();toast('ใช้ข้อมูล built-in','er');}
+  }catch(e){allData=parseFB();toast('ใช้ข้อมูล built-in ('+allData.length+' รายการ)','er');}
   document.getElementById('upd').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
   btn.classList.remove('loading');btn.disabled=false;
   setupOrgFilter();
@@ -641,15 +699,40 @@ async function loadData(){
   hideLoad();
 }
 
+async function loadOrgList(){
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=OrgList&t=${Date.now()}`;
+    const res=await fetch(url);const txt=await res.text();
+    const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+    if(!m)throw new Error('no match');
+    const json=JSON.parse(m[1]);const rows=json.table.rows;
+    const orgs=['ภาพรวม กฟต.2'];
+    rows.forEach(row=>{
+      if(!row.c||!row.c[0]||!row.c[0].v)return;
+      const v=String(row.c[0].v).trim();
+      if(v&&v!=='ภาพรวม กฟต.2'&&!orgs.includes(v))orgs.push(v);
+    });
+    if(orgs.length>2){ORG_LIST=orgs;console.log('OrgList loaded:',orgs.length);}
+  }catch(e){console.log('OrgList fallback');}
+}
+
 function setupOrgFilter(){
   const sel=document.getElementById('fO');
-  const prev=sel.value;
+  const prev=sel.value||'all';
   sel.innerHTML='<option value="all">ภาพรวม กฟต.2</option>';
-  ORG_LIST.forEach(o=>{
-    const opt=document.createElement('option');
-    opt.value=o;opt.textContent=o;
-    sel.appendChild(opt);
-  });
+  /* แยก กฟจ. และ กฟส. */
+  const gfj=ORG_LIST.filter(o=>o.startsWith('กฟจ.'));
+  const gfs=ORG_LIST.filter(o=>o.startsWith('กฟส.'));
+  if(gfj.length){
+    const g=document.createElement('optgroup');g.label='— การไฟฟ้าจังหวัด —';
+    gfj.sort().forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});
+    sel.appendChild(g);
+  }
+  if(gfs.length){
+    const g=document.createElement('optgroup');g.label='— การไฟฟ้าสาขา —';
+    gfs.sort().forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});
+    sel.appendChild(g);
+  }
   if(prev&&[...sel.options].some(o=>o.value===prev))sel.value=prev;
 }
 
@@ -1023,10 +1106,10 @@ function hideLoad(){
 /* INIT */
 window.addEventListener('DOMContentLoaded',()=>{
   allData=parseFB();
-  setupOrgFilter();
+  setupOrgFilter();  /* ใช้ ORG_LIST_FALLBACK ก่อน */
   af();renderDept();renderAlert();renderTrendTable();
   hideLoad();
-  loadData();
+  loadData();  /* จะดึง OrgList live แล้ว setupOrgFilter ใหม่ */
 });
 </script>
 </body>
