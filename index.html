@@ -625,7 +625,9 @@ async function loadData(){
     const nd=[];
     rowsLP.forEach(row=>{
       const c=row.c; if(!c||!c[0]||!c[0].v) return;
-      const code=String(c[0].v).trim(); if(!code||code.length<2) return;
+      // ถ้า gviz คืน number เช่น 1.1 อาจหมายถึง "1.10" — ใช้ formatted value (c[0].f) ก่อน
+      const rawCode = c[0].f ? String(c[0].f).trim() : String(c[0].v).trim();
+      const code = rawCode; if(!code||code.length<2) return;
       const name=(c[1]&&c[1].v)?String(c[1].v).trim():'';
       const dept=(c[2]&&c[2].v)?String(c[2].v).trim():'';
       const group=(c[3]&&c[3].v)?String(c[3].v).trim():'';
@@ -657,7 +659,8 @@ async function loadData(){
       const ksMap={};
       rowsKS.forEach(row=>{
         const c=row.c; if(!c||!c[0]||!c[0].v) return;
-        const code=String(c[0].v).trim();
+        // ใช้ formatted value (f) ก่อนเพื่อรักษา trailing zero เช่น 1.10, 1.20
+        const code = c[0].f ? String(c[0].f).trim() : String(c[0].v).trim();
         const gv=(i)=>{
           try{
             const cell=c[i];
