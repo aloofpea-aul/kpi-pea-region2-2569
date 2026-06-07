@@ -18,8 +18,6 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-
-/* NAV */
 .nav{position:sticky;top:0;z-index:200;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);height:52px;display:flex;align-items:center;padding:0 20px;justify-content:space-between;gap:12px}
 .nbrand{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .nlogo{width:30px;height:30px;background:var(--bl);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 0 1px rgba(56,139,253,.3)}
@@ -38,12 +36,8 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .btn.loading svg{animation:spin .7s linear infinite}
 .btng{background:var(--tlbg);border-color:rgba(26,127,94,.3);color:var(--tl2)}
 .btng:hover{background:rgba(26,127,94,.2)}
-
-/* PAGE */
 .page{display:none;max-width:1320px;margin:0 auto;padding:16px 20px 40px;animation:fadeIn .2s ease}
 .page.on{display:block}
-
-/* FILTER BAR */
 .fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:10px 14px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl)}
 .fbar label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
 .fbar select{padding:4px 26px 4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e7681' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;transition:border-color .15s}
@@ -51,14 +45,10 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .fdiv{width:1px;height:18px;background:var(--bdr);margin:0 2px}
 .fcnt{margin-left:auto;font-size:10px;color:var(--t3);font-family:var(--mo)}
 .fcnt span{color:var(--bl2);font-weight:500}
-
-/* ORG BANNER */
 .org-banner{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--blbg);border:1px solid rgba(31,111,235,.25);border-radius:var(--r);margin-bottom:14px;font-size:12px;color:var(--bl2)}
 .org-banner strong{font-weight:500}
 .org-banner-close{margin-left:auto;cursor:pointer;color:var(--t3);font-size:14px;line-height:1}
 .org-banner-close:hover{color:var(--t)}
-
-/* METRIC CARDS */
 .mg{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
 @media(max-width:1100px){.mg{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.mg{grid-template-columns:repeat(2,1fr)}}
@@ -75,8 +65,6 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .pb{height:2px;background:var(--bg4);border-radius:2px;margin-top:7px;overflow:hidden}
 .pb-f{height:100%;border-radius:2px;transition:width .5s ease}
 .pb-f.tl{background:var(--tl2)}.pb-f.bl{background:var(--bl2)}.pb-f.am{background:var(--am2)}
-
-/* CHARTS */
 .cg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
 @media(max-width:900px){.cg{grid-template-columns:1fr}}
 .cc{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px 18px}
@@ -87,20 +75,14 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .cleg-d{width:7px;height:7px;border-radius:2px;flex-shrink:0}
 .cc.w2{grid-column:span 2}
 @media(max-width:900px){.cc.w2{grid-column:span 1}}
-
-/* TREND CHART */
 .tg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 @media(max-width:900px){.tg{grid-template-columns:1fr}}
 .trend-sel{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .trend-sel label{font-size:10px;color:var(--t3)}
 .trend-sel select{padding:3px 24px 3px 7px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e7681' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}
 .trend-sel select:focus{outline:none;border-color:var(--bl2)}
-
-/* SECTION LABEL */
 .sl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .sl::after{content:'';flex:1;height:1px;background:var(--bdr)}
-
-/* TABLE */
 .tcard{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden}
 .thdr{padding:10px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .thdr-l{display:flex;align-items:center;gap:8px}
@@ -132,8 +114,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .dfwb{background:rgba(31,111,235,.1);color:#388bfd;border-color:rgba(31,111,235,.2)}.dfpb{background:rgba(26,127,94,.1);color:#3fb884;border-color:rgba(26,127,94,.2)}.dfsb{background:rgba(158,106,3,.1);color:#d29922;border-color:rgba(158,106,3,.2)}.dgsx{background:rgba(124,58,237,.1);color:#a78bfa;border-color:rgba(124,58,237,.2)}.doth{background:var(--bg4);color:var(--t3);border-color:var(--bdr)}
 .sok{font-size:10px;color:var(--tl2)}.spnd{font-size:10px;color:var(--bl2)}
 .nodata{text-align:center;padding:36px;color:var(--t3);font-size:12px}
-
-/* TARGET LEVELS */
 .tgt-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .tgt-lv{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;font-size:9px;font-family:var(--mo);border:1px solid}
 .tgt-1{background:rgba(218,54,51,.08);color:#f85149;border-color:rgba(218,54,51,.2)}
@@ -142,8 +122,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .tgt-4{background:rgba(31,111,235,.08);color:#388bfd;border-color:rgba(31,111,235,.2)}
 .tgt-5{background:rgba(26,127,94,.1);color:#3fb884;border-color:rgba(26,127,94,.2)}
 .tgt-cur{font-weight:600;box-shadow:0 0 0 1px currentColor}
-
-/* MONTHLY TABLE */
 .mon-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:6px}
 .mon-cell{text-align:center;padding:3px 2px;border-radius:4px;font-size:9px;font-family:var(--mo)}
 .mon-cell.has{background:var(--tlbg);color:var(--tl2);cursor:pointer;border:1px solid rgba(26,127,94,.2)}
@@ -151,8 +129,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .mon-cell.empty{background:var(--bg4);color:var(--t3);border:1px solid transparent}
 .mon-cell.latest{background:rgba(56,139,253,.15);color:var(--bl2);border:1px solid rgba(56,139,253,.3);font-weight:600}
 .mon-lbl{font-size:8px;color:var(--t3);text-align:center;margin-top:1px}
-
-/* MODAL */
 .mover{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center}
 .mover.on{display:flex}
 .mbox{background:var(--bg2);border:1px solid var(--bdr2);border-radius:var(--rl);width:min(720px,95vw);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -174,11 +150,8 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .mf-v{font-size:12px;color:var(--t);line-height:1.5}
 .mlink{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--blbg);border:1px solid rgba(31,111,235,.3);border-radius:var(--r);color:var(--bl2);font-size:11px;text-decoration:none;transition:all .15s;margin-top:8px}
 .mlink:hover{background:rgba(31,111,235,.2)}
-/* trend chart in modal */
 .mtrend{margin-top:14px}
 .mtrend-t{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-
-/* DEPT PAGE */
 .dg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}
 .dcard{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:13px 15px;transition:border-color .2s}
 .dcard:hover{border-color:var(--bdr2)}
@@ -189,8 +162,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .dstat{background:var(--bg3);border-radius:6px;padding:5px 7px;text-align:center}
 .dstat-v{font-family:var(--mo);font-size:13px;font-weight:500}
 .dstat-l{font-size:9px;color:var(--t3)}
-
-/* ALERT */
 .ag{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 @media(max-width:700px){.ag{grid-column:1fr}}
 .acard{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden}
@@ -206,14 +177,10 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .ali-n{font-size:11px;color:var(--t);flex:1;line-height:1.4}
 .ali-s{font-family:var(--mo);font-size:11px;font-weight:500;flex-shrink:0}
 .ds{color:var(--rd2)}.ws{color:var(--am2)}.is{color:var(--bl2)}
-
-/* LOAD */
 #lov{position:fixed;inset:0;background:rgba(13,17,23,.9);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
 #lov.h{opacity:0;pointer-events:none}
 .sp{width:36px;height:36px;border:2px solid var(--bdr2);border-top-color:var(--bl2);border-radius:50%;animation:spin .8s linear infinite}
 .lt{font-size:12px;color:var(--t2)}
-
-/* TOAST */
 #toast{position:fixed;bottom:20px;right:20px;padding:9px 14px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);font-size:11px;color:var(--t);z-index:600;transform:translateY(60px);opacity:0;transition:all .25s cubic-bezier(.34,1.56,.64,1)}
 #toast.on{transform:translateY(0);opacity:1}
 #toast.ok{border-color:rgba(26,127,94,.4)}
@@ -224,7 +191,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
 <div id="lov"><div class="sp"></div><div class="lt">กำลังโหลดข้อมูล KPI กฟต.2 ปี 2569...</div></div>
 <div id="toast"></div>
 
-<!-- MODAL -->
 <div class="mover" id="mover" onclick="if(event.target===this)cM()">
   <div class="mbox">
     <div class="mhdr">
@@ -266,7 +232,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
   </div>
 </nav>
 
-<!-- PAGE: OVERVIEW -->
 <div class="page on" id="page-overview">
   <div class="fbar">
     <label>กลุ่ม</label>
@@ -311,7 +276,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
   <div id="watchT"></div>
 </div>
 
-<!-- PAGE: KPI LIST -->
 <div class="page" id="page-kpilist">
   <div class="tcard">
     <div class="thdr">
@@ -346,7 +310,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
   </div>
 </div>
 
-<!-- PAGE: DEPT -->
 <div class="page" id="page-dept">
   <div class="sl">สรุปผลรายฝ่าย</div>
   <div class="dg" id="dg"></div>
@@ -357,7 +320,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
   </div>
 </div>
 
-<!-- PAGE: TREND -->
 <div class="page" id="page-trend">
   <div class="sl">แนวโน้มคะแนน KPI รายเดือน</div>
   <div class="cc" style="margin-bottom:14px">
@@ -398,7 +360,6 @@ tbody td{padding:7px 10px;vertical-align:middle}
   </div>
 </div>
 
-<!-- PAGE: ALERT -->
 <div class="page" id="page-alert">
   <div class="sl">รายการที่ต้องติดตาม</div>
   <div class="ag">
@@ -418,11 +379,10 @@ tbody td{padding:7px 10px;vertical-align:middle}
 </div>
 
 <script>
-const SID='1VmYqWuoTuX_xo7mB2n6LzW6ZH1l_xE0CtzhvzASIkdI'; // Sheet กฟส.อล. (sync จากส่วนกลาง)
+const SID='1VmYqWuoTuX_xo7mB2n6LzW6ZH1l_xE0CtzhvzASIkdI';
 const MONTHS=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
 const MONTH_KEYS=['oct','nov','dec','jan','feb','mar','apr','may','jun','jul','aug','sep'];
 
-/* TARGET LEVELS per KPI code — เป้าหมายระดับ 1-5 */
 const TARGETS={
   '1.1':{1:150,2:170,3:190,4:210,5:230,unit:'ล้านบาท'},
   '1.3.1':{1:90,2:93,3:95,4:97,5:99,unit:'%'},
@@ -441,7 +401,6 @@ const TARGETS={
   '2.19':{1:75,2:80,3:85,4:88,5:92,unit:'%'},
 };
 
-/* MONTHLY DATA — ผลการดำเนินงานรายเดือน (คะแนน) */
 const MONTHLY_SCORES={
   '1.1':{mar:4.596},
   '1.3.1':{jan:3.8,feb:4.0,mar:4.1,apr:4.121},
@@ -479,60 +438,39 @@ const MONTHLY_SCORES={
   '2.21':{jan:5.0,feb:5.0,mar:5.0,apr:5.000},
 };
 
-/* ORG LIST — โหลดจาก OrgList sheet หรือ fallback */
 const ORG_LIST_FALLBACK=[
   'ภาพรวม กฟต.2',
-  /* กฟจ. 14 แห่ง */
   'กฟจ.กระบี่','กฟจ.ภูเก็ต','กฟจ.สุราษฎร์ธานี','กฟจ.นครศรีธรรมราช',
   'กฟจ.ตรัง','กฟจ.พังงา','กฟจ.ชุมพร','กฟจ.ระนอง',
   'กฟจ.สงขลา','กฟจ.ยะลา','กฟจ.ปัตตานี','กฟจ.นราธิวาส',
   'กฟจ.พัทลุง','กฟจ.สตูล',
-  /* กฟส. สังกัด กฟจ.กระบี่ */
   'กฟส.อ่าวลึก','กฟส.เกาะลันตา','กฟส.คลองท่อม',
-  /* กฟส. สังกัด กฟจ.ภูเก็ต */
   'กฟส.ถลาง',
-  /* กฟส. สังกัด กฟจ.สุราษฎร์ธานี */
   'กฟส.เกาะสมุย','กฟส.เกาะพะงัน','กฟส.ไชยา','กฟส.พระแสง','กฟส.บ้านนาสาร',
   'กฟส.บ้านนาเดิม','กฟส.เวียงสระ','กฟส.พุนพิน','กฟส.ท่าฉาง',
-  /* กฟส. สังกัด กฟจ.นครศรีธรรมราช */
   'กฟส.ทุ่งสง','กฟส.ปากพนัง','กฟส.นาบอน','กฟส.ทุ่งใหญ่','กฟส.ฉวาง',
   'กฟส.พรหมคีรี','กฟส.บางขัน','กฟส.ลานสกา','กฟส.เชียรใหญ่','กฟส.หัวไทร',
-  /* กฟส. สังกัด กฟจ.ตรัง */
   'กฟส.กันตัง','กฟส.ห้วยยอด','กฟส.ย่านตาขาว','กฟส.สิเกา','กฟส.ปะเหลียน',
   'กฟส.นาโยง','กฟส.วังวิเศษ',
-  /* กฟส. สังกัด กฟจ.พังงา */
   'กฟส.ตะกั่วป่า','กฟส.ท้ายเหมือง','กฟส.ทับปุด','กฟส.เกาะยาว','กฟส.คุระบุรี',
-  /* กฟส. สังกัด กฟจ.ชุมพร */
   'กฟส.หลังสวน','กฟส.ท่าแซะ','กฟส.พะโต๊ะ','กฟส.สวี','กฟส.ปะทิว','กฟส.ละแม',
-  /* กฟส. สังกัด กฟจ.ระนอง */
   'กฟส.กระบุรี','กฟส.ละอุ่น','กฟส.กะเปอร์',
-  /* กฟส. สังกัด กฟจ.สงขลา */
   'กฟส.หาดใหญ่','กฟส.สะเดา','กฟส.นาทวี','กฟส.รัตภูมิ','กฟส.บางกล่ำ',
   'กฟส.จะนะ','กฟส.สิงหนคร','กฟส.กระแสสินธุ์',
-  /* กฟส. สังกัด กฟจ.ยะลา */
   'กฟส.เบตง','กฟส.บันนังสตา','กฟส.กาบัง','กฟส.รามัน','กฟส.ธารโต',
-  /* กฟส. สังกัด กฟจ.ปัตตานี */
   'กฟส.หนองจิก','กฟส.ยะรัง','กฟส.ยะหริ่ง','กฟส.ทุ่งยางแดง','กฟส.โคกโพธิ์',
   'กฟส.สายบุรี','กฟส.มายอ',
-  /* กฟส. สังกัด กฟจ.นราธิวาส */
   'กฟส.สุไหงโก-ลก','กฟส.ตากใบ','กฟส.บาเจาะ','กฟส.ศรีสาคร','กฟส.แว้ง',
   'กฟส.รือเสาะ','กฟส.จะแนะ','กฟส.สุคิริน',
-  /* กฟส. สังกัด กฟจ.พัทลุง */
   'กฟส.ควนขนุน','กฟส.ปากพะยูน','กฟส.บางแก้ว','กฟส.กงหรา','กฟส.ตะโหมด',
-  /* กฟส. สังกัด กฟจ.สตูล */
   'กฟส.ละงู','กฟส.ทุ่งหว้า','กฟส.ควนโดน','กฟส.เกาะลิบง',
 ];
 let ORG_LIST=['ภาพรวม กฟต.2',...ORG_LIST_FALLBACK.filter(o=>o!=='ภาพรวม กฟต.2')];
 
-/* KPI ระดับ กฟฟ. ทุกแห่ง — ยืนยันจาก OrgMap จริง */
-/* KPI หลักที่ทุก กฟฟ. ต้องรายงาน */
 const KPI_ALL_BRANCHES=['1.3.1','1.3.2','1.5','1.6','1.7','1.8','2.1','2.2','2.3','2.4.1','2.4.2','2.8','2.9','2.15','2.21','2.22','2.31'];
-/* KPI เพิ่มเติมสำหรับ กฟจ. (จุดรวมงาน) */
 const KPI_GFJ_EXTRA=['1.9','1.10','1.11','1.19.1','2.5.1','2.5.2','2.5.3','2.5.4','2.5.5','2.5.6','2.6','2.7','2.10.1','2.12.1','2.12.2','2.12.3','2.13.1','2.13.2','2.14.1','2.14.2','2.16','2.17','2.18','2.19','2.20','2.26','2.27','2.28.1','2.28.2','2.29.1','2.29.2','2.30'];
 const KPI_PKT=['1.12','1.13','1.14','1.15'];
 const KPI_SAIFI_MUNI=['1.10','1.11'];
-
-/* KPI กฟส.อ่าวลึก (K04201) — ยืนยันจาก OrgMap 92 ตัว */
 const KPI_AOL=[
   '1.1','1.11','1.12','1.13','1.14','1.15','1.16','1.17','1.18',
   '1.19.1','1.19.2','1.19.3','1.2.1','1.2.2','1.2.3','1.20.1','1.20.2','1.20.3',
@@ -549,23 +487,19 @@ const KPI_AOL=[
 ];
 
 const ORG_KPI_MAP={};
-/* กฟส.อ่าวลึก — ใช้ list จริงจาก OrgMap */
 ORG_KPI_MAP['กฟส.อ่าวลึก']=KPI_AOL;
-/* ทุก กฟจ. */
 ['กฟจ.กระบี่','กฟจ.สุราษฎร์ธานี','กฟจ.นครศรีธรรมราช','กฟจ.ตรัง',
  'กฟจ.พังงา','กฟจ.ชุมพร','กฟจ.ระนอง','กฟจ.สงขลา','กฟจ.ยะลา',
  'กฟจ.ปัตตานี','กฟจ.นราธิวาส','กฟจ.พัทลุง','กฟจ.สตูล'].forEach(o=>{
   ORG_KPI_MAP[o]=[...KPI_ALL_BRANCHES,...KPI_GFJ_EXTRA,...KPI_SAIFI_MUNI];
 });
 ORG_KPI_MAP['กฟจ.ภูเก็ต']=[...KPI_ALL_BRANCHES,...KPI_GFJ_EXTRA,...KPI_SAIFI_MUNI,...KPI_PKT,'1.16','1.17'];
-/* ทุก กฟส. อื่นๆ */
 const GFS_BASE=[...KPI_ALL_BRANCHES,'1.9','1.19.1','2.5.1','2.5.2','2.5.3','2.5.6','2.6','2.10.1','2.26'];
 ORG_LIST_FALLBACK.filter(o=>o.startsWith('กฟส.')&&o!=='กฟส.อ่าวลึก').forEach(o=>{
   ORG_KPI_MAP[o]=GFS_BASE;
 });
 ORG_KPI_MAP['กฟส.เกาะสมุย']=[...GFS_BASE,...KPI_SAIFI_MUNI];
 
-/* FALLBACK DATA */
 const FB=[
   ['1.1','ความสามารถในการหารายได้การให้บริการธุรกิจเกี่ยวเนื่อง','ฝวบ.','งานตามนโยบายฯ','คณะทำงานธุรกิจเกี่ยวเนื่องฯ',216.852,'มี.ค.',4.596],
   ['1.2.1','ความสำเร็จในการจัดระเบียบสายสื่อสาร (คอนสื่อสาร ปี 2568)','ฝวบ.','งานตามนโยบายฯ','ผธท.กบล.(ต2)',null,'ยังไม่พร้อมรายงาน',null],
@@ -664,7 +598,6 @@ const FB=[
   ['2.31','Time Confirm ZW01/ZW02','ฝสบ.','งานตามหน้าที่ฯ','ผปว.กบฟ.(ต2)',96.540,'เม.ย.',5.000],
 ];
 
-/* STATE */
 let allData=[],fData=[],tData=[];
 let curTab='all',sKey=null,sDir=1,curOrg='all';
 let charts={};
@@ -678,9 +611,7 @@ async function loadData(){
   btn.classList.add('loading');btn.disabled=true;
   await loadOrgList();
 
-  // ดึง Landing Page (คะแนนล่าสุด สถานะ)
   const urlLP=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=Landing%20Page&t=${Date.now()}`;
-  // ดึง KPISummary (เป้าหมาย + ผลรายเดือนจริง)
   const urlKS=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=KPISummary&t=${Date.now()}`;
 
   try{
@@ -709,12 +640,15 @@ async function loadData(){
     });
 
     // --- parse KPISummary ---
-    // col 0-4  = KPI Code, ชื่อ, หน่วยวัด, ผู้รับผิดชอบ, หน่วยงาน
-    // col 5-9  = เป้าหมาย กฟต.2 Lv1-5
-    // col 10-14 = เป้าหมาย อล. Lv1-5  ← ใหม่
-    // col 15-26 = ผล กฟต.2 ม.ค.-ธ.ค.
-    // col 27-38 = คะแนน กฟต.2 ม.ค.-ธ.ค.
-    // col 39-50 = ผล อล. ม.ค.-ธ.ค.
+    // โครงสร้าง KPISummary (53 columns, index 0-52):
+    // col 0-4   = KPI Code, ชื่อ KPI, หน่วยวัด, ผู้รับผิดชอบ, หน่วยงานที่ประเมิน
+    // col 5-9   = เป้าหมาย กฟต.2 Lv1-5
+    // col 10-14 = เป้าหมาย อล. Lv1-5
+    // col 15-26 = ผล กฟต.2 ม.ค.-ธ.ค. (12 cols)
+    // col 27-38 = คะแนน กฟต.2 ม.ค.-ธ.ค. (12 cols)
+    // col 39-50 = ผล อล. ม.ค.-ธ.ค. (12 cols)
+    // col 51    = ผลล่าสุด อล.   ← แก้ไขจาก 46 เป็น 51
+    // col 52    = คะแนนล่าสุด อล. ← แก้ไขจาก 47 เป็น 52
     const MKKEYS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
     const mKS=txtKS.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(mKS){
@@ -731,11 +665,9 @@ async function loadData(){
             return (v===null||v===undefined||v==='') ? null : v;
           }catch(e){return null;}
         };
-        // cache ค่าเป้าหมายก่อนใช้
         const lv1=gv(5),lv2=gv(6),lv3=gv(7),lv4=gv(8),lv5=gv(9);
         const al1=gv(10),al2=gv(11),al3=gv(12),al4=gv(13),al5=gv(14);
 
-        // ถ้ามีใน ksMap แล้ว ให้ merge เฉพาะค่าที่ดีกว่า (ไม่ null)
         if(ksMap[code]){
           const ex=ksMap[code];
           if(al1!==null) ex.targets[1]=al1;
@@ -752,11 +684,6 @@ async function loadData(){
           return;
         }
 
-        // เป้าหมาย กฟต.2
-        const targetsGFT2={1:lv1,2:lv2,3:lv3,4:lv4,5:lv5,unit:''};
-        // เป้าหมาย กฟส.อล.
-        const targetsAOL={1:al1,2:al2,3:al3,4:al4,5:al5,unit:''};
-        // ใช้เป้าหมาย อล. ถ้ามี ไม่งั้นใช้ กฟต.2
         const targets={
           1: al1!==null ? al1 : lv1,
           2: al2!==null ? al2 : lv2,
@@ -765,32 +692,37 @@ async function loadData(){
           5: al5!==null ? al5 : lv5,
           unit:''
         };
-        const monthly={};     // คะแนน กฟต.2 รายเดือน
-        const monthlyRes={};  // ผล กฟต.2 รายเดือน
-        const monthlyAOL={};  // ผล กฟส.อล. รายเดือน
+        const monthly={};
+        const monthlyRes={};
+        const monthlyAOL={};
         MKKEYS.forEach((k,i)=>{
-          const res=gv(15+i);  // ผล กฟต.2
-          const sc=gv(27+i);   // คะแนน กฟต.2
-          const aol=gv(39+i);  // ผล อล.
+          const res=gv(15+i);
+          const sc=gv(27+i);
+          const aol=gv(39+i);
           if(res!==null) monthlyRes[k]=parseFloat(res)||res;
           if(sc!==null)  monthly[k]=parseFloat(sc)||sc;
           if(aol!==null) monthlyAOL[k]=parseFloat(aol)||aol;
         });
-        ksMap[code]={targets,targetsGFT2,targetsAOL,monthly,monthlyRes,monthlyAOL,
-          resultLatestAOL: gv(46),
-          scoreLatestAOL: gv(47)
+        ksMap[code]={
+          targets,
+          monthly,
+          monthlyRes,
+          monthlyAOL,
+          // ✅ แก้ไข: ใช้ index 51 และ 52 (ไม่ใช่ 46/47)
+          resultLatestAOL: gv(51),
+          scoreLatestAOL:  gv(52)
         };
       });
+
       // merge เข้า nd
       nd.forEach(item=>{
         const ks=ksMap[item.code]||ksMap[item.code.trim()];
         if(ks){
           item.targets=ks.targets;
-          item.targetsAOL=ks.targetsAOL;
           item.monthly=ks.monthly;
           item.monthlyRes=ks.monthlyRes;
           item.monthlyAOL=ks.monthlyAOL;
-          // ถ้ามีผลล่าสุดของ กฟส.อล. ให้ใช้แทน กฟต.2
+          // ใช้ผล/คะแนนล่าสุดของ กฟส.อล. ถ้ามี (แทนที่ค่าจาก Landing Page ซึ่งเป็น กฟต.2)
           if(ks.resultLatestAOL!==null&&ks.resultLatestAOL!=='') item.result=ks.resultLatestAOL;
           if(ks.scoreLatestAOL!==null&&ks.scoreLatestAOL!=='') item.score=parseFloat(ks.scoreLatestAOL)||item.score;
         }
@@ -815,16 +747,11 @@ async function loadData(){
 
 async function loadOrgList(){
   try{
-    // ดึงจากชีต OrgMap ใน Sheet ของเรา (public แล้ว)
-    // col B = รหัส 6 หลัก, col D = ชื่อหน่วยงาน
     const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=OrgMap&t=${Date.now()}`;
     const res=await fetch(url);const txt=await res.text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(!m)throw new Error('no match');
     const rows=JSON.parse(m[1]).table.rows;
-
-    // เก็บชื่อหน่วยงาน unique จาก col D (index 3)
-    // กรองเอาเฉพาะ กฟจ. และ กฟส. ไม่เอา "จุดรวมงาน" หรือ "ภาพรวม"
     const seen=new Set();
     const gfj=[], gfs=[];
     rows.forEach(row=>{
@@ -835,41 +762,23 @@ async function loadOrgList(){
       if(name.startsWith('กฟจ.')&&!name.includes('จุดรวม')){seen.add(name);gfj.push(name);}
       else if(name.startsWith('กฟส.')&&!name.includes('จุดรวม')){seen.add(name);gfs.push(name);}
     });
-
     const orgs=['ภาพรวม กฟต.2',...gfj.sort(),...gfs.sort()];
-    if(orgs.length>2){
-      ORG_LIST=orgs;
-      console.log('OrgList loaded from OrgMap:',orgs.length,'หน่วยงาน');
-    }
-  }catch(e){
-    console.log('OrgList fallback:',e.message);
-  }
+    if(orgs.length>2){ORG_LIST=orgs;console.log('OrgList loaded:',orgs.length,'หน่วยงาน');}
+  }catch(e){console.log('OrgList fallback:',e.message);}
 }
 
 function setupOrgFilter(){
   const sel=document.getElementById('fO');
   const prev=sel.value||'all';
   sel.innerHTML='<option value="all">ภาพรวม กฟต.2</option>';
-  /* แยก กฟจ. และ กฟส. */
   const gfj=ORG_LIST.filter(o=>o.startsWith('กฟจ.'));
   const gfs=ORG_LIST.filter(o=>o.startsWith('กฟส.'));
-  if(gfj.length){
-    const g=document.createElement('optgroup');g.label='— การไฟฟ้าจังหวัด —';
-    gfj.sort().forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});
-    sel.appendChild(g);
-  }
-  if(gfs.length){
-    const g=document.createElement('optgroup');g.label='— การไฟฟ้าสาขา —';
-    gfs.sort().forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});
-    sel.appendChild(g);
-  }
+  if(gfj.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าจังหวัด —';gfj.sort().forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
+  if(gfs.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าสาขา —';gfs.sort().forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
   if(prev&&[...sel.options].some(o=>o.value===prev))sel.value=prev;
 }
 
-function clearOrg(){
-  document.getElementById('fO').value='all';
-  af();
-}
+function clearOrg(){document.getElementById('fO').value='all';af();}
 
 function af(){
   const g=document.getElementById('fG').value;
@@ -878,23 +787,11 @@ function af(){
   const s=document.getElementById('fS').value;
   const sc=document.getElementById('fSc').value;
   curOrg=org;
-
-  // ดึง KPI list ของหน่วยงาน
-  // ถ้ามีใน ORG_KPI_MAP ใช้เลย
-  // ถ้าไม่มี ใช้ GFS_BASE (KPI พื้นฐานทุก กฟฟ.)
   let orgKpis=null;
-  if(org!=='all'){
-    orgKpis=ORG_KPI_MAP[org]||GFS_BASE;
-  }
-
+  if(org!=='all') orgKpis=ORG_KPI_MAP[org]||GFS_BASE;
   const banner=document.getElementById('orgBanner');
-  if(org!=='all'){
-    document.getElementById('orgBannerName').textContent=org;
-    banner.style.display='flex';
-  }else{
-    banner.style.display='none';
-  }
-
+  if(org!=='all'){document.getElementById('orgBannerName').textContent=org;banner.style.display='flex';}
+  else{banner.style.display='none';}
   fData=allData.filter(item=>{
     if(orgKpis&&!orgKpis.includes(item.code))return false;
     if(g==='policy'&&!item.group.includes('นโยบาย'))return false;
@@ -960,7 +857,6 @@ function renderTargetRow(tgt,score){
 }
 
 function renderMonthRow(item){
-  // แสดงผล กฟต.2 รายเดือน พร้อมคะแนน
   const res=item.monthlyRes||{};
   const sc=item.monthly||{};
   const hasRes=MONTH_KEYS.filter(k=>res[k]!==undefined&&res[k]!=='');
@@ -1001,37 +897,23 @@ function rCharts(){
   const rep=fData.filter(d=>d.score!==null);
   const pend=fData.filter(d=>d.score===null);
   dC('status');
-  charts.status=new Chart(document.getElementById('cStatus'),{
-    type:'doughnut',
-    data:{labels:['มีผลแล้ว','ยังไม่รายงาน'],datasets:[{data:[rep.length,pend.length],backgroundColor:['#3fb884','#388bfd'],borderWidth:0,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}
-  });
+  charts.status=new Chart(document.getElementById('cStatus'),{type:'doughnut',data:{labels:['มีผลแล้ว','ยังไม่รายงาน'],datasets:[{data:[rep.length,pend.length],backgroundColor:['#3fb884','#388bfd'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}});
   document.getElementById('legStatus').innerHTML=`<div class="cleg-i"><div class="cleg-d" style="background:#3fb884"></div>มีผลแล้ว (${rep.length})</div><div class="cleg-i"><div class="cleg-d" style="background:#388bfd"></div>รอรายงาน (${pend.length})</div>`;
   const depts=['ฝวบ.','ฝปบ.','ฝสบ.','กสข.','อื่นๆ'];
   const davg=depts.map(dep=>{const its=fData.filter(x=>x.dept===dep&&x.score!==null);return its.length?parseFloat((its.reduce((s,x)=>s+x.score,0)/its.length).toFixed(3)):0;});
   dC('dept');
-  charts.dept=new Chart(document.getElementById('cDept'),{
-    type:'bar',
-    data:{labels:depts,datasets:[{data:davg,backgroundColor:davg.map(v=>v>=4.5?'#3fb884':v>=3.5?'#388bfd':v>=2.5?'#d29922':'#f85149'),borderWidth:0,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5,ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}},plugins:{legend:{display:false}}}
-  });
+  charts.dept=new Chart(document.getElementById('cDept'),{type:'bar',data:{labels:depts,datasets:[{data:davg,backgroundColor:davg.map(v=>v>=4.5?'#3fb884':v>=3.5?'#388bfd':v>=2.5?'#d29922':'#f85149'),borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5,ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#8b949e',font:{size:11}},grid:{display:false}}},plugins:{legend:{display:false}}}});
   const bk=[0,0,0,0,0];
   rep.forEach(d=>{if(d.score>=5)bk[0]++;else if(d.score>=4)bk[1]++;else if(d.score>=3)bk[2]++;else if(d.score>=2)bk[3]++;else bk[4]++;});
   dC('dist');
-  charts.dist=new Chart(document.getElementById('cDist'),{
-    type:'bar',
-    data:{labels:['5.000','4–4.9','3–3.9','2–2.9','1–1.9'],datasets:[{data:bk,backgroundColor:['#3fb884','#388bfd','#d29922','#f85149','#da3633'],borderWidth:0,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{y:{ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#8b949e',font:{size:10}},grid:{display:false}}},plugins:{legend:{display:false}}}
-  });
+  charts.dist=new Chart(document.getElementById('cDist'),{type:'bar',data:{labels:['5.000','4–4.9','3–3.9','2–2.9','1–1.9'],datasets:[{data:bk,backgroundColor:['#3fb884','#388bfd','#d29922','#f85149','#da3633'],borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#8b949e',font:{size:10}},grid:{display:false}}},plugins:{legend:{display:false}}}});
 }
 
 function rWatch(){
   const wi=fData.filter(d=>(d.score!==null&&d.score<3)||d.score===null).slice(0,10);
   const el=document.getElementById('watchT');
   if(!wi.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3);font-size:12px">ไม่มีรายการที่ต้องเฝ้าระวัง 👍</div>';return;}
-  el.innerHTML=`<div class="tcard"><div class="thdr"><span class="thdr-title">รายการที่ต้องเฝ้าระวัง</span></div><div class="twrap"><table><thead><tr><th>รหัส</th><th>ชื่อ KPI</th><th>ฝ่าย</th><th style="text-align:right">คะแนน</th><th>สถานะ</th></tr></thead><tbody>${
-    wi.map(item=>`<tr onclick="oM('${item.code}')" style="cursor:pointer"><td class="tc">${item.code}</td><td class="tn">${item.name}</td><td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td><td class="ts"><span class="pill ${getPC(item.score)}">${item.score!==null?item.score.toFixed(3):'N/A'}</span></td><td class="${item.score!==null?'sok':'spnd'}" style="font-size:10px">${item.status||'—'}</td></tr>`).join('')
-  }</tbody></table></div></div>`;
+  el.innerHTML=`<div class="tcard"><div class="thdr"><span class="thdr-title">รายการที่ต้องเฝ้าระวัง</span></div><div class="twrap"><table><thead><tr><th>รหัส</th><th>ชื่อ KPI</th><th>ฝ่าย</th><th style="text-align:right">คะแนน</th><th>สถานะ</th></tr></thead><tbody>${wi.map(item=>`<tr onclick="oM('${item.code}')" style="cursor:pointer"><td class="tc">${item.code}</td><td class="tn">${item.name}</td><td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td><td class="ts"><span class="pill ${getPC(item.score)}">${item.score!==null?item.score.toFixed(3):'N/A'}</span></td><td class="${item.score!==null?'sok':'spnd'}" style="font-size:10px">${item.status||'—'}</td></tr>`).join('')}</tbody></table></div></div>`;
 }
 
 function rT(){
@@ -1053,7 +935,6 @@ function rT(){
   </tr>`).join('');
 }
 
-/* DEPT PAGE */
 function renderDept(){
   const depts=['ฝวบ.','ฝปบ.','ฝสบ.','กสข.','อื่นๆ'];
   const dc={'ฝวบ.':'#388bfd','ฝปบ.':'#3fb884','ฝสบ.':'#d29922','กสข.':'#a78bfa','อื่นๆ':'#8b949e'};
@@ -1063,23 +944,11 @@ function renderDept(){
     const avg=rep.length?rep.reduce((s,x)=>s+x.score,0)/rep.length:0;
     return{dept:dep,total:its.length,reported:rep.length,avg,s5:rep.filter(x=>x.score>=5).length,low:rep.filter(x=>x.score<3).length,c:dc[dep]};
   });
-  document.getElementById('dg').innerHTML=dd.map(d=>`
-    <div class="dcard"><div class="dchdr"><span class="dname" style="color:${d.c}">${d.dept}</span><span class="davg" style="color:${getSC(d.avg)}">${d.avg.toFixed(3)}</span></div>
-    <div class="dstats">
-      <div class="dstat"><div class="dstat-v">${d.total}</div><div class="dstat-l">KPI ทั้งหมด</div></div>
-      <div class="dstat"><div class="dstat-v" style="color:var(--tl2)">${d.reported}</div><div class="dstat-l">มีผล</div></div>
-      <div class="dstat"><div class="dstat-v" style="color:${d.low>0?'var(--rd2)':'var(--tl2)'}">${d.low}</div><div class="dstat-l">คะแนนต่ำ</div></div>
-    </div>
-    <div class="pb"><div class="pb-f tl" style="width:${d.total?d.reported/d.total*100:0}%"></div></div></div>`).join('');
+  document.getElementById('dg').innerHTML=dd.map(d=>`<div class="dcard"><div class="dchdr"><span class="dname" style="color:${d.c}">${d.dept}</span><span class="davg" style="color:${getSC(d.avg)}">${d.avg.toFixed(3)}</span></div><div class="dstats"><div class="dstat"><div class="dstat-v">${d.total}</div><div class="dstat-l">KPI ทั้งหมด</div></div><div class="dstat"><div class="dstat-v" style="color:var(--tl2)">${d.reported}</div><div class="dstat-l">มีผล</div></div><div class="dstat"><div class="dstat-v" style="color:${d.low>0?'var(--rd2)':'var(--tl2)'}">${d.low}</div><div class="dstat-l">คะแนนต่ำ</div></div></div><div class="pb"><div class="pb-f tl" style="width:${d.total?d.reported/d.total*100:0}%"></div></div></div>`).join('');
   dC('radar');
-  charts.radar=new Chart(document.getElementById('cRadar'),{
-    type:'radar',
-    data:{labels:depts,datasets:[{label:'คะแนนเฉลี่ย',data:dd.map(d=>parseFloat(d.avg.toFixed(3))),backgroundColor:'rgba(56,139,253,.15)',borderColor:'#388bfd',borderWidth:2,pointBackgroundColor:'#388bfd',pointRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{color:'#6e7681',font:{size:10},stepSize:1,backdropColor:'transparent'},grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#8b949e',font:{size:11}}}},plugins:{legend:{display:false}}}
-  });
+  charts.radar=new Chart(document.getElementById('cRadar'),{type:'radar',data:{labels:depts,datasets:[{label:'คะแนนเฉลี่ย',data:dd.map(d=>parseFloat(d.avg.toFixed(3))),backgroundColor:'rgba(56,139,253,.15)',borderColor:'#388bfd',borderWidth:2,pointBackgroundColor:'#388bfd',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{color:'#6e7681',font:{size:10},stepSize:1,backdropColor:'transparent'},grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#8b949e',font:{size:11}}}},plugins:{legend:{display:false}}}});
 }
 
-/* TREND PAGE */
 function renderTrend(){
   const view=document.getElementById('trendView').value;
   const grp=document.getElementById('trendGroup').value;
@@ -1096,50 +965,22 @@ function renderTrend(){
   const monthOrder=['oct','nov','dec','jan','feb','mar','apr','may','jun','jul','aug','sep'];
   const monthLabels=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
   let datasets=[];
-  let labels=monthLabels;
   if(view==='avg'){
-    const avgByMonth=monthOrder.map(mk=>{
-      const vals=filtered.filter(d=>d.monthly[mk]!==undefined).map(d=>d.monthly[mk]);
-      return vals.length?parseFloat((vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(3)):null;
-    });
+    const avgByMonth=monthOrder.map(mk=>{const vals=filtered.filter(d=>d.monthly[mk]!==undefined).map(d=>d.monthly[mk]);return vals.length?parseFloat((vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(3)):null;});
     datasets=[{label:'คะแนนเฉลี่ย กฟต.2',data:avgByMonth,borderColor:'#388bfd',backgroundColor:'rgba(56,139,253,.1)',fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#388bfd',spanGaps:true}];
-  } else if(view==='dept'){
+  }else if(view==='dept'){
     const depts=['ฝวบ.','ฝปบ.','ฝสบ.'];
     const colors=['#388bfd','#3fb884','#d29922'];
-    datasets=depts.map((dep,i)=>{
-      const items=filtered.filter(x=>x.dept===dep);
-      const data=monthOrder.map(mk=>{
-        const vals=items.filter(d=>d.monthly[mk]!==undefined).map(d=>d.monthly[mk]);
-        return vals.length?parseFloat((vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(3)):null;
-      });
-      return{label:dep,data,borderColor:colors[i],backgroundColor:colors[i]+'22',fill:false,tension:.4,pointRadius:4,spanGaps:true};
-    });
-  } else {
-    const code=kpiDD.value;
-    if(!code)return;
-    const item=allData.find(d=>d.code===code);
-    if(!item)return;
+    datasets=depts.map((dep,i)=>{const items=filtered.filter(x=>x.dept===dep);const data=monthOrder.map(mk=>{const vals=items.filter(d=>d.monthly[mk]!==undefined).map(d=>d.monthly[mk]);return vals.length?parseFloat((vals.reduce((s,v)=>s+v,0)/vals.length).toFixed(3)):null;});return{label:dep,data,borderColor:colors[i],backgroundColor:colors[i]+'22',fill:false,tension:.4,pointRadius:4,spanGaps:true};});
+  }else{
+    const code=kpiDD.value;if(!code)return;
+    const item=allData.find(d=>d.code===code);if(!item)return;
     const data=monthOrder.map(mk=>item.monthly[mk]!==undefined?item.monthly[mk]:null);
     datasets=[{label:item.code,data,borderColor:'#3fb884',backgroundColor:'rgba(63,184,132,.12)',fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#3fb884',spanGaps:true}];
-    if(item.score!==null){
-      datasets.push({label:'คะแนนล่าสุด',data:monthOrder.map(()=>item.score),borderColor:'rgba(255,255,255,.2)',borderDash:[4,4],pointRadius:0,fill:false,tension:0});
-    }
+    if(item.score!==null) datasets.push({label:'คะแนนล่าสุด',data:monthOrder.map(()=>item.score),borderColor:'rgba(255,255,255,.2)',borderDash:[4,4],pointRadius:0,fill:false,tension:0});
   }
   dC('trend');
-  charts.trend=new Chart(document.getElementById('cTrend'),{
-    type:'line',
-    data:{labels,datasets},
-    options:{responsive:true,maintainAspectRatio:false,
-      scales:{
-        y:{min:0,max:5.2,ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},
-        x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}
-      },
-      plugins:{
-        legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10,padding:12}},
-        tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}`}}
-      }
-    }
-  });
+  charts.trend=new Chart(document.getElementById('cTrend'),{type:'line',data:{labels:monthLabels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5.2,ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10,padding:12}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}`}}}}});
 }
 
 function renderTrendTable(){
@@ -1147,17 +988,11 @@ function renderTrendTable(){
   const hasAny=allData.filter(d=>Object.keys(d.monthly||{}).length>0);
   const tbody=document.getElementById('trendTBody');
   tbody.innerHTML=hasAny.map(item=>{
-    const cells=mk.map(k=>{
-      const v=item.monthly[k];
-      if(v===undefined)return`<td style="text-align:center;color:var(--t3);font-size:10px;font-family:var(--mo)">—</td>`;
-      const c=v>=5?'#3fb884':v>=4?'#388bfd':v>=3?'#d29922':'#f85149';
-      return`<td style="text-align:center;font-size:11px;font-family:var(--mo);color:${c};font-weight:500">${v.toFixed(3)}</td>`;
-    }).join('');
+    const cells=mk.map(k=>{const v=item.monthly[k];if(v===undefined)return`<td style="text-align:center;color:var(--t3);font-size:10px;font-family:var(--mo)">—</td>`;const c=v>=5?'#3fb884':v>=4?'#388bfd':v>=3?'#d29922':'#f85149';return`<td style="text-align:center;font-size:11px;font-family:var(--mo);color:${c};font-weight:500">${v.toFixed(3)}</td>`;}).join('');
     return`<tr onclick="oM('${item.code}')" style="cursor:pointer"><td class="tc">${item.code}</td><td class="tn" style="max-width:200px">${item.name}</td><td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td>${cells}</tr>`;
   }).join('');
 }
 
-/* ALERT PAGE */
 function renderAlert(){
   const crit=allData.filter(d=>d.score!==null&&d.score<2);
   const warn=allData.filter(d=>d.score!==null&&d.score>=2&&d.score<3);
@@ -1169,7 +1004,6 @@ function renderAlert(){
   document.getElementById('aP').innerHTML=pend.map(i=>mk(i,'is')).join('');
 }
 
-/* MODAL */
 function oM(code){
   const item=allData.find(d=>d.code===code);if(!item)return;
   document.getElementById('mCode').textContent=item.code;
@@ -1178,49 +1012,23 @@ function oM(code){
   const scCls=sc===null?'sna':sc>=5?'s5':sc>=4?'s4':sc>=3?'s3':'s12';
   const scLbl=sc===null?'ยังไม่มีผล':sc>=5?'ผ่านเกณฑ์สูงสุด':sc>=4?'ผ่านเกณฑ์ดี':sc>=3?'ผ่านเกณฑ์':sc>=2?'ต้องเฝ้าระวัง':'ต้องปรับปรุงด่วน';
   const resFmt=item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—';
-
-  // เดือนลำดับ ม.ค.-ธ.ค.
-  const mk=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  const mk2=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
   const ml=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-
   const res=item.monthlyRes||{};
   const scM=item.monthly||{};
   const aol=item.monthlyAOL||{};
-  const hasGFT2=mk.some(k=>res[k]!==undefined&&res[k]!=='');
-  const hasAOL=mk.some(k=>aol[k]!==undefined&&aol[k]!=='');
-  const hasChart=hasGFT2||mk.some(k=>scM[k]!==undefined&&scM[k]!=='');
-
-  // สร้างตารางผลรายเดือน
+  const hasGFT2=mk2.some(k=>res[k]!==undefined&&res[k]!=='');
+  const hasAOL=mk2.some(k=>aol[k]!==undefined&&aol[k]!=='');
+  const hasChart=hasGFT2||mk2.some(k=>scM[k]!==undefined&&scM[k]!=='');
   const buildMonthTable=(label,data,color)=>{
-    const hasAny=mk.some(k=>data[k]!==undefined&&data[k]!=='');
+    const hasAny=mk2.some(k=>data[k]!==undefined&&data[k]!=='');
     if(!hasAny)return'';
-    const cells=mk.map((k,i)=>{
-      const v=data[k];
-      if(v===undefined||v==='')return`<td style="text-align:center;color:var(--t3);font-size:10px;font-family:var(--mo);padding:3px 4px">—</td>`;
-      const n=parseFloat(v);
-      return`<td style="text-align:center;font-size:10px;font-family:var(--mo);color:${color};padding:3px 4px">${isNaN(n)?v:n.toFixed(3)}</td>`;
-    }).join('');
+    const cells=mk2.map((k,i)=>{const v=data[k];if(v===undefined||v==='')return`<td style="text-align:center;color:var(--t3);font-size:10px;font-family:var(--mo);padding:3px 4px">—</td>`;const n=parseFloat(v);return`<td style="text-align:center;font-size:10px;font-family:var(--mo);color:${color};padding:3px 4px">${isNaN(n)?v:n.toFixed(3)}</td>`;}).join('');
     return`<tr><td style="font-size:10px;color:var(--t3);padding:3px 6px;white-space:nowrap">${label}</td>${cells}</tr>`;
   };
-
   const monthHeader=ml.map(m=>`<th style="font-size:9px;color:var(--t3);text-align:center;padding:3px 4px;font-weight:400">${m}</th>`).join('');
   const hasTable=hasGFT2||hasAOL||hasChart;
-  const tableHTML=hasTable?`
-    <div class="mtrend">
-      <div class="mtrend-t">ผลการดำเนินงานรายเดือน</div>
-      <div style="overflow-x:auto;margin-bottom:10px">
-        <table style="width:100%;border-collapse:collapse;min-width:600px">
-          <thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead>
-          <tbody>
-            ${buildMonthTable('ผล กฟต.2',res,'#8b949e')}
-            ${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}
-            ${buildMonthTable('ผล กฟส.อล.',aol,'#3fb884')}
-          </tbody>
-        </table>
-      </div>
-      ${hasChart?`<div style="position:relative;height:160px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}
-    </div>`:'';
-
+  const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('ผล กฟต.2',res,'#8b949e')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟส.อล.',aol,'#3fb884')}</tbody></table></div>${hasChart?`<div style="position:relative;height:160px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
   document.getElementById('mBody').innerHTML=`
     <div class="mscbig ${scCls}">
       <div class="mscnum">${sc!==null?sc.toFixed(3):'N/A'}</div>
@@ -1239,36 +1047,23 @@ function oM(code){
     </a>
   `;
   document.getElementById('mover').classList.add('on');
-
-  // Chart คะแนนรายเดือน
   if(hasChart){
     setTimeout(()=>{
       const el=document.getElementById('mChart');if(!el)return;
       const ds=[];
-      const scData=mk.map(k=>scM[k]!==undefined&&scM[k]!==''?parseFloat(scM[k]):null);
-      const resData=mk.map(k=>res[k]!==undefined&&res[k]!==''?parseFloat(res[k]):null);
-      const aolData=mk.map(k=>aol[k]!==undefined&&aol[k]!==''?parseFloat(aol[k]):null);
+      const scData=mk2.map(k=>scM[k]!==undefined&&scM[k]!==''?parseFloat(scM[k]):null);
+      const aolData=mk2.map(k=>aol[k]!==undefined&&aol[k]!==''?parseFloat(aol[k]):null);
       if(scData.some(v=>v!==null)) ds.push({label:'คะแนน กฟต.2',data:scData,borderColor:'#388bfd',backgroundColor:'rgba(56,139,253,.1)',fill:false,tension:.4,pointRadius:3,spanGaps:true,yAxisID:'y'});
       if(aolData.some(v=>v!==null)) ds.push({label:'ผล กฟส.อล.',data:aolData,borderColor:'#3fb884',backgroundColor:'rgba(63,184,132,.08)',fill:false,tension:.4,pointRadius:3,spanGaps:true,yAxisID:'y2'});
       if(!ds.length)return;
-      new Chart(el,{
-        type:'line',
-        data:{labels:ml,datasets:ds},
-        options:{responsive:true,maintainAspectRatio:false,
-          scales:{
-            y:{position:'left',ticks:{color:'#388bfd',font:{size:9}},grid:{color:'rgba(56,139,253,.06)'},title:{display:true,text:'คะแนน',color:'#388bfd',font:{size:9}}},
-            y2:{position:'right',ticks:{color:'#3fb884',font:{size:9}},grid:{display:false},title:{display:true,text:'ผล อล.',color:'#3fb884',font:{size:9}}}
-          },
-          plugins:{legend:{labels:{color:'#8b949e',font:{size:9},boxWidth:8,padding:8}}}
-        }
-      });
+      new Chart(el,{type:'line',data:{labels:ml,datasets:ds},options:{responsive:true,maintainAspectRatio:false,scales:{y:{position:'left',ticks:{color:'#388bfd',font:{size:9}},grid:{color:'rgba(56,139,253,.06)'},title:{display:true,text:'คะแนน',color:'#388bfd',font:{size:9}}},y2:{position:'right',ticks:{color:'#3fb884',font:{size:9}},grid:{display:false},title:{display:true,text:'ผล อล.',color:'#3fb884',font:{size:9}}}},plugins:{legend:{labels:{color:'#8b949e',font:{size:9},boxWidth:8,padding:8}}}}});
     },50);
   }
 }
+
 function cM(){document.getElementById('mover').classList.remove('on');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')cM();});
 
-/* PAGE NAV */
 function sP(el){
   document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
@@ -1277,7 +1072,6 @@ function sP(el){
   if(el.dataset.p==='trend')setTimeout(()=>{renderTrend();},100);
 }
 
-/* EXPORT */
 function expCSV(){
   const h=['รหัส KPI','ชื่อ KPI','กลุ่ม','ฝ่าย','ผู้รับผิดชอบ','ผลล่าสุด','สถานะ','คะแนน','ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
   const mk=['oct','nov','dec','jan','feb','mar','apr','may','jun','jul','aug','sep'];
@@ -1288,22 +1082,13 @@ function expCSV(){
   toast('Export CSV สำเร็จ','ok');
 }
 
-/* UTILS */
 let tTimer;
-function toast(msg,type='ok'){
-  const el=document.getElementById('toast');el.textContent=msg;el.className='on '+type;
-  clearTimeout(tTimer);tTimer=setTimeout(()=>el.className='',3500);
-}
-function hideLoad(){
-  const el=document.getElementById('lov');el.classList.add('h');
-  setTimeout(()=>el.style.display='none',400);
-}
+function toast(msg,type='ok'){const el=document.getElementById('toast');el.textContent=msg;el.className='on '+type;clearTimeout(tTimer);tTimer=setTimeout(()=>el.className='',3500);}
+function hideLoad(){const el=document.getElementById('lov');el.classList.add('h');setTimeout(()=>el.style.display='none',400);}
 
-/* INIT */
 window.addEventListener('DOMContentLoaded',()=>{
   allData=parseFB();
   setupOrgFilter();
-  // ตั้ง default เป็น กฟส.อ่าวลึก
   const fO=document.getElementById('fO');
   setTimeout(()=>{
     const opt=[...fO.options].find(o=>o.value==='กฟส.อ่าวลึก');
