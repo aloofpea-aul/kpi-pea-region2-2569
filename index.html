@@ -857,19 +857,27 @@ function renderTargetRow(tgt,score){
 }
 
 function renderMonthRow(item){
+  // ใช้ผล กฟส.อล. (monthlyAOL) เป็นหลัก ถ้าไม่มีจึง fallback ไป monthlyRes (กฟต.2)
+  const aol=item.monthlyAOL||{};
   const res=item.monthlyRes||{};
   const sc=item.monthly||{};
+  const hasAOL=MONTH_KEYS.filter(k=>aol[k]!==undefined&&aol[k]!=='');
   const hasRes=MONTH_KEYS.filter(k=>res[k]!==undefined&&res[k]!=='');
   const hasSc=MONTH_KEYS.filter(k=>sc[k]!==undefined&&sc[k]!=='');
-  if(!hasRes.length&&!hasSc.length) return'<span style="color:var(--t3);font-size:10px">—</span>';
-  const latestKey=(hasRes.length?hasRes:hasSc)[((hasRes.length?hasRes:hasSc).length)-1];
+  // ใช้ AOL ก่อน ถ้าไม่มีใช้ res ถ้าไม่มีใช้ sc
+  const primary=hasAOL.length?aol:hasRes.length?res:{};
+  const primaryKeys=hasAOL.length?hasAOL:hasRes.length?hasRes:hasSc;
+  if(!primaryKeys.length&&!hasSc.length) return'<span style="color:var(--t3);font-size:10px">—</span>';
+  const latestKey=primaryKeys.length?primaryKeys[primaryKeys.length-1]:hasSc[hasSc.length-1];
   return'<div class="mon-grid">'+MONTH_KEYS.map((k,i)=>{
-    const r=res[k]; const s=sc[k]; const lbl=MONTHS[i];
-    const hasAny=(r!==undefined&&r!=='')||(s!==undefined&&s!=='');
+    const a=aol[k]; const r=res[k]; const s=sc[k]; const lbl=MONTHS[i];
+    const hasAny=(a!==undefined&&a!=='')||(r!==undefined&&r!=='')||(s!==undefined&&s!=='');
     if(!hasAny) return`<div><div class="mon-cell empty">—</div><div class="mon-lbl">${lbl}</div></div>`;
     const cls=k===latestKey?'latest':'has';
-    const disp=s!==undefined&&s!==''?parseFloat(s).toFixed(2):parseFloat(r).toFixed(2);
-    const tip=`${lbl}: ผล=${r!==undefined?r:'—'} คะแนน=${s!==undefined?s:'—'}`;
+    // แสดงผล กฟส.อล. ก่อน ถ้าไม่มีใช้ กฟต.2 ถ้าไม่มีใช้คะแนน
+    const dispVal=a!==undefined&&a!==''?a:r!==undefined&&r!==''?r:s;
+    const disp=parseFloat(dispVal).toFixed(2);
+    const tip=`${lbl}: ผล อล.=${a!==undefined?a:'—'} | ผล กฟต.2=${r!==undefined?r:'—'} | คะแนน=${s!==undefined?s:'—'}`;
     return`<div><div class="mon-cell ${cls}" title="${tip}">${disp}</div><div class="mon-lbl">${lbl}</div></div>`;
   }).join('')+'</div>';
 }
@@ -1019,7 +1027,7 @@ function oM(code){
   const aol=item.monthlyAOL||{};
   const hasGFT2=mk2.some(k=>res[k]!==undefined&&res[k]!=='');
   const hasAOL=mk2.some(k=>aol[k]!==undefined&&aol[k]!=='');
-  const hasChart=hasGFT2||mk2.some(k=>scM[k]!==undefined&&scM[k]!=='');
+  const hasChart=hasGFT2||hasAOL||mk2.some(k=>scM[k]!==undefined&&scM[k]!=='');
   const buildMonthTable=(label,data,color)=>{
     const hasAny=mk2.some(k=>data[k]!==undefined&&data[k]!=='');
     if(!hasAny)return'';
@@ -1028,7 +1036,7 @@ function oM(code){
   };
   const monthHeader=ml.map(m=>`<th style="font-size:9px;color:var(--t3);text-align:center;padding:3px 4px;font-weight:400">${m}</th>`).join('');
   const hasTable=hasGFT2||hasAOL||hasChart;
-  const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('ผล กฟต.2',res,'#8b949e')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟส.อล.',aol,'#3fb884')}</tbody></table></div>${hasChart?`<div style="position:relative;height:160px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
+  const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('ผล กฟส.อล.',aol,'#3fb884')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟต.2',res,'#8b949e')}</tbody></table></div>${hasChart?`<div style="position:relative;height:160px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
   document.getElementById('mBody').innerHTML=`
     <div class="mscbig ${scCls}">
       <div class="mscnum">${sc!==null?sc.toFixed(3):'N/A'}</div>
@@ -1053,10 +1061,12 @@ function oM(code){
       const ds=[];
       const scData=mk2.map(k=>scM[k]!==undefined&&scM[k]!==''?parseFloat(scM[k]):null);
       const aolData=mk2.map(k=>aol[k]!==undefined&&aol[k]!==''?parseFloat(aol[k]):null);
-      if(scData.some(v=>v!==null)) ds.push({label:'คะแนน กฟต.2',data:scData,borderColor:'#388bfd',backgroundColor:'rgba(56,139,253,.1)',fill:false,tension:.4,pointRadius:3,spanGaps:true,yAxisID:'y'});
-      if(aolData.some(v=>v!==null)) ds.push({label:'ผล กฟส.อล.',data:aolData,borderColor:'#3fb884',backgroundColor:'rgba(63,184,132,.08)',fill:false,tension:.4,pointRadius:3,spanGaps:true,yAxisID:'y2'});
+      const resData=mk2.map(k=>res[k]!==undefined&&res[k]!==''?parseFloat(res[k]):null);
+      // ผล กฟส.อล. = y หลัก (ซ้าย), คะแนน กฟต.2 = y รอง (ขวา)
+      if(aolData.some(v=>v!==null)) ds.push({label:'ผล กฟส.อล.',data:aolData,borderColor:'#3fb884',backgroundColor:'rgba(63,184,132,.15)',fill:true,tension:.4,pointRadius:4,spanGaps:true,yAxisID:'y'});
+      if(scData.some(v=>v!==null)) ds.push({label:'คะแนน กฟต.2',data:scData,borderColor:'#388bfd',backgroundColor:'rgba(56,139,253,.08)',fill:false,tension:.4,pointRadius:3,spanGaps:true,yAxisID:'y2'});
       if(!ds.length)return;
-      new Chart(el,{type:'line',data:{labels:ml,datasets:ds},options:{responsive:true,maintainAspectRatio:false,scales:{y:{position:'left',ticks:{color:'#388bfd',font:{size:9}},grid:{color:'rgba(56,139,253,.06)'},title:{display:true,text:'คะแนน',color:'#388bfd',font:{size:9}}},y2:{position:'right',ticks:{color:'#3fb884',font:{size:9}},grid:{display:false},title:{display:true,text:'ผล อล.',color:'#3fb884',font:{size:9}}}},plugins:{legend:{labels:{color:'#8b949e',font:{size:9},boxWidth:8,padding:8}}}}});
+      new Chart(el,{type:'line',data:{labels:ml,datasets:ds},options:{responsive:true,maintainAspectRatio:false,scales:{y:{position:'left',ticks:{color:'#3fb884',font:{size:9}},grid:{color:'rgba(63,184,132,.06)'},title:{display:true,text:'ผล อล.',color:'#3fb884',font:{size:9}}},y2:{position:'right',ticks:{color:'#388bfd',font:{size:9}},grid:{display:false},title:{display:true,text:'คะแนน',color:'#388bfd',font:{size:9}}}},plugins:{legend:{labels:{color:'#8b949e',font:{size:9},boxWidth:8,padding:8}}}}});
     },50);
   }
 }
