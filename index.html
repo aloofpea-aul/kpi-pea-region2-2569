@@ -731,8 +731,9 @@ async function loadData(){
         const c=row.c; if(!c||!c[0]||!c[0].v) return;
         const code=String(c[0].v).trim();
         const gv=(i)=>{
-          if(!c[i]&&c[i]!==0) return null;
-          const v=c[i]?c[i].v:null;
+          const cell=c[i];
+          if(cell===null||cell===undefined) return null;
+          const v=cell.v;
           if(v===null||v===undefined||v==='') return null;
           return v;
         };
