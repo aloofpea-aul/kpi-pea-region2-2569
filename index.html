@@ -742,6 +742,24 @@ async function loadData(){
         // cache ค่าเป้าหมายก่อนใช้
         const lv1=gv(5),lv2=gv(6),lv3=gv(7),lv4=gv(8),lv5=gv(9);
         const al1=gv(10),al2=gv(11),al3=gv(12),al4=gv(13),al5=gv(14);
+
+        // ถ้ามีใน ksMap แล้ว ให้ merge เฉพาะค่าที่ดีกว่า (ไม่ null)
+        if(ksMap[code]){
+          const ex=ksMap[code];
+          if(al1!==null) ex.targets[1]=al1;
+          if(al2!==null) ex.targets[2]=al2;
+          if(al3!==null) ex.targets[3]=al3;
+          if(al4!==null) ex.targets[4]=al4;
+          if(al5!==null) ex.targets[5]=al5;
+          MKKEYS.forEach((k,i)=>{
+            const res=gv(15+i),sc=gv(27+i),aol=gv(39+i);
+            if(res!==null) ex.monthlyRes[k]=parseFloat(res)||res;
+            if(sc!==null)  ex.monthly[k]=parseFloat(sc)||sc;
+            if(aol!==null) ex.monthlyAOL[k]=parseFloat(aol)||aol;
+          });
+          return;
+        }
+
         // เป้าหมาย กฟต.2
         const targetsGFT2={1:lv1,2:lv2,3:lv3,4:lv4,5:lv5,unit:''};
         // เป้าหมาย กฟส.อล.
