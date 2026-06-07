@@ -732,7 +732,9 @@ async function loadData(){
         const code=String(c[0].v).trim();
         const gv=(i)=>{
           try{
-            const v=c[i].v;
+            const cell=c[i];
+            if(!cell) return null;
+            const v=cell.v;
             return (v===null||v===undefined||v==='') ? null : v;
           }catch(e){return null;}
         };
@@ -765,12 +767,14 @@ async function loadData(){
       });
       // merge เข้า nd
       nd.forEach(item=>{
-        const ks=ksMap[item.code];
+        const ks=ksMap[item.code]||ksMap[item.code.trim()];
         if(ks){
           item.targets=ks.targets;
-          item.monthly=ks.monthly;        // คะแนน กฟต.2 รายเดือน (สำหรับ trend)
-          item.monthlyRes=ks.monthlyRes;  // ผล กฟต.2 รายเดือน
-          item.monthlyAOL=ks.monthlyAOL; // ผล กฟส.อล. รายเดือน
+          item.targetsAOL=ks.targetsAOL;
+          item.monthly=ks.monthly;
+          item.monthlyRes=ks.monthlyRes;
+          item.monthlyAOL=ks.monthlyAOL;
+          if(item.code==='1.1') console.warn('merge 1.1 targets:',JSON.stringify(ks.targets));
         }
       });
       toast('โหลดข้อมูลจริงครบแล้ว ('+nd.length+' KPI)','ok');
