@@ -626,11 +626,18 @@ async function loadData(){
     if(!mLP) throw new Error('parse LP');
     const rowsLP=JSON.parse(mLP[1]).table.rows;
     const nd=[];
+    // helper: แปลง gviz code value ให้เป็น string ที่ถูกต้อง เช่น 1.1 (number) → "1.10" ถ้า .f มี
+    const parseCode = (cell) => {
+      if(!cell||cell.v===null||cell.v===undefined) return null;
+      // ใช้ formatted value (.f) ก่อนเสมอ เพราะ gviz เก็บค่าที่แสดงผลจริงไว้ที่นี่
+      if(cell.f && String(cell.f).trim()) return String(cell.f).trim();
+      // ถ้าไม่มี .f ให้ใช้ .v แต่ต้องระวัง number trailing zero
+      // เช่น 1.1 อาจมาจาก "1.10" หรือ "1.1" → ไม่สามารถรู้ได้แน่ชัดจาก number เพียงอย่างเดียว
+      return String(cell.v).trim();
+    };
     rowsLP.forEach(row=>{
-      const c=row.c; if(!c||!c[0]||!c[0].v) return;
-      // ถ้า gviz คืน number เช่น 1.1 อาจหมายถึง "1.10" — ใช้ formatted value (c[0].f) ก่อน
-      const rawCode = c[0].f ? String(c[0].f).trim() : String(c[0].v).trim();
-      const code = rawCode; if(!code||code.length<2) return;
+      const c=row.c; if(!c||!c[0]) return;
+      const code=parseCode(c[0]); if(!code||code.length<2) return;
       const name=(c[1]&&c[1].v)?String(c[1].v).trim():'';
       const dept=(c[2]&&c[2].v)?String(c[2].v).trim():'';
       const group=(c[3]&&c[3].v)?String(c[3].v).trim():'';
@@ -725,24 +732,61 @@ async function loadData(){
         };
       });
 
-      // merge เข้า nd
-      nd.forEach(item=>{
-        const ks=ksMap[item.code]||ksMap[item.code.trim()];
-        if(ks){
-          item.targets=ks.targets;
-          item.monthly=ks.monthly;
-          item.monthlyRes=ks.monthlyRes;
-          item.monthlyAOL=ks.monthlyAOL;
-          item.monthlyScoreAOL=ks.monthlyScoreAOL;
-          if(ks.resultLatestAOL!==null&&ks.resultLatestAOL!=='') item.result=ks.resultLatestAOL;
-          if(ks.scoreLatestAOL!==null&&ks.scoreLatestAOL!=='') item.score=parseFloat(ks.scoreLatestAOL)||item.score;
-        }
-      });
-      toast('โหลดข้อมูลจริงครบแล้ว ('+nd.length+' KPI)','ok');
-    }
+      // สร้าง nd จาก KPISummary โดยตรง (code ถูกต้อง 100% ไม่มีปัญหา trailing zero)
+      // Landing Page ใช้แค่เป็น fallback สำหรับ dept/group/responsible/status ที่ KPISummary ไม่มี
+      const lpMap={};
+      nd.forEach(item=>{ lpMap[item.code]=item; });
 
-    if(nd.length>=90) allData=nd;
-    else throw new Error('ข้อมูลน้อยเกินไป');
+      const ndFinal=[];
+      Object.keys(ksMap).forEach(code=>{
+        const ks=ksMap[code];
+        const lp=lpMap[code]||{};
+        ndFinal.push({
+          code,
+          name: lp.name||code,
+          dept: lp.dept||'',
+          group: lp.group||'',
+          responsible: lp.responsible||'',
+          result: ks.resultLatestAOL!==null&&ks.resultLatestAOL!==''?ks.resultLatestAOL:lp.result||null,
+          status: lp.status||'',
+          score: ks.scoreLatestAOL!==null&&ks.scoreLatestAOL!==''?parseFloat(ks.scoreLatestAOL)||null:lp.score||null,
+          targets: ks.targets,
+          monthly: ks.monthly,
+          monthlyRes: ks.monthlyRes,
+          monthlyAOL: ks.monthlyAOL,
+          monthlyScoreAOL: ks.monthlyScoreAOL
+        });
+      });
+      // เรียงตาม KPI_SHEETS order
+      const KPI_ORDER=['1.1','1.2.1','1.2.2','1.2.3','1.3.1','1.3.2','1.4.1','1.4.2','1.5','1.6','1.7','1.8','1.9','1.10','1.11','1.12','1.13','1.14','1.15','1.16','1.17','1.18','1.19.1','1.19.2','1.19.3','1.20.1','1.20.2','1.20.3','1.21','1.22.1-1','1.22.1-2','1.22.2','1.22.3','1.23.1-1','1.23.1-2','1.23.2','1.23.3','1.23.4','1.23.5-1','1.23.5-2','1.23.5-3','1.24.1','1.25','1.26','1.27','1.28','1.29','1.30','1.31','1.32','2.1','2.2','2.3','2.4.1','2.4.2','2.5.1','2.5.2','2.5.3','2.5.4','2.5.5','2.5.6','2.5.7','2.6','2.7','2.8','2.9','2.10.1','2.10.2','2.11','2.12.1','2.12.2','2.12.3','2.13.1','2.13.2','2.14.1','2.14.2','2.15','2.16','2.17','2.18','2.19','2.20','2.21','2.22','2.23','2.24','2.25','2.26','2.27','2.28.1','2.28.2','2.29.1','2.29.2','2.30','2.31'];
+      ndFinal.sort((a,b)=>{
+        const ia=KPI_ORDER.indexOf(a.code); const ib=KPI_ORDER.indexOf(b.code);
+        if(ia===-1&&ib===-1)return a.code.localeCompare(b.code);
+        if(ia===-1)return 1; if(ib===-1)return -1;
+        return ia-ib;
+      });
+      toast('โหลดข้อมูลจริงครบแล้ว ('+ndFinal.length+' KPI)','ok');
+
+      if(ndFinal.length>=90){ allData=ndFinal; }
+      else {
+        // ถ้า KPISummary ยังไม่ครบ ใช้ nd จาก Landing Page พร้อม merge ks
+        nd.forEach(item=>{
+          const ks=ksMap[item.code];
+          if(ks){
+            item.targets=ks.targets;
+            item.monthly=ks.monthly;
+            item.monthlyRes=ks.monthlyRes;
+            item.monthlyAOL=ks.monthlyAOL;
+            item.monthlyScoreAOL=ks.monthlyScoreAOL;
+            if(ks.resultLatestAOL!==null&&ks.resultLatestAOL!=='') item.result=ks.resultLatestAOL;
+            if(ks.scoreLatestAOL!==null&&ks.scoreLatestAOL!=='') item.score=parseFloat(ks.scoreLatestAOL)||item.score;
+          }
+        });
+        allData = nd.length>=90 ? nd : (() => { throw new Error('ข้อมูลน้อยเกินไป'); })();
+      }
+    } // end if(mKS)
+
+    if(!allData.length) throw new Error('ไม่มีข้อมูล');
 
   }catch(e){
     allData=parseFB();
