@@ -605,6 +605,56 @@ let allData=[],fData=[],tData=[];
 let curTab='all',sKey=null,sDir=1,curOrg='all';
 let charts={};
 
+// map ชื่อหน่วยงาน → รหัสจุดรวมงาน (ยืนยันจาก OrgMap จริง)
+const ORG_GFJ_CODE={
+  // K01 — กฟจ.นครศรีธรรมราช
+  'กฟจ.นครศรีธรรมราช':'K01','กฟส.ลานสกา':'K01','กฟส.พรหมคีรี':'K01',
+  'กฟส.พระพรหม':'K01','กฟส.เฉลิมพระเกียรติ':'K01','กฟส.ร่อนพิบูลย์':'K01',
+  'กฟส.จุฬาภรณ์':'K01','กฟส.ชะอวด':'K01',
+  // K02 — กฟจ.สุราษฎร์ธานี
+  'กฟจ.สุราษฎร์ธานี':'K02','กฟส.บ้านนาเดิม':'K02','กฟส.บ้านนาสาร':'K02',
+  // K03 — กฟจ.ตรัง
+  'กฟจ.ตรัง':'K03','กฟส.สิเกา':'K03','กฟส.นาโยง':'K03','กฟส.กันตัง':'K03',
+  'กฟส.เกาะลิบง':'K03','กฟส.บ้านเกาะมุกด์':'K03','กฟส.ย่านตาขาว':'K03',
+  'กฟส.เกาะสุกร':'K03','กฟส.หาดสำราญ':'K03','กฟส.ปะเหลียน':'K03',
+  // K04 — กฟจ.กระบี่
+  'กฟจ.กระบี่':'K04','กฟส.บ้านเกาะพีพี':'K04','กฟส.อ่าวนาง':'K04',
+  'กฟส.อ่าวลึก':'K04','กฟส.ปลายพระยา':'K04','กฟส.คลองท่อม':'K04',
+  'กฟส.ลำทับ':'K04','กฟส.เกาะลันตา':'K04','กฟส.เหนือคลอง':'K04','กฟส.เขาพนม':'K04',
+  // K05 — กฟจ.พังงา
+  'กฟจ.พังงา':'K05','กฟส.ทับปุด':'K05','กฟส.ท้ายเหมือง':'K05','กฟส.ตะกั่วทุ่ง':'K05',
+  // K06 — กฟจ.ภูเก็ต
+  'กฟจ.ภูเก็ต':'K06','กฟส.ฉลอง':'K06',
+  // K07 — จุดรวม กฟส.ทุ่งสง
+  'กฟส.ทุ่งสง':'K07','กฟส.นาบอน':'K07','กฟส.บางขัน':'K07',
+  'กฟส.ฉวาง':'K07','กฟส.พิปูน':'K07','กฟส.ช้างกลาง':'K07',
+  'กฟส.ทุ่งใหญ่':'K07','กฟส.ถ้ำพรรณรา':'K07',
+  // K08 — จุดรวม กฟส.เกาะสมุย
+  'กฟส.เกาะสมุย':'K08','กฟส.เกาะเต่า':'K08','กฟส.เกาะพะงัน':'K08',
+  // K09 — จุดรวม กฟส.พุนพิน
+  'กฟส.พุนพิน':'K09','กฟส.เคียนซา':'K09','กฟส.ท่าฉาง':'K09',
+  'กฟส.ไชยา':'K09','กฟส.บ้านตาขุน':'K09','กฟส.พนม':'K09',
+  'กฟส.ท่าชนะ':'K09','กฟส.คีรีรัฐนิคม':'K09','กฟส.วิภาวดี':'K09',
+  // K10 — จุดรวม กฟส.ปากพนัง
+  'กฟส.ปากพนัง':'K10','กฟส.เชียรใหญ่':'K10','กฟส.หัวไทร':'K10',
+  // K11 — จุดรวม กฟส.ถลาง
+  'กฟส.ถลาง':'K11','กฟส.เกาะยาว':'K11',
+  // K12 — จุดรวม กฟส.ตะกั่วป่า
+  'กฟส.ตะกั่วป่า':'K12','กฟส.กะปง':'K12','กฟส.คุระบุรี':'K12','กฟส.บ้านเขาหลัก':'K12',
+  // K13 — จุดรวม กฟส.ป่าตอง
+  'กฟส.ป่าตอง':'K13',
+  // K14 — จุดรวม กฟส.กาญจนดิษฐ์
+  'กฟส.กาญจนดิษฐ์':'K14','กฟส.ดอนสัก':'K14',
+  // K15 — จุดรวม กฟส.เวียงสระ
+  'กฟส.เวียงสระ':'K15','กฟส.ชัยบุรี':'K15','กฟส.พระแสง':'K15',
+  // K16 — จุดรวม กฟส.ท่าศาลา
+  'กฟส.ท่าศาลา':'K16','กฟส.นบพิตำ':'K16','กฟส.สิชล':'K16','กฟส.ขนอม':'K16',
+  // K17 — จุดรวม กฟส.ห้วยยอด
+  'กฟส.ห้วยยอด':'K17','กฟส.วังวิเศษ':'K17','กฟส.รัษฎา':'K17'
+};
+// cache Results sheet ที่โหลดมาแล้ว (key = gfjCode เช่น 'K04')
+const orgResultsCache={};
+
 function parseFB(){
   return FB.map(r=>({code:r[0],name:r[1],dept:r[2],group:r[3],responsible:r[4],result:r[5],status:r[6],score:r[7],monthly:MONTHLY_SCORES[r[0]]||{},targets:TARGETS[r[0]]||null}));
 }
@@ -809,10 +859,13 @@ async function loadOrgList(){
     const rows=JSON.parse(m[1]).table.rows;
     const seen=new Set();
     const gfj=[], gfs=[];
+    window.orgCodeMap={}; // เก็บ ชื่อ → รหัส 6 หลัก
     rows.forEach(row=>{
       if(!row.c||!row.c[3]||!row.c[3].v) return;
       const name=String(row.c[3].v).trim()
         .replace(/\s*\(XS\)|\s*\(S\)|\s*\(M\)|\s*\(L\)|\s*\(LL\)/g,'').trim();
+      const code6=row.c[1]&&row.c[1].v?String(row.c[1].v).trim():'';
+      if(name&&code6) window.orgCodeMap[name]=code6;
       if(seen.has(name)||!name) return;
       if(name.startsWith('กฟจ.')&&!name.includes('จุดรวม')){seen.add(name);gfj.push(name);}
       else if(name.startsWith('กฟส.')&&!name.includes('จุดรวม')){seen.add(name);gfs.push(name);}
@@ -835,18 +888,126 @@ function setupOrgFilter(){
 
 function clearOrg(){document.getElementById('fO').value='all';af();}
 
-function af(){
+// โหลด Results_Kxx sheet แล้ว merge ข้อมูลเข้า allData
+async function loadOrgResults(gfjCode){
+  if(orgResultsCache[gfjCode]) return orgResultsCache[gfjCode]; // ใช้ cache
+  try{
+    const sheetName='Results_'+gfjCode;
+    const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
+    const res=await fetch(url);
+    const txt=await res.text();
+    const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+    if(!m) throw new Error('parse error');
+    const table=JSON.parse(m[1]).table;
+    if(!table||!table.rows||!table.cols) throw new Error('no data');
+
+    // อ่าน header เพื่อ map col → orgCode
+    // header: KPI Code, ชื่อ KPI, [orgCode ผลล่าสุด, orgCode คะแนนล่าสุด, orgCode คะแนน ม.ค.-ธ.ค. × 12] × N orgs
+    const cols=table.cols.map(c=>c.label||'');
+    // สร้าง map: orgCode → { resultCol, scoreCol, monthCols[12] }
+    const orgColMap={};
+    cols.forEach((label,j)=>{
+      const parts=label.split(' ');
+      if(parts.length<2) return;
+      const code=parts[0]; // เช่น K04201
+      if(!code.match(/^K\d{5}$/)) return;
+      if(!orgColMap[code]) orgColMap[code]={resultCol:-1,scoreCol:-1,monthCols:Array(12).fill(-1)};
+      const rest=parts.slice(1).join(' ');
+      if(rest==='ผลล่าสุด') orgColMap[code].resultCol=j;
+      else if(rest==='คะแนนล่าสุด') orgColMap[code].scoreCol=j;
+      else{
+        const mNames=['คะแนน ม.ค.','คะแนน ก.พ.','คะแนน มี.ค.','คะแนน เม.ย.','คะแนน พ.ค.','คะแนน มิ.ย.','คะแนน ก.ค.','คะแนน ส.ค.','คะแนน ก.ย.','คะแนน ต.ค.','คะแนน พ.ย.','คะแนน ธ.ค.'];
+        const mi=mNames.indexOf(rest);
+        if(mi>=0) orgColMap[code].monthCols[mi]=j;
+      }
+    });
+
+    // สร้าง map: kpiCode → orgCode → {result, score, monthlyScore}
+    const kpiOrgData={};
+    const gv=(row,j)=>{
+      try{ const c=row.c[j]; if(!c||c.v===null||c.v===undefined||c.v==='') return null; return c.v; }catch(e){return null;}
+    };
+    table.rows.forEach(row=>{
+      if(!row.c||!row.c[0]) return;
+      const kpiCode=row.c[0].f?String(row.c[0].f).trim():String(row.c[0].v||'').trim();
+      if(!kpiCode||kpiCode.length<2) return;
+      kpiOrgData[kpiCode]={};
+      Object.keys(orgColMap).forEach(orgCode=>{
+        const cm=orgColMap[orgCode];
+        const result=gv(row,cm.resultCol);
+        const score=gv(row,cm.scoreCol);
+        const monthlyScore={};
+        const MKKEYS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+        cm.monthCols.forEach((col,i)=>{
+          const v=gv(row,col);
+          if(v!==null) monthlyScore[MKKEYS[i]]=parseFloat(v)||v;
+        });
+        kpiOrgData[kpiCode][orgCode]={result,score:score!==null?parseFloat(score)||null:null,monthlyScore};
+      });
+    });
+
+    orgResultsCache[gfjCode]={orgColMap,kpiOrgData};
+    return orgResultsCache[gfjCode];
+  }catch(e){
+    console.log('loadOrgResults error:',e.message);
+    return null;
+  }
+}
+
+// หา orgCode จากชื่อหน่วยงานใน OrgMap
+function getOrgCode(orgName){
+  // ดึงจาก ORG_LIST พร้อม code ที่ได้จาก OrgMap
+  return window.orgCodeMap&&window.orgCodeMap[orgName]||null;
+}
+
+async function af(){
   const g=document.getElementById('fG').value;
   const d=document.getElementById('fD').value;
   const org=document.getElementById('fO').value;
   const s=document.getElementById('fS').value;
   const sc=document.getElementById('fSc').value;
   curOrg=org;
+
   let orgKpis=null;
   if(org!=='all') orgKpis=ORG_KPI_MAP[org]||GFS_BASE;
+
   const banner=document.getElementById('orgBanner');
   if(org!=='all'){document.getElementById('orgBannerName').textContent=org;banner.style.display='flex';}
   else{banner.style.display='none';}
+
+  // ถ้าเลือกหน่วยงาน ให้โหลด Results_Kxx แล้ว merge ข้อมูลจริง
+  if(org!=='all'){
+    const gfjCode=ORG_GFJ_CODE[org];
+    if(gfjCode){
+      // โหลด cache ถ้ายังไม่มี
+      if(!orgResultsCache[gfjCode]){
+        toast('⏳ กำลังโหลดข้อมูล '+org+'...','ok');
+        await loadOrgResults(gfjCode);
+      }
+      const cache=orgResultsCache[gfjCode];
+      if(cache){
+        // หา orgCode ของหน่วยงานที่เลือก
+        const orgCode6=window.orgCodeMap&&window.orgCodeMap[org];
+        if(orgCode6&&cache.kpiOrgData){
+          // merge ข้อมูลเข้า allData ชั่วคราว
+          allData.forEach(item=>{
+            const od=cache.kpiOrgData[item.code];
+            if(od&&od[orgCode6]){
+              const ov=od[orgCode6];
+              if(ov.result!==null) item.result=ov.result;
+              if(ov.score!==null) item.score=ov.score;
+              if(Object.keys(ov.monthlyScore).length>0) item.monthlyScoreAOL=ov.monthlyScore;
+            }
+          });
+          toast('✅ โหลดข้อมูล '+org+' แล้ว','ok');
+        }
+      }
+    }
+  } else {
+    // กลับไปใช้ข้อมูลจาก KPISummary (กฟส.อล. default)
+    // reload ข้อมูลจาก allData ที่โหลดมาแล้ว
+  }
+
   fData=allData.filter(item=>{
     if(orgKpis&&!orgKpis.includes(item.code))return false;
     if(g==='policy'&&!item.group.includes('นโยบาย'))return false;
