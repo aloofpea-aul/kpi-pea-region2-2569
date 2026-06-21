@@ -718,16 +718,13 @@ async function loadData(){
     if(mKS){
       const rowsKS=JSON.parse(mKS[1]).table.rows;
       const ksMap={};
-      // KPI_ORDER ใช้ match code ที่ถูกต้องจาก number ที่ gviz คืน
-      // เช่น gviz คืน 1.1 (number) → อาจเป็น "1.1" หรือ "1.10" → ใช้ row index เทียบกับ KPI_ORDER
       const KS_ORDER=['1.1','1.2.1','1.2.2','1.2.3','1.3.1','1.3.2','1.4.1','1.4.2','1.5','1.6','1.7','1.8','1.9','1.10','1.11','1.12','1.13','1.14','1.15','1.16','1.17','1.18','1.19.1','1.19.2','1.19.3','1.20.1','1.20.2','1.20.3','1.21','1.22.1-1','1.22.1-2','1.22.2','1.22.3','1.23.1-1','1.23.1-2','1.23.2','1.23.3','1.23.4','1.23.5-1','1.23.5-2','1.23.5-3','1.24.1','1.25','1.26','1.27','1.28','1.29','1.30','1.31','1.32','2.1','2.2','2.3','2.4.1','2.4.2','2.5.1','2.5.2','2.5.3','2.5.4','2.5.5','2.5.6','2.5.7','2.6','2.7','2.8','2.9','2.10.1','2.10.2','2.11','2.12.1','2.12.2','2.12.3','2.13.1','2.13.2','2.14.1','2.14.2','2.15','2.16','2.17','2.18','2.19','2.20','2.21','2.22','2.23','2.24','2.25','2.26','2.27','2.28.1','2.28.2','2.29.1','2.29.2','2.30','2.31'];
-      let ksRowIdx=0;
-      rowsKS.forEach(row=>{
-        const c=row.c; if(!c||!c[0]||!c[0].v) return;
-        // ใช้ row index เพื่อ lookup code ที่ถูกต้องจาก KS_ORDER
-        // วิธีนี้ไม่พึ่ง .f หรือ .v ของ code cell เลย
-        const code = ksRowIdx < KS_ORDER.length ? KS_ORDER[ksRowIdx] : (c[0].f ? String(c[0].f).trim() : String(c[0].v).trim());
-        ksRowIdx++;
+      // วน loop ด้วย index แทน forEach เพื่อให้ index ตรงกับ KS_ORDER เสมอ
+      // ไม่ใช้ code จาก .v/.f เพราะ gviz แปลง "1.10"→1.1, "2.10"→2.1 ทำให้ชนกัน
+      for(let ksRowIdx=0; ksRowIdx<rowsKS.length && ksRowIdx<KS_ORDER.length; ksRowIdx++){
+        const row=rowsKS[ksRowIdx];
+        const c=row.c; if(!c) continue;
+        const code=KS_ORDER[ksRowIdx]; // ใช้ index เป็น source of truth
         const gv=(i)=>{
           try{
             const cell=c[i];
@@ -787,7 +784,7 @@ async function loadData(){
           resultLatestAOL: gv(51),
           scoreLatestAOL:  gv(52)
         };
-      });
+      } // end for loop KPISummary
 
       // สร้าง nd จาก KPISummary โดยตรง (code ถูกต้อง 100% ไม่มีปัญหา trailing zero)
       // Landing Page ใช้แค่เป็น fallback สำหรับ dept/group/responsible/status ที่ KPISummary ไม่มี
