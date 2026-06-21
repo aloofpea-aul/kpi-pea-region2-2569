@@ -733,6 +733,9 @@ async function loadData(){
             return (v===null||v===undefined||v==='') ? null : v;
           }catch(e){return null;}
         };
+        // อ่านชื่อ KPI จาก col 1 ของ KPISummary (ถูกต้องเสมอ ไม่มีปัญหา trailing zero)
+        const kpiName = c[1]&&c[1].v ? String(c[1].v).trim() : '';
+        const kpiDept = c[3]&&c[3].v ? String(c[3].v).trim() : ''; // col 3 = ผู้รับผิดชอบ (ใช้เป็น fallback)
         const lv1=gv(5),lv2=gv(6),lv3=gv(7),lv4=gv(8),lv5=gv(9);
         const al1=gv(10),al2=gv(11),al3=gv(12),al4=gv(13),al5=gv(14);
 
@@ -782,7 +785,9 @@ async function loadData(){
           monthlyAOL,
           monthlyScoreAOL,
           resultLatestAOL: gv(51),
-          scoreLatestAOL:  gv(52)
+          scoreLatestAOL:  gv(52),
+          name: kpiName,         // ชื่อ KPI จาก KPISummary (ถูกต้องเสมอ)
+          responsible: kpiDept   // ผู้รับผิดชอบ
         };
       } // end for loop KPISummary
 
@@ -797,10 +802,10 @@ async function loadData(){
         const lp=lpMap[code]||{};
         ndFinal.push({
           code,
-          name: lp.name||code,
+          name: ks.name||lp.name||code,           // ใช้ชื่อจาก KPISummary ก่อน (ถูกต้องเสมอ)
           dept: lp.dept||'',
           group: lp.group||'',
-          responsible: lp.responsible||'',
+          responsible: lp.responsible||ks.responsible||'',
           result: ks.resultLatestAOL!==null&&ks.resultLatestAOL!==''?ks.resultLatestAOL:lp.result||null,
           status: lp.status||'',
           score: ks.scoreLatestAOL!==null&&ks.scoreLatestAOL!==''?parseFloat(ks.scoreLatestAOL)||null:lp.score||null,
