@@ -994,7 +994,7 @@ async function af(){
               const ov=od[orgCode6];
               if(ov.result!==null) item.result=ov.result;
               if(ov.score!==null) item.score=ov.score;
-              if(Object.keys(ov.monthlyScore).length>0) item.monthlyScoreAOL=ov.monthlyScore;
+              // ไม่ merge monthlyScoreAOL จาก Results sheet เพราะ KPISummary มีข้อมูลถูกต้องอยู่แล้ว
             }
           });
           toast('✅ โหลดข้อมูล '+org+' แล้ว','ok');
