@@ -1405,12 +1405,13 @@ function oM(code){
         plugins:{
           legend:{
             display:true,
-            labels:{color:'#b1bac4',font:{size:9},boxWidth:10,padding:10,
-              generateLabels:chart=>chart.data.datasets.map((ds,i)=>({
-                text:ds.label,fillStyle:ds.borderColor,strokeStyle:ds.borderColor,
-                lineWidth:2,hidden:false,datasetIndex:i,
-                lineDash:ds.borderDash||[]
-              }))
+            labels:{
+              color:'#e6edf3',
+              font:{size:9},
+              boxWidth:12,
+              padding:10,
+              usePointStyle:true,
+              pointStyle:'line'
             }
           },
           tooltip:{
