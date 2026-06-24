@@ -990,6 +990,12 @@ async function af(){
         const orgCode6=window.orgCodeMap&&window.orgCodeMap[org];
         if(orgCode6&&cache.kpiOrgData){
           const isAOL = (org==='กฟส.อ่าวลึก');
+          // อัปเดต orgKpis จาก Results sheet จริง (ดู KPI ที่มีข้อมูลสำหรับหน่วยงานนี้)
+          const kpisFromCache = Object.keys(cache.kpiOrgData).filter(code=>{
+            const od=cache.kpiOrgData[code];
+            return od&&od[orgCode6]&&(od[orgCode6].score!==null||od[orgCode6].result!==null);
+          });
+          if(kpisFromCache.length>0) orgKpis=kpisFromCache;
           // merge ข้อมูลเข้า allData ชั่วคราว
           allData.forEach(item=>{
             const od=cache.kpiOrgData[item.code];
@@ -1004,7 +1010,7 @@ async function af(){
               }
             }
           });
-          toast('✅ โหลดข้อมูล '+org+' แล้ว','ok');
+          toast('✅ โหลดข้อมูล '+org+' ('+kpisFromCache.length+' KPI) แล้ว','ok');
         }
       }
     }
