@@ -18,7 +18,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.nav{position:sticky;top:0;z-index:200;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);height:52px;display:flex;align-items:center;padding:0 20px;justify-content:space-between;gap:12px}
+.nav{position:sticky;top:0;z-index:200;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);min-height:52px;display:flex;align-items:center;padding:0 20px;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .nbrand{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .nlogo{width:30px;height:30px;background:var(--bl);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 0 1px rgba(56,139,253,.3)}
 .ntitle{font-size:13px;font-weight:500}
@@ -1509,6 +1509,51 @@ window.addEventListener('DOMContentLoaded',()=>{
   <button id="scrollDn" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="ลงล่าง" style="width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--bdr2);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .25s,background .15s;box-shadow:0 2px 8px rgba(0,0,0,.4)">▼</button>
 </div>
 <style>
-#scrollBtns button:hover{background:var(--bg4);color:var(--t);}
+@media(max-width:600px){
+  /* Nav — ซ่อนชื่อย่อย, ลด padding */
+  .nav{height:auto;min-height:48px;flex-wrap:wrap;padding:6px 12px;gap:6px}
+  .nsub{display:none}
+  .ntitle{font-size:12px}
+  .nlogo{width:26px;height:26px;font-size:13px}
+  /* Tabs — scroll แนวนอน */
+  .ntabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;max-width:100%;scrollbar-width:none}
+  .ntabs::-webkit-scrollbar{display:none}
+  .ntab{padding:4px 10px;font-size:10px;white-space:nowrap;flex-shrink:0}
+  /* ซ่อนปุ่ม CSV บน mobile */
+  .btng{display:none}
+  .nright{gap:5px}
+  /* Page padding */
+  .page{padding:10px 10px 60px}
+  /* Filter bar — wrap */
+  .fbar{gap:6px;padding:8px 10px}
+  .fbar select{font-size:10px;padding:3px 20px 3px 6px}
+  .fdiv{display:none}
+  /* Metric cards */
+  .mg{grid-template-columns:repeat(2,1fr);gap:8px}
+  .mc-v{font-size:20px}
+  /* Chart grid */
+  .cg{grid-template-columns:1fr;gap:8px}
+  /* Table — scroll แนวนอน */
+  .twrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-height:none}
+  table{font-size:11px;min-width:600px}
+  .tn{max-width:160px;font-size:11px}
+  /* Popup */
+  .mbox{width:95vw;max-height:92vh}
+  .mhdr{padding:10px 12px 8px}
+  .mname{font-size:12px}
+  .mbody{padding:10px 12px 14px}
+  .mscnum{font-size:24px}
+  /* Popup info cards 3→1 col */
+  .mbox [style*="grid-template-columns:1fr 1fr 1fr"]{grid-template-columns:1fr!important}
+  /* Alert grid */
+  .ag{grid-template-columns:1fr}
+  /* Dept grid */
+  .dg{grid-template-columns:1fr}
+  /* Scroll buttons */
+  #scrollBtns{right:10px;bottom:16px}
+  /* Trend */
+  .trend-sel{gap:4px}
+  .trend-sel select{font-size:10px}
+}
 </style>
 </html>
