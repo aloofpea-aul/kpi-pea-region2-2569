@@ -1457,6 +1457,17 @@ let tTimer;
 function toast(msg,type='ok'){const el=document.getElementById('toast');el.textContent=msg;el.className='on '+type;clearTimeout(tTimer);tTimer=setTimeout(()=>el.className='',3500);}
 function hideLoad(){const el=document.getElementById('lov');el.classList.add('h');setTimeout(()=>el.style.display='none',400);}
 
+// ปุ่ม scroll ขึ้น/ลง
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY;
+  document.getElementById('scrollUp').style.opacity=y>200?'1':'0';
+  document.getElementById('scrollUp').style.pointerEvents=y>200?'auto':'none';
+  const maxY=document.body.scrollHeight-window.innerHeight;
+  document.getElementById('scrollDn').style.opacity=y<maxY-100?'1':'0';
+  document.getElementById('scrollDn').style.pointerEvents=y<maxY-100?'auto':'none';
+},{passive:true});
+
+
 window.addEventListener('DOMContentLoaded',()=>{
   allData=parseFB();
   setupOrgFilter();
@@ -1472,4 +1483,12 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 </script>
 </body>
+<!-- ปุ่ม scroll ขึ้น/ลง -->
+<div id="scrollBtns" style="position:fixed;right:18px;bottom:24px;z-index:300;display:flex;flex-direction:column;gap:8px">
+  <button id="scrollUp" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="ขึ้นบน" style="width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--bdr2);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s,background .15s;box-shadow:0 2px 8px rgba(0,0,0,.4)">▲</button>
+  <button id="scrollDn" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="ลงล่าง" style="width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--bdr2);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .25s,background .15s;box-shadow:0 2px 8px rgba(0,0,0,.4)">▼</button>
+</div>
+<style>
+#scrollBtns button:hover{background:var(--bg4);color:var(--t);}
+</style>
 </html>
