@@ -990,10 +990,10 @@ async function af(){
         const orgCode6=window.orgCodeMap&&window.orgCodeMap[org];
         if(orgCode6&&cache.kpiOrgData){
           const isAOL = (org==='กฟส.อ่าวลึก');
-          // อัปเดต orgKpis จาก Results sheet จริง (ดู KPI ที่มีข้อมูลสำหรับหน่วยงานนี้)
+          // อัปเดต orgKpis จาก Results sheet จริง (ดู KPI ทั้งหมดที่มีแถวสำหรับหน่วยงานนี้)
           const kpisFromCache = Object.keys(cache.kpiOrgData).filter(code=>{
             const od=cache.kpiOrgData[code];
-            return od&&od[orgCode6]&&(od[orgCode6].score!==null||od[orgCode6].result!==null);
+            return od&&od[orgCode6]!==undefined; // มีแถวใน Results sheet
           });
           if(kpisFromCache.length>0) orgKpis=kpisFromCache;
           // merge ข้อมูลเข้า allData ชั่วคราว
