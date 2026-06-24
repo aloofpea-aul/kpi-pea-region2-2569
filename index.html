@@ -597,7 +597,7 @@ const FB=[
   ['2.28.2','ปิดงานก่อสร้างก่อนปี 2569 - งบลงทุน 80%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',37.430,'มี.ค.',5.000],
   ['2.29.1','ปิดงานก่อสร้างปี 2569 Q1-2 - งบผู้ใช้ไฟ 70%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',6.760,'มี.ค.',5.000],
   ['2.29.2','ปิดงานก่อสร้างปี 2569 Q1-2 - งบลงทุน 50%','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',5.200,'มี.ค.',5.000],
-  ['2.30','ปิดงาน C02.2 รับชำระก่อน มิ.ย. 2569','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',37.090,'มี.ค.',5.000],
+  ['2.30','ปิดงาน C02.2 รับชำระก่อน มิ.ย. 2569','ฝสบ.','งานตามหน้าที่ฯ','ผบส.กบฟ.(ต2)',37.930,'พ.ค.',1.000],
   ['2.31','Time Confirm ZW01/ZW02','ฝสบ.','งานตามหน้าที่ฯ','ผปว.กบฟ.(ต2)',96.540,'เม.ย.',5.000],
 ];
 
@@ -1343,7 +1343,7 @@ function oM(code){
       else if(scData.some(v=>v!==null)) ds.push({label:'คะแนน กฟต.2',data:scData,borderColor:'#388bfd',backgroundColor:'rgba(56,139,253,.1)',fill:true,tension:.4,pointRadius:4,spanGaps:true,yAxisID:'y'});
       if(aolData.some(v=>v!==null)) ds.push({label:'ผล กฟส.อล.',data:aolData,borderColor:'#6e9e7e',backgroundColor:'transparent',fill:false,tension:.4,pointRadius:3,borderDash:[3,3],spanGaps:true,yAxisID:'y2'});
       if(!ds.length)return;
-      new Chart(el,{type:'line',data:{labels:ml,datasets:ds},options:{responsive:true,maintainAspectRatio:false,scales:{y:{position:'left',ticks:{color:'#3fb884',font:{size:9}},grid:{color:'rgba(63,184,132,.06)'},title:{display:true,text:'คะแนน',color:'#3fb884',font:{size:9}},min:0,max:5.2},y2:{position:'right',ticks:{color:'#6e9e7e',font:{size:9}},grid:{display:false},title:{display:true,text:'ผล',color:'#6e9e7e',font:{size:9}}}},scales_check:true,plugins:{legend:{labels:{color:'#8b949e',font:{size:9},boxWidth:8,padding:8}}}}});
+      new Chart(el,{type:'line',data:{labels:ml,datasets:ds},options:{responsive:true,maintainAspectRatio:false,scales:{y:{position:'left',ticks:{color:'#3fb884',font:{size:9}},grid:{color:'rgba(63,184,132,.06)'},title:{display:true,text:'คะแนน',color:'#3fb884',font:{size:9}},min:0,max:5},y2:{position:'right',ticks:{color:'#6e9e7e',font:{size:9}},grid:{display:false},title:{display:true,text:'ผล',color:'#6e9e7e',font:{size:9}}}},scales_check:true,plugins:{legend:{labels:{color:'#8b949e',font:{size:9},boxWidth:8,padding:8}}}}});
     },50);
   }
 }
