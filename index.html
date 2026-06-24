@@ -1326,7 +1326,9 @@ function oM(code){
   };
   const monthHeader=ml.map(m=>`<th style="font-size:9px;color:var(--t3);text-align:center;padding:3px 4px;font-weight:400">${m}</th>`).join('');
   const hasTable=hasScAol||hasAOL||hasGFT2||hasChart;
-  const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('⭐ คะแนน กฟส.อล.',scAol,'#3fb884')}${buildMonthTable('ผล กฟส.อล.',aol,'#6e9e7e')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟต.2',res,'#8b949e')}</tbody></table></div>${hasChart?`<div style="position:relative;height:200px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
+  // ชื่อหน่วยงานที่แสดงในตาราง — ถ้าเลือกหน่วยงานใช้ชื่อนั้น ไม่งั้นใช้ กฟส.อล.
+  const orgLabel = (curOrg&&curOrg!=='all') ? curOrg : 'กฟส.อล.';
+  const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('⭐ คะแนน '+orgLabel,scAol,'#3fb884')}${buildMonthTable('ผล '+orgLabel,aol,'#6e9e7e')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟต.2',res,'#8b949e')}</tbody></table></div>${hasChart?`<div style="position:relative;height:200px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
   document.getElementById('mBody').innerHTML=`
     <div class="mscbig ${scCls}">
       <div class="mscnum">${sc!==null?sc.toFixed(3):'N/A'}</div>
@@ -1362,7 +1364,7 @@ function oM(code){
       const scAolData=mk2.map(k=>scAol[k]!==undefined&&scAol[k]!==''?parseFloat(scAol[k]):null);
       // คะแนน อล. (ซ้าย 0-5, เส้นทึบสีเขียว + จุดใหญ่)
       if(scAolData.some(v=>v!==null)) ds.push({
-        label:'⭐ คะแนน กฟส.อล. (0–5)',
+        label:'⭐ คะแนน '+orgLabel+' (0–5)',
         data:scAolData,
         borderColor:'#3fb884',
         backgroundColor:'rgba(63,184,132,.12)',
@@ -1387,7 +1389,7 @@ function oM(code){
       });
       // ผล กฟส.อล. (ขวา, เส้นทึบสีส้ม + จุด)
       if(aolData.some(v=>v!==null)) ds.push({
-        label:'📈 ผล กฟส.อล. (แกนขวา)',
+        label:'📈 ผล '+orgLabel+' (แกนขวา)',
         data:aolData,
         borderColor:'#f0a500',
         backgroundColor:'rgba(240,165,0,.08)',
