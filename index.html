@@ -1327,10 +1327,16 @@ function oM(code){
       <div class="mf" style="grid-column:1/-1"><div class="mf-l">เป้าหมายระดับ 1–5</div><div class="mf-v" style="margin-top:4px">${renderTargetRow(item.targets,sc)}</div></div>
     </div>
     ${tableHTML}
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
     <a class="mlink" href="https://docs.google.com/spreadsheets/d/${SID}/edit" target="_blank">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9M9 1h6m0 0v6m0-6L7 9"/></svg>
       เปิด Google Sheets
     </a>
+    ${item.code==='2.28.1'?`<a class="mlink" href="https://peaex.pea.co.th/reports/powerbi/PRD/%E0%B8%81%E0%B8%9F%E0%B8%95.2%20%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%A8%E0%B8%A3%E0%B8%B5%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%A3%E0%B8%B2%E0%B8%8A/02.%20%E0%B8%87%E0%B8%B2%E0%B8%99%E0%B8%A3%E0%B8%B0%E0%B8%AB%E0%B8%A7%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87/A.AUC" target="_blank" style="background:rgba(26,127,94,.12);border-color:rgba(26,127,94,.3);color:#3fb884">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9M9 1h6m0 0v6m0-6L7 9"/></svg>
+      📊 ดูรายละเอียดงานก่อสร้าง (Power BI)
+    </a>`:''}
+    </div>
   `;
   document.getElementById('mover').classList.add('on');
   if(hasChart){
