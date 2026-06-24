@@ -993,8 +993,7 @@ async function af(){
             if(od&&od[orgCode6]){
               const ov=od[orgCode6];
               if(ov.result!==null) item.result=ov.result;
-              if(ov.score!==null) item.score=ov.score;
-              // ไม่ merge monthlyScoreAOL จาก Results sheet เพราะ KPISummary มีข้อมูลถูกต้องอยู่แล้ว
+              // ไม่ merge score และ monthlyScoreAOL จาก Results sheet เพราะ KPISummary มีข้อมูลถูกต้องอยู่แล้ว
             }
           });
           toast('✅ โหลดข้อมูล '+org+' แล้ว','ok');
