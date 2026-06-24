@@ -1397,8 +1397,8 @@ function oM(code){
         scales:{
           y:{
             position:'left',
-            min:0,max:5,
-            ticks:{color:'#3fb884',font:{size:9},stepSize:1},
+            min:0,max:5.3,
+            ticks:{color:'#3fb884',font:{size:9},stepSize:1,callback:v=>v<=5?v:''},
             grid:{color:'rgba(63,184,132,.08)'},
             title:{display:true,text:'คะแนน (0–5)',color:'#3fb884',font:{size:9,weight:'bold'}}
           },
