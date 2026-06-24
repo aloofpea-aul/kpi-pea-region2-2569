@@ -1314,17 +1314,19 @@ function oM(code){
   };
   const monthHeader=ml.map(m=>`<th style="font-size:9px;color:var(--t3);text-align:center;padding:3px 4px;font-weight:400">${m}</th>`).join('');
   const hasTable=hasScAol||hasAOL||hasGFT2||hasChart;
-  const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('⭐ คะแนน กฟส.อล.',scAol,'#3fb884')}${buildMonthTable('ผล กฟส.อล.',aol,'#6e9e7e')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟต.2',res,'#8b949e')}</tbody></table></div>${hasChart?`<div style="position:relative;height:160px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
+  const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('⭐ คะแนน กฟส.อล.',scAol,'#3fb884')}${buildMonthTable('ผล กฟส.อล.',aol,'#6e9e7e')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟต.2',res,'#8b949e')}</tbody></table></div>${hasChart?`<div style="position:relative;height:200px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
   document.getElementById('mBody').innerHTML=`
     <div class="mscbig ${scCls}">
       <div class="mscnum">${sc!==null?sc.toFixed(3):'N/A'}</div>
       <div class="mscinfo"><p>${scLbl}</p><small>ผลล่าสุด: ${resFmt} · งวด: ${item.status||'—'}</small></div>
     </div>
-    <div class="mgrid">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
       <div class="mf"><div class="mf-l">กลุ่ม KPI</div><div class="mf-v">${item.group||'—'}</div></div>
       <div class="mf"><div class="mf-l">ฝ่ายรับผิดชอบ</div><div class="mf-v"><span class="dtag ${getDC(item.dept)}">${item.dept||'—'}</span></div></div>
-      <div class="mf" style="grid-column:1/-1"><div class="mf-l">ผู้รับผิดชอบ</div><div class="mf-v">${item.responsible||'—'}</div></div>
-      <div class="mf" style="grid-column:1/-1"><div class="mf-l">เป้าหมายระดับ 1–5</div><div class="mf-v" style="margin-top:4px">${renderTargetRow(item.targets,sc)}</div></div>
+      <div class="mf"><div class="mf-l">ผู้รับผิดชอบ</div><div class="mf-v" style="font-size:11px;line-height:1.4">${item.responsible||'—'}</div></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div class="mf"><div class="mf-l">เป้าหมายระดับ 1–5</div><div class="mf-v" style="margin-top:4px">${renderTargetRow(item.targets,sc)}</div></div>
     </div>
     ${tableHTML}
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
