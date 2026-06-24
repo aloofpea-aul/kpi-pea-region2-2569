@@ -1006,7 +1006,11 @@ async function af(){
               // หน่วยงานอื่น merge จาก Results_Kxx ได้เลย
               if(!isAOL){
                 if(ov.score!==null) item.score=ov.score;
-                if(Object.keys(ov.monthlyScore).length>0) item.monthlyScoreAOL=ov.monthlyScore;
+                if(Object.keys(ov.monthlyScore).length>0){
+                  item.monthlyScoreAOL=ov.monthlyScore;
+                }
+                // ล้าง monthlyAOL และ monthly เพื่อไม่ให้แสดงข้อมูล กฟส.อล. ในตาราง/กราฟ
+                item.monthlyAOL={};
               }
             }
           });
