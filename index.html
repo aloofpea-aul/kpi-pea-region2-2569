@@ -989,13 +989,19 @@ async function af(){
         // หา orgCode ของหน่วยงานที่เลือก
         const orgCode6=window.orgCodeMap&&window.orgCodeMap[org];
         if(orgCode6&&cache.kpiOrgData){
+          const isAOL = (org==='กฟส.อ่าวลึก');
           // merge ข้อมูลเข้า allData ชั่วคราว
           allData.forEach(item=>{
             const od=cache.kpiOrgData[item.code];
             if(od&&od[orgCode6]){
               const ov=od[orgCode6];
               if(ov.result!==null) item.result=ov.result;
-              // ไม่ merge score และ monthlyScoreAOL จาก Results sheet เพราะ KPISummary มีข้อมูลถูกต้องอยู่แล้ว
+              // กฟส.อ่าวลึก ใช้ score/monthlyScoreAOL จาก KPISummary (ถูกต้องกว่า)
+              // หน่วยงานอื่น merge จาก Results_Kxx ได้เลย
+              if(!isAOL){
+                if(ov.score!==null) item.score=ov.score;
+                if(Object.keys(ov.monthlyScore).length>0) item.monthlyScoreAOL=ov.monthlyScore;
+              }
             }
           });
           toast('✅ โหลดข้อมูล '+org+' แล้ว','ok');
