@@ -601,7 +601,7 @@ const FB=[
   ['2.31','Time Confirm ZW01/ZW02','ฝสบ.','งานตามหน้าที่ฯ','ผปว.กบฟ.(ต2)',96.540,'เม.ย.',5.000],
 ];
 
-let allData=[],fData=[],tData=[];
+let allData=[],allDataBase=[],fData=[],tData=[];
 let curTab='all',sKey=null,sDir=1,curOrg='all';
 let charts={};
 
@@ -817,7 +817,7 @@ async function loadData(){
       });
       toast('โหลดข้อมูลจริงครบแล้ว ('+ndFinal.length+' KPI)','ok');
 
-      if(ndFinal.length>=90){ allData=ndFinal; }
+      if(ndFinal.length>=90){ allData=ndFinal; allDataBase=JSON.parse(JSON.stringify(ndFinal)); }
       else {
         // ถ้า KPISummary ยังไม่ครบ ใช้ nd จาก Landing Page พร้อม merge ks
         nd.forEach(item=>{
@@ -993,6 +993,9 @@ async function af(){
   const s=document.getElementById('fS').value;
   const sc=document.getElementById('fSc').value;
   curOrg=org;
+
+  // Reset allData จาก base ก่อนทุกครั้ง เพื่อไม่ให้ข้อมูลหน่วยงานก่อนหน้าค้างอยู่
+  if(allDataBase.length>0) allData=JSON.parse(JSON.stringify(allDataBase));
 
   let orgKpis=null;
   if(org!=='all') orgKpis=ORG_KPI_MAP[org]||GFS_BASE;
