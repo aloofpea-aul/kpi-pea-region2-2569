@@ -902,27 +902,34 @@ async function loadOrgResults(gfjCode){
     if(!table||!table.rows||!table.cols) throw new Error('no data');
 
     // อ่าน header เพื่อ map col → orgCode
-    // header: KPI Code, ชื่อ KPI, [orgCode ผลล่าสุด, orgCode คะแนนล่าสุด, orgCode คะแนน ม.ค.-ธ.ค. × 12] × N orgs
+    // header v5: KPI Code, ชื่อ KPI, [orgCode เป้า Lv1-5, ผลล่าสุด, คะแนนล่าสุด, ผล ม.ค.-ธ.ค., คะแนน ม.ค.-ธ.ค.] × N orgs
     const cols=table.cols.map(c=>c.label||'');
-    // สร้าง map: orgCode → { resultCol, scoreCol, monthCols[12] }
+    // สร้าง map: orgCode → { targetCols[5], resultCol, scoreCol, resultsCols[12], monthCols[12] }
     const orgColMap={};
+    const mNames=['คะแนน ม.ค.','คะแนน ก.พ.','คะแนน มี.ค.','คะแนน เม.ย.','คะแนน พ.ค.','คะแนน มิ.ย.','คะแนน ก.ค.','คะแนน ส.ค.','คะแนน ก.ย.','คะแนน ต.ค.','คะแนน พ.ย.','คะแนน ธ.ค.'];
+    const rNames=['ผล ม.ค.','ผล ก.พ.','ผล มี.ค.','ผล เม.ย.','ผล พ.ค.','ผล มิ.ย.','ผล ก.ค.','ผล ส.ค.','ผล ก.ย.','ผล ต.ค.','ผล พ.ย.','ผล ธ.ค.'];
     cols.forEach((label,j)=>{
       const parts=label.split(' ');
       if(parts.length<2) return;
       const code=parts[0]; // เช่น K04201
       if(!code.match(/^K\d{5}$/)) return;
-      if(!orgColMap[code]) orgColMap[code]={resultCol:-1,scoreCol:-1,monthCols:Array(12).fill(-1)};
+      if(!orgColMap[code]) orgColMap[code]={targetCols:Array(5).fill(-1),resultCol:-1,scoreCol:-1,resultsCols:Array(12).fill(-1),monthCols:Array(12).fill(-1)};
       const rest=parts.slice(1).join(' ');
       if(rest==='ผลล่าสุด') orgColMap[code].resultCol=j;
       else if(rest==='คะแนนล่าสุด') orgColMap[code].scoreCol=j;
+      else if(rest.startsWith('เป้า Lv')){
+        const lv=parseInt(rest.replace('เป้า Lv',''))-1;
+        if(lv>=0&&lv<5) orgColMap[code].targetCols[lv]=j;
+      }
       else{
-        const mNames=['คะแนน ม.ค.','คะแนน ก.พ.','คะแนน มี.ค.','คะแนน เม.ย.','คะแนน พ.ค.','คะแนน มิ.ย.','คะแนน ก.ค.','คะแนน ส.ค.','คะแนน ก.ย.','คะแนน ต.ค.','คะแนน พ.ย.','คะแนน ธ.ค.'];
         const mi=mNames.indexOf(rest);
         if(mi>=0) orgColMap[code].monthCols[mi]=j;
+        const ri=rNames.indexOf(rest);
+        if(ri>=0) orgColMap[code].resultsCols[ri]=j;
       }
     });
 
-    // สร้าง map: kpiCode → orgCode → {result, score, monthlyScore}
+    // สร้าง map: kpiCode → orgCode → {targets, result, score, monthlyRes, monthlyScore}
     const kpiOrgData={};
     const gv=(row,j)=>{
       try{ const c=row.c[j]; if(!c||c.v===null||c.v===undefined||c.v==='') return null; return c.v; }catch(e){return null;}
@@ -936,13 +943,32 @@ async function loadOrgResults(gfjCode){
         const cm=orgColMap[orgCode];
         const result=gv(row,cm.resultCol);
         const score=gv(row,cm.scoreCol);
+        // เป้าหมาย Lv1-5
+        const targets={};
+        cm.targetCols.forEach((col,i)=>{
+          const v=gv(row,col);
+          if(v!==null) targets[i+1]=parseFloat(v)||v;
+        });
+        // คะแนนรายเดือน
         const monthlyScore={};
         const MKKEYS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
         cm.monthCols.forEach((col,i)=>{
           const v=gv(row,col);
           if(v!==null) monthlyScore[MKKEYS[i]]=parseFloat(v)||v;
         });
-        kpiOrgData[kpiCode][orgCode]={result,score:score!==null?parseFloat(score)||null:null,monthlyScore};
+        // ผลรายเดือน
+        const monthlyRes={};
+        cm.resultsCols.forEach((col,i)=>{
+          const v=gv(row,col);
+          if(v!==null) monthlyRes[MKKEYS[i]]=parseFloat(v)||v;
+        });
+        kpiOrgData[kpiCode][orgCode]={
+          targets,
+          result,
+          score:score!==null?parseFloat(score)||null:null,
+          monthlyScore,
+          monthlyRes
+        };
       });
     });
 
@@ -1006,11 +1032,20 @@ async function af(){
               // หน่วยงานอื่น merge จาก Results_Kxx ได้เลย
               if(!isAOL){
                 if(ov.score!==null) item.score=ov.score;
-                if(Object.keys(ov.monthlyScore).length>0){
-                  item.monthlyScoreAOL=ov.monthlyScore;
+                if(Object.keys(ov.monthlyScore||{}).length>0) item.monthlyScoreAOL=ov.monthlyScore;
+                // ผลรายเดือนของหน่วยงานนี้
+                item.monthlyAOL=Object.keys(ov.monthlyRes||{}).length>0 ? ov.monthlyRes : {};
+                // เป้าหมายของหน่วยงานนี้ (ถ้ามี)
+                if(ov.targets&&Object.keys(ov.targets).length>0){
+                  item.targets={
+                    1:ov.targets[1]??null,
+                    2:ov.targets[2]??null,
+                    3:ov.targets[3]??null,
+                    4:ov.targets[4]??null,
+                    5:ov.targets[5]??null,
+                    unit:item.targets?.unit||''
+                  };
                 }
-                // ล้าง monthlyAOL และ monthly เพื่อไม่ให้แสดงข้อมูล กฟส.อล. ในตาราง/กราฟ
-                item.monthlyAOL={};
               }
             }
           });
