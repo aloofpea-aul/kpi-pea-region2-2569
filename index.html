@@ -870,7 +870,7 @@ async function loadOrgList(){
       if(name.startsWith('กฟจ.')&&!name.includes('จุดรวม')){seen.add(name);gfj.push(name);}
       else if(name.startsWith('กฟส.')&&!name.includes('จุดรวม')){seen.add(name);gfs.push(name);}
     });
-    const orgs=['ภาพรวม กฟต.2',...gfj.sort(),...gfs.sort()];
+    const orgs=['ภาพรวม กฟต.2',...gfj.sort((a,b)=>(window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap[b]||'')),...gfs.sort((a,b)=>(window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap[b]||''))];
     if(orgs.length>2){ORG_LIST=orgs;console.log('OrgList loaded:',orgs.length,'หน่วยงาน');}
   }catch(e){console.log('OrgList fallback:',e.message);}
 }
@@ -881,8 +881,8 @@ function setupOrgFilter(){
   sel.innerHTML='<option value="all">ภาพรวม กฟต.2</option>';
   const gfj=ORG_LIST.filter(o=>o.startsWith('กฟจ.'));
   const gfs=ORG_LIST.filter(o=>o.startsWith('กฟส.'));
-  if(gfj.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าจังหวัด —';gfj.sort().forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
-  if(gfs.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าสาขา —';gfs.sort().forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
+  if(gfj.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าจังหวัด —';gfj.sort((a,b)=>(window.orgCodeMap&&window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap&&window.orgCodeMap[b]||'')).forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
+  if(gfs.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าสาขา —';gfs.sort((a,b)=>(window.orgCodeMap&&window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap&&window.orgCodeMap[b]||'')).forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
   if(prev&&[...sel.options].some(o=>o.value===prev))sel.value=prev;
 }
 
