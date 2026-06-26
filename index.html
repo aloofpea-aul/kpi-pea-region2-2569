@@ -1072,6 +1072,8 @@ async function af(){
     if(sc==='4'&&(item.score===null||item.score<4||item.score>=5))return false;
     if(sc==='3'&&(item.score===null||item.score<3||item.score>=4))return false;
     if(sc==='low'&&(item.score===null||item.score>=3))return false;
+    // ซ่อน KPI ที่ไม่มีข้อมูลรายเดือน (มีแค่ 0-1 เดือน) เมื่อเลือกหน่วยงาน
+    if(curOrg!=='all'&&!isKpiActive(item))return false;
     return true;
   });
   document.getElementById('fcn').textContent=fData.length;
@@ -1105,6 +1107,23 @@ function sSort(k){
     if(typeof va==='string')return va.localeCompare(vb,'th')*sDir;
     return(va-vb)*sDir;
   });rT();
+}
+
+// KPI ที่ "active" = มีผลรายเดือน ≥ 2 เดือน (ไม่นับ KPI ที่ไม่มีข้อมูลรายเดือนหรือมีแค่เดือนเดียว)
+function isKpiActive(item){
+  const scAol=item.monthlyScoreAOL||{};
+  const hasMonths=Object.keys(scAol).filter(k=>scAol[k]!==undefined&&scAol[k]!=='').length;
+  // ถ้ามีคะแนนรายเดือน ≥ 2 เดือน ถือว่า active
+  if(hasMonths>=2) return true;
+  // ถ้าไม่มีรายเดือนเลย แต่มีคะแนนล่าสุด ก็ active (เช่น KPI ที่รายงานสิ้นปี)
+  // แต่ถ้ามีแค่ 0-1 เดือน และ score มาจาก Results sheet → ซ่อน
+  if(hasMonths<=1 && item.score!==null){
+    // ถ้าเป็นภาพรวม กฟต.2 (ไม่ได้เลือกหน่วยงาน) ให้แสดงปกติ
+    if(curOrg==='all') return true;
+    // ถ้าเลือกหน่วยงาน และมีรายเดือนน้อยกว่า 2 เดือน → ซ่อน
+    return hasMonths>=2;
+  }
+  return item.score!==null||hasMonths>=2;
 }
 
 function getPC(s){if(s===null)return'pna';if(s>=5)return'p5';if(s>=4)return'p4';if(s>=3)return'p3';return'p12';}
