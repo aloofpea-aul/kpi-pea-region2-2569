@@ -188,7 +188,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
 </style>
 </head>
 <body>
-<div id="lov"><div class="sp"></div><div class="lt">กำลังโหลดข้อมูล KPI กฟต.2 ปี 2569...</div></div>
+<div id="lov"><div class="sp"></div><div class="lt" id="loadTxt">กำลังโหลดข้อมูล KPI กฟต.2 ปี 2569...</div><div id="loadProgress" style="width:260px;background:var(--bg4);border-radius:10px;height:6px;overflow:hidden;margin-top:4px"><div id="loadBar" style="height:100%;background:var(--bl2);border-radius:10px;width:0%;transition:width .3s ease"></div></div></div>
 <div id="toast"></div>
 
 <div class="mover" id="mover" onclick="if(event.target===this)cM()">
@@ -241,7 +241,14 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <select id="fD" onchange="af()"><option value="all">ทั้งหมด</option><option value="ฝวบ.">ฝวบ.</option><option value="ฝปบ.">ฝปบ.</option><option value="ฝสบ.">ฝสบ.</option><option value="กสข.">กสข.</option><option value="อื่นๆ">อื่นๆ</option></select>
     <div class="fdiv"></div>
     <label>หน่วยงาน</label>
-    <select id="fO" onchange="af()"><option value="all">ภาพรวม กฟต.2</option></select>
+    <div style="position:relative" id="orgPickWrap">
+      <input type="text" id="orgSearch" placeholder="ค้นหาหน่วยงาน..." autocomplete="off"
+        style="padding:4px 26px 4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;width:170px;transition:border-color .15s;cursor:pointer"
+        onfocus="showOrgDrop()" oninput="filterOrgDrop()" onblur="setTimeout(hideOrgDrop,200)"
+        readonly>
+      <div id="orgDrop" style="display:none;position:absolute;top:100%;left:0;min-width:220px;max-height:260px;overflow-y:auto;background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.4);margin-top:3px"></div>
+      <select id="fO" style="display:none" onchange="af()"><option value="all">ภาพรวม กฟต.2</option></select>
+    </div>
     <div class="fdiv"></div>
     <label>สถานะ</label>
     <select id="fS" onchange="af()"><option value="all">ทั้งหมด</option><option value="rep">มีผลแล้ว</option><option value="pend">ยังไม่รายงาน</option></select>
@@ -664,7 +671,9 @@ function parseFB(){
 async function loadData(){
   const btn=document.getElementById('rbtn');
   btn.classList.add('loading');btn.disabled=true;
+  setLoadProgress(10,'กำลังโหลดรายชื่อหน่วยงาน...');
   await loadOrgList();
+  setLoadProgress(30,'กำลังโหลดข้อมูล KPI...');
 
   const urlLP=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=Landing%20Page&t=${Date.now()}`;
   // เพิ่ม tq=select* เพื่อให้ gviz ส่งข้อมูลครบ และใช้ headers=1
@@ -672,6 +681,7 @@ async function loadData(){
 
   try{
     const [resLP, resKS] = await Promise.all([fetch(urlLP), fetch(urlKS)]);
+    setLoadProgress(60,'กำลังประมวลผลข้อมูล...');
     const [txtLP, txtKS] = await Promise.all([resLP.text(), resKS.text()]);
 
     // --- parse Landing Page ---
@@ -818,6 +828,7 @@ async function loadData(){
         return ia-ib;
       });
       toast('โหลดข้อมูลจริงครบแล้ว ('+ndFinal.length+' KPI)','ok');
+      setLoadProgress(100,'โหลดข้อมูลเสร็จสมบูรณ์ ✅');
 
       if(ndFinal.length>=90){ allData=ndFinal; allDataBase=JSON.parse(JSON.stringify(ndFinal)); }
       else {
@@ -848,6 +859,7 @@ async function loadData(){
   document.getElementById('upd').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
   btn.classList.remove('loading');btn.disabled=false;
   setupOrgFilter();
+  setupOrgSearchDrop();
   af();renderDept();renderAlert();renderTrendTable();
   hideLoad();
 }
@@ -1544,6 +1556,62 @@ let tTimer;
 function toast(msg,type='ok'){const el=document.getElementById('toast');el.textContent=msg;el.className='on '+type;clearTimeout(tTimer);tTimer=setTimeout(()=>el.className='',3500);}
 function hideLoad(){const el=document.getElementById('lov');el.classList.add('h');setTimeout(()=>el.style.display='none',400);}
 
+// ============================================================
+// Org Search Dropdown
+// ============================================================
+let orgAllList=[];
+function setupOrgSearchDrop(){
+  const sel=document.getElementById('fO');
+  orgAllList=[{val:'all',label:'ภาพรวม กฟต.2',group:''}];
+  [...sel.options].forEach(o=>{
+    if(o.value!=='all') orgAllList.push({val:o.value,label:o.textContent,group:o.parentElement?.label||''});
+  });
+  const inp=document.getElementById('orgSearch');
+  const cur=sel.value;
+  inp.value=cur==='all'?'ภาพรวม กฟต.2':(orgAllList.find(x=>x.val===cur)?.label||'ภาพรวม กฟต.2');
+  renderOrgDrop(orgAllList);
+}
+function renderOrgDrop(list){
+  const drop=document.getElementById('orgDrop');
+  let html='';
+  let lastGroup='';
+  list.forEach(item=>{
+    if(item.group&&item.group!==lastGroup){
+      html+=`<div style="padding:4px 10px;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid var(--bdr);margin-top:2px">${item.group}</div>`;
+      lastGroup=item.group;
+    }
+    html+=`<div class="org-opt" data-val="${item.val}" onmousedown="selectOrg('${item.val}','${item.label.replace(/'/g,"\\'")}')
+" style="padding:6px 12px;font-size:11px;color:var(--t);cursor:pointer;transition:background .1s" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background=''">${item.label}</div>`;
+  });
+  drop.innerHTML=html||'<div style="padding:8px 12px;font-size:11px;color:var(--t3)">ไม่พบ</div>';
+}
+function filterOrgDrop(){
+  const q=document.getElementById('orgSearch').value.toLowerCase();
+  renderOrgDrop(q?orgAllList.filter(x=>x.label.toLowerCase().includes(q)):orgAllList);
+  showOrgDrop();
+}
+function showOrgDrop(){document.getElementById('orgDrop').style.display='block';}
+function hideOrgDrop(){document.getElementById('orgDrop').style.display='none';}
+function selectOrg(val,label){
+  document.getElementById('orgSearch').value=label;
+  document.getElementById('fO').value=val;
+  hideOrgDrop();
+  af();
+}
+
+// ============================================================
+// Loading Progress
+// ============================================================
+function setLoadProgress(pct,msg){
+  const el=document.getElementById('loadProgress');
+  const bar=document.getElementById('loadBar');
+  const txt=document.getElementById('loadTxt');
+  if(el) el.style.display='block';
+  if(bar) bar.style.width=pct+'%';
+  if(txt) txt.textContent=msg||'กำลังโหลด... '+pct+'%';
+}
+
+
 // ปุ่ม scroll ขึ้น/ลง
 window.addEventListener('scroll',()=>{
   const y=window.scrollY;
@@ -1558,10 +1626,11 @@ window.addEventListener('scroll',()=>{
 window.addEventListener('DOMContentLoaded',()=>{
   allData=parseFB();
   setupOrgFilter();
+  setupOrgSearchDrop();
   const fO=document.getElementById('fO');
   setTimeout(()=>{
     const opt=[...fO.options].find(o=>o.value==='กฟส.อ่าวลึก');
-    if(opt) fO.value='กฟส.อ่าวลึก';
+    if(opt){ fO.value='กฟส.อ่าวลึก'; selectOrg('กฟส.อ่าวลึก','กฟส.อ่าวลึก'); }
     af();
   },50);
   renderDept();renderAlert();renderTrendTable();
