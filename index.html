@@ -248,6 +248,8 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="fdiv"></div>
     <label>คะแนน</label>
     <select id="fSc" onchange="af()"><option value="all">ทั้งหมด</option><option value="5">5.000</option><option value="4">4–4.9</option><option value="3">3–3.9</option><option value="low">ต่ำกว่า 3</option></select>
+    <div class="fdiv"></div>
+    <input type="text" class="tsrch" id="ovSrch" placeholder="ค้นหา KPI..." oninput="af()" style="width:150px">
     <div class="fcnt">แสดง <span id="fcn">—</span> รายการ</div>
   </div>
   <div id="orgBanner" style="display:none" class="org-banner">
@@ -1061,6 +1063,7 @@ async function af(){
     // reload ข้อมูลจาก allData ที่โหลดมาแล้ว
   }
 
+  const q=(document.getElementById('ovSrch')?.value||'').toLowerCase();
   fData=allData.filter(item=>{
     if(orgKpis&&!orgKpis.includes(item.code))return false;
     if(g==='policy'&&!item.group.includes('นโยบาย'))return false;
@@ -1074,6 +1077,7 @@ async function af(){
     if(sc==='low'&&(item.score===null||item.score>=3))return false;
     // ซ่อน KPI ที่ไม่มีข้อมูลรายเดือน (มีแค่ 0-1 เดือน) เมื่อเลือกหน่วยงาน
     if(curOrg!=='all'&&!isKpiActive(item))return false;
+    if(q&&!item.code.toLowerCase().includes(q)&&!item.name.toLowerCase().includes(q)&&!(item.responsible||'').toLowerCase().includes(q))return false;
     return true;
   });
   document.getElementById('fcn').textContent=fData.length;
@@ -1572,8 +1576,20 @@ window.addEventListener('DOMContentLoaded',()=>{
   <button id="scrollDn" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="ลงล่าง" style="width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--bdr2);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .25s,background .15s;box-shadow:0 2px 8px rgba(0,0,0,.4)">▼</button>
 </div>
 <style>
+@media(max-width:1024px) and (min-width:601px){
+  .mg{grid-template-columns:repeat(3,1fr)}
+  .cg{grid-template-columns:1fr 1fr}
+  .page{padding:12px 14px 40px}
+  .fbar{gap:6px}
+  .twrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:700px}
+  .mbox{width:90vw}
+  .dg{grid-template-columns:repeat(2,1fr)}
+  .ntabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .ntabs::-webkit-scrollbar{display:none}
+  canvas{max-width:100%!important}
+}
 @media(max-width:600px){
-  /* Nav — ซ่อนชื่อย่อย, ลด padding */
   .nav{height:auto;min-height:48px;flex-wrap:wrap;padding:6px 12px;gap:6px}
   .nsub{display:none}
   .ntitle{font-size:12px}
