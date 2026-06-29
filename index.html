@@ -729,9 +729,17 @@ function parseFB(){
   return FB.map(r=>({code:r[0],name:r[1],dept:r[2],group:r[3],responsible:r[4],result:r[5],status:r[6],score:r[7],monthly:MONTHLY_SCORES[r[0]]||{},targets:TARGETS[r[0]]||null}));
 }
 
+// fetch พร้อม timeout (ms) — ป้องกัน hang ไม่มีที่สิ้นสุด
+function fetchT(url, ms=8000){
+  const ctrl=new AbortController();
+  const id=setTimeout(()=>ctrl.abort(),ms);
+  return fetch(url,{signal:ctrl.signal}).finally(()=>clearTimeout(id));
+}
+
 async function loadData(){
   const btn=document.getElementById('rbtn');
   btn.classList.add('loading');btn.disabled=true;
+  try{
   await loadOrgList();
 
   const urlLP=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=Landing%20Page&t=${Date.now()}`;
@@ -739,7 +747,7 @@ async function loadData(){
   const urlKS=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=KPISummary&headers=1&t=${Date.now()}`;
 
   try{
-    const [resLP, resKS] = await Promise.all([fetch(urlLP), fetch(urlKS)]);
+    const [resLP, resKS] = await Promise.all([fetchT(urlLP), fetchT(urlKS)]);
     const [txtLP, txtKS] = await Promise.all([resLP.text(), resKS.text()]);
 
     // --- parse Landing Page ---
@@ -914,16 +922,23 @@ async function loadData(){
   }
 
   document.getElementById('upd').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-  btn.classList.remove('loading');btn.disabled=false;
   setupOrgFilter();
   af();renderDept();renderAlert();renderTrendTable();
-  hideLoad();
+  }catch(outerErr){
+    allData=parseFB();
+    toast('เกิดข้อผิดพลาด: '+outerErr.message,'er');
+    setupOrgFilter();
+    af();renderDept();renderAlert();renderTrendTable();
+  }finally{
+    btn.classList.remove('loading');btn.disabled=false;
+    hideLoad();
+  }
 }
 
 async function loadOrgList(){
   try{
     const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=OrgMap&t=${Date.now()}`;
-    const res=await fetch(url);const txt=await res.text();
+    const res=await fetchT(url);const txt=await res.text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(!m)throw new Error('no match');
     const rows=JSON.parse(m[1]).table.rows;
@@ -1057,7 +1072,7 @@ async function loadOrgResults(gfjCode){
   try{
     const sheetName='Results_'+gfjCode;
     const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
-    const res=await fetch(url);
+    const res=await fetchT(url);
     const txt=await res.text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(!m) throw new Error('parse error');
