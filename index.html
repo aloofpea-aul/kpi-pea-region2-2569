@@ -1139,13 +1139,18 @@ async function loadOrgResults(gfjCode){
           const v=gv(row,col);
           if(v!==null) monthlyRes[MKKEYS[i]]=parseFloat(v)||v;
         });
-        kpiOrgData[kpiCode][orgCode]={
-          targets,
-          result,
-          score:score!==null?parseFloat(score)||null:null,
-          monthlyScore,
-          monthlyRes
-        };
+        // เก็บเฉพาะ orgCode ที่มีข้อมูลจริง (มี result หรือ score)
+        const hasData = result!==null || score!==null ||
+          Object.keys(monthlyRes).length>0 || Object.keys(monthlyScore).length>0;
+        if(hasData){
+          kpiOrgData[kpiCode][orgCode]={
+            targets,
+            result,
+            score:score!==null?parseFloat(score)||null:null,
+            monthlyScore,
+            monthlyRes
+          };
+        }
       });
     });
 
@@ -1199,7 +1204,12 @@ async function af(){
           // อัปเดต orgKpis จาก Results sheet จริง (ดู KPI ทั้งหมดที่มีแถวสำหรับหน่วยงานนี้)
           const kpisFromCache = Object.keys(cache.kpiOrgData).filter(code=>{
             const od=cache.kpiOrgData[code];
-            return od&&od[orgCode6]!==undefined; // มีแถวใน Results sheet
+            if(!od||!od[orgCode6]) return false; // ไม่มีข้อมูลของหน่วยงานนี้เลย
+            const ov=od[orgCode6];
+            // ต้องมีผลหรือคะแนน หรือผลรายเดือนอย่างน้อย 1 เดือน
+            return ov.result!==null || ov.score!==null ||
+              Object.keys(ov.monthlyRes||{}).length>0 ||
+              Object.keys(ov.monthlyScore||{}).length>0;
           });
           if(kpisFromCache.length>0) orgKpis=kpisFromCache;
           // merge ข้อมูลเข้า allData ชั่วคราว
