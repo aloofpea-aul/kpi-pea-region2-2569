@@ -245,7 +245,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div id="orgWrap" style="position:relative;display:inline-block">
       <input type="text" id="orgSearch" placeholder="ค้นหาหน่วยงาน..." autocomplete="off"
         style="padding:4px 26px 4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;width:170px;transition:border-color .15s;cursor:text"
-        onfocus="showOrgDrop()" oninput="filterOrgDrop()" onblur="setTimeout(hideOrgDrop,200)">
+        onfocus="clearOrgSearch()" oninput="filterOrgDrop()" onblur="setTimeout(hideOrgDrop,200)">
       <div id="orgDrop" style="display:none;position:absolute;top:calc(100% + 2px);left:0;min-width:210px;max-height:260px;overflow-y:auto;background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.4)"></div>
     </div>
     <div class="fdiv"></div>
@@ -1027,6 +1027,12 @@ function renderOrgDrop(q){
     d.style.cssText='padding:8px 12px;font-size:11px;color:var(--t3);text-align:center';
     drop.appendChild(d);
   }
+}
+
+function clearOrgSearch(){
+  const inp=document.getElementById('orgSearch');
+  if(inp) inp.value=''; // ล้างข้อความเก่าทันที
+  showOrgDrop();
 }
 
 function showOrgDrop(){
