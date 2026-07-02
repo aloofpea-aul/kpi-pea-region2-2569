@@ -979,7 +979,13 @@ async function loadData(){
   }finally{
     btn.classList.remove('loading');btn.disabled=false;
     hideLoad();
-    setTimeout(()=>renderRanking(),100); // background หลัง UI render เสร็จ
+    setupOrgFilter();
+    // หลังโหลดข้อมูลจริงแล้ว selectOrg กฟส.อล. (ถ้ายังไม่ได้เลือก org อื่น)
+    if(_orgSelected==='all'||_orgSelected==='กฟส.อ่าวลึก'){
+      selectOrgAsync('กฟส.อ่าวลึก','กฟส.อ่าวลึก');
+    } else {
+      af().then(()=>setTimeout(()=>renderRanking(),100));
+    }
   }
 }
 
@@ -1110,14 +1116,23 @@ function filterOrgDrop(){
   if(drop) drop.style.display='block';
 }
 
-function selectOrg(val,label){
+async function selectOrgAsync(val,label){
   _orgSelected=val||'all';
-  _rankShowAll=false; // reset ทุกครั้งที่เปลี่ยน org
+  _rankShowAll=false;
   const inp=document.getElementById('orgSearch');
   if(inp) inp.value=_orgSelected==='all'?'':label;
   hideOrgDrop();
-  af();
-  setTimeout(()=>renderRanking(),50); // update ranking หลัง af() เสร็จ
+  await af();
+  setTimeout(()=>renderRanking(),50);
+}
+
+function selectOrg(val,label){
+  _orgSelected=val||'all';
+  _rankShowAll=false;
+  const inp=document.getElementById('orgSearch');
+  if(inp) inp.value=_orgSelected==='all'?'':label;
+  hideOrgDrop();
+  af().then(()=>setTimeout(()=>renderRanking(),50));
 }
 
 function clearOrg(){selectOrg('all','');}
@@ -1983,16 +1998,15 @@ window.addEventListener('scroll',()=>{
 
 
 window.addEventListener('DOMContentLoaded',()=>{
-  // แสดง fallback data ทันที — ไม่รอ network
+  // แสดง fallback data ทันที ไม่รอ network
   allData=parseFB();
   allDataBase=JSON.parse(JSON.stringify(allData));
   setupOrgFilter();
-  setTimeout(()=>{ selectOrg('กฟส.อ่าวลึก','กฟส.อ่าวลึก'); },50);
-  renderDept();renderAlert();renderTrendTable();
-  // ซ่อน loading ทันที ไม่ว่าจะเกิดอะไร
-  hideLoad();
-  // โหลดข้อมูลจริงใน background หลังจาก UI แสดงแล้ว
-  setTimeout(()=>{ loadData(); },200);
+  // แสดงภาพรวมก่อน (ไม่ await network)
+  af();renderDept();renderAlert();renderTrendTable();
+  hideLoad(); // ซ่อน overlay ทันที
+  // โหลดข้อมูลจริง background (loadData จะ selectOrg กฟส.อล. หลัง fetch เสร็จ)
+  setTimeout(()=>{ loadData(); },300);
 });
 </script>
 </body>
