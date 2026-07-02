@@ -94,10 +94,6 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .tsrch{padding:4px 10px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;width:180px;transition:border-color .15s}
 .tsrch:focus{outline:none;border-color:var(--bl2)}
 .tsrch::placeholder{color:var(--t3)}
-.sort-btn{display:flex;align-items:center;gap:3px;padding:4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t3);font-family:var(--fn);font-size:10px;cursor:pointer;transition:all .15s;white-space:nowrap}
-.sort-btn:hover{color:var(--t);border-color:var(--bdr2)}
-.sort-btn.sort-on{background:var(--blbg);border-color:var(--bl2);color:var(--bl2)}
-.sort-icon{font-size:11px;line-height:1}
 .twrap{overflow-x:auto;max-height:460px;overflow-y:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead th{position:sticky;top:0;z-index:5;background:var(--bg3);padding:7px 10px;text-align:left;font-weight:500;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bdr);white-space:nowrap;cursor:pointer;user-select:none}
@@ -189,6 +185,10 @@ tbody td{padding:7px 10px;vertical-align:middle}
 #toast.on{transform:translateY(0);opacity:1}
 #toast.ok{border-color:rgba(26,127,94,.4)}
 #toast.er{border-color:rgba(218,54,51,.4)}
+.sort-btn{display:flex;align-items:center;gap:3px;padding:4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t3);font-family:var(--fn);font-size:10px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sort-btn:hover{color:var(--t);border-color:var(--bdr2)}
+.sort-btn.sort-on{background:var(--blbg);border-color:var(--bl2);color:var(--bl2)}
+.sort-icon{font-size:11px;line-height:1}
 </style>
 </head>
 <body>
@@ -245,13 +245,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <select id="fD" onchange="af()"><option value="all">ทั้งหมด</option><option value="ฝวบ.">ฝวบ.</option><option value="ฝปบ.">ฝปบ.</option><option value="ฝสบ.">ฝสบ.</option><option value="กสข.">กสข.</option><option value="อื่นๆ">อื่นๆ</option></select>
     <div class="fdiv"></div>
     <label>หน่วยงาน</label>
-    <label style="display:none" id="fOhidden"></label>
-    <div id="orgWrap" style="position:relative;display:inline-block">
-      <input type="text" id="orgSearch" placeholder="ค้นหาหน่วยงาน..." autocomplete="off"
-        style="padding:4px 26px 4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;width:170px;transition:border-color .15s;cursor:text"
-        onfocus="clearOrgSearch()" oninput="filterOrgDrop()" onblur="setTimeout(hideOrgDrop,200)">
-      <div id="orgDrop" style="display:none;position:absolute;top:calc(100% + 2px);left:0;min-width:210px;max-height:260px;overflow-y:auto;background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.4)"></div>
-    </div>
+    <select id="fO" onchange="af()"><option value="all">ภาพรวม กฟต.2</option></select>
     <div class="fdiv"></div>
     <label>สถานะ</label>
     <select id="fS" onchange="af()"><option value="all">ทั้งหมด</option><option value="rep">มีผลแล้ว</option><option value="pend">ยังไม่รายงาน</option></select>
@@ -466,45 +460,30 @@ const MONTHLY_SCORES={
 
 const ORG_LIST_FALLBACK=[
   'ภาพรวม กฟต.2',
-  // K01 — กฟจ.นครศรีธรรมราช
-  'กฟจ.นครศรีธรรมราช','กฟส.ลานสกา','กฟส.พรหมคีรี','กฟส.พระพรหม',
-  'กฟส.เฉลิมพระเกียรติ','กฟส.ร่อนพิบูลย์','กฟส.จุฬาภรณ์','กฟส.ชะอวด',
-  // K02 — กฟจ.สุราษฎร์ธานี
-  'กฟจ.สุราษฎร์ธานี','กฟส.บ้านนาเดิม','กฟส.บ้านนาสาร',
-  // K03 — กฟจ.ตรัง
-  'กฟจ.ตรัง','กฟส.สิเกา','กฟส.นาโยง','กฟส.กันตัง','กฟส.เกาะลิบง',
-  'กฟส.บ้านเกาะมุกด์','กฟส.ย่านตาขาว','กฟส.เกาะสุกร','กฟส.หาดสำราญ','กฟส.ปะเหลียน',
-  // K04 — กฟจ.กระบี่
-  'กฟจ.กระบี่','กฟส.บ้านเกาะพีพี','กฟส.อ่าวนาง','กฟส.อ่าวลึก','กฟส.ปลายพระยา',
-  'กฟส.คลองท่อม','กฟส.ลำทับ','กฟส.เกาะลันตา','กฟส.เหนือคลอง','กฟส.เขาพนม',
-  // K05 — กฟจ.พังงา
-  'กฟจ.พังงา','กฟส.ทับปุด','กฟส.ท้ายเหมือง','กฟส.ตะกั่วทุ่ง',
-  // K06 — กฟจ.ภูเก็ต
-  'กฟจ.ภูเก็ต','กฟส.ฉลอง',
-  // K07 — กฟส.ทุ่งสง
-  'กฟส.ทุ่งสง','กฟส.นาบอน','กฟส.บางขัน','กฟส.ฉวาง','กฟส.พิปูน',
-  'กฟส.ช้างกลาง','กฟส.ทุ่งใหญ่','กฟส.ถ้ำพรรณรา',
-  // K08 — กฟส.เกาะสมุย
-  'กฟส.เกาะสมุย','กฟส.เกาะเต่า','กฟส.เกาะพะงัน',
-  // K09 — กฟส.พุนพิน
-  'กฟส.พุนพิน','กฟส.เคียนซา','กฟส.ท่าฉาง','กฟส.ไชยา','กฟส.บ้านตาขุน',
-  'กฟส.พนม','กฟส.ท่าชนะ','กฟส.คีรีรัฐนิคม','กฟส.วิภาวดี',
-  // K10 — กฟส.ปากพนัง
-  'กฟส.ปากพนัง','กฟส.เชียรใหญ่','กฟส.หัวไทร',
-  // K11 — กฟส.ถลาง
-  'กฟส.ถลาง','กฟส.เกาะยาว',
-  // K12 — กฟส.ตะกั่วป่า
-  'กฟส.ตะกั่วป่า','กฟส.กะปง','กฟส.คุระบุรี','กฟส.บ้านเขาหลัก',
-  // K13 — กฟส.ป่าตอง
-  'กฟส.ป่าตอง',
-  // K14 — กฟส.กาญจนดิษฐ์
-  'กฟส.กาญจนดิษฐ์','กฟส.ดอนสัก',
-  // K15 — กฟส.เวียงสระ
-  'กฟส.เวียงสระ','กฟส.ชัยบุรี','กฟส.พระแสง',
-  // K16 — กฟส.ท่าศาลา
-  'กฟส.ท่าศาลา','กฟส.นบพิตำ','กฟส.สิชล','กฟส.ขนอม',
-  // K17 — กฟส.ห้วยยอด
-  'กฟส.ห้วยยอด','กฟส.วังวิเศษ','กฟส.รัษฎา',
+  'กฟจ.กระบี่','กฟจ.ภูเก็ต','กฟจ.สุราษฎร์ธานี','กฟจ.นครศรีธรรมราช',
+  'กฟจ.ตรัง','กฟจ.พังงา','กฟจ.ชุมพร','กฟจ.ระนอง',
+  'กฟจ.สงขลา','กฟจ.ยะลา','กฟจ.ปัตตานี','กฟจ.นราธิวาส',
+  'กฟจ.พัทลุง','กฟจ.สตูล',
+  'กฟส.อ่าวลึก','กฟส.เกาะลันตา','กฟส.คลองท่อม',
+  'กฟส.ถลาง',
+  'กฟส.เกาะสมุย','กฟส.เกาะพะงัน','กฟส.ไชยา','กฟส.พระแสง','กฟส.บ้านนาสาร',
+  'กฟส.บ้านนาเดิม','กฟส.เวียงสระ','กฟส.พุนพิน','กฟส.ท่าฉาง',
+  'กฟส.ทุ่งสง','กฟส.ปากพนัง','กฟส.นาบอน','กฟส.ทุ่งใหญ่','กฟส.ฉวาง',
+  'กฟส.พรหมคีรี','กฟส.บางขัน','กฟส.ลานสกา','กฟส.เชียรใหญ่','กฟส.หัวไทร',
+  'กฟส.กันตัง','กฟส.ห้วยยอด','กฟส.ย่านตาขาว','กฟส.สิเกา','กฟส.ปะเหลียน',
+  'กฟส.นาโยง','กฟส.วังวิเศษ',
+  'กฟส.ตะกั่วป่า','กฟส.ท้ายเหมือง','กฟส.ทับปุด','กฟส.เกาะยาว','กฟส.คุระบุรี',
+  'กฟส.หลังสวน','กฟส.ท่าแซะ','กฟส.พะโต๊ะ','กฟส.สวี','กฟส.ปะทิว','กฟส.ละแม',
+  'กฟส.กระบุรี','กฟส.ละอุ่น','กฟส.กะเปอร์',
+  'กฟส.หาดใหญ่','กฟส.สะเดา','กฟส.นาทวี','กฟส.รัตภูมิ','กฟส.บางกล่ำ',
+  'กฟส.จะนะ','กฟส.สิงหนคร','กฟส.กระแสสินธุ์',
+  'กฟส.เบตง','กฟส.บันนังสตา','กฟส.กาบัง','กฟส.รามัน','กฟส.ธารโต',
+  'กฟส.หนองจิก','กฟส.ยะรัง','กฟส.ยะหริ่ง','กฟส.ทุ่งยางแดง','กฟส.โคกโพธิ์',
+  'กฟส.สายบุรี','กฟส.มายอ',
+  'กฟส.สุไหงโก-ลก','กฟส.ตากใบ','กฟส.บาเจาะ','กฟส.ศรีสาคร','กฟส.แว้ง',
+  'กฟส.รือเสาะ','กฟส.จะแนะ','กฟส.สุคิริน',
+  'กฟส.ควนขนุน','กฟส.ปากพะยูน','กฟส.บางแก้ว','กฟส.กงหรา','กฟส.ตะโหมด',
+  'กฟส.ละงู','กฟส.ทุ่งหว้า','กฟส.ควนโดน','กฟส.เกาะลิบง',
 ];
 let ORG_LIST=['ภาพรวม กฟต.2',...ORG_LIST_FALLBACK.filter(o=>o!=='ภาพรวม กฟต.2')];
 
@@ -530,7 +509,8 @@ const KPI_AOL=[
 const ORG_KPI_MAP={};
 ORG_KPI_MAP['กฟส.อ่าวลึก']=KPI_AOL;
 ['กฟจ.กระบี่','กฟจ.สุราษฎร์ธานี','กฟจ.นครศรีธรรมราช','กฟจ.ตรัง',
- 'กฟจ.พังงา'].forEach(o=>{
+ 'กฟจ.พังงา','กฟจ.ชุมพร','กฟจ.ระนอง','กฟจ.สงขลา','กฟจ.ยะลา',
+ 'กฟจ.ปัตตานี','กฟจ.นราธิวาส','กฟจ.พัทลุง','กฟจ.สตูล'].forEach(o=>{
   ORG_KPI_MAP[o]=[...KPI_ALL_BRANCHES,...KPI_GFJ_EXTRA,...KPI_SAIFI_MUNI];
 });
 ORG_KPI_MAP['กฟจ.ภูเก็ต']=[...KPI_ALL_BRANCHES,...KPI_GFJ_EXTRA,...KPI_SAIFI_MUNI,...KPI_PKT,'1.16','1.17'];
@@ -639,7 +619,7 @@ const FB=[
 ];
 
 let allData=[],allDataBase=[],fData=[],tData=[];
-let curTab='all',sKey=null,sDir=1,curOrg='all',sortMode='default';
+let curTab='all',sKey=null,sDir=1,curOrg='all';
 let charts={};
 
 // map ชื่อหน่วยงาน → รหัสจุดรวมงาน (ยืนยันจาก OrgMap จริง)
@@ -689,55 +669,6 @@ const ORG_GFJ_CODE={
   // K17 — จุดรวม กฟส.ห้วยยอด
   'กฟส.ห้วยยอด':'K17','กฟส.วังวิเศษ':'K17','กฟส.รัษฎา':'K17'
 };
-// รหัส 6 หลัก hardcode ทุกหน่วยงาน กฟต.2 (จาก OrgMap จริง)
-const ORG_CODE6_MAP={
-  // K01 — กฟจ.นครศรีธรรมราช
-  'กฟจ.นครศรีธรรมราช':'K01101','กฟส.ลานสกา':'K01102','กฟส.พรหมคีรี':'K01103',
-  'กฟส.พระพรหม':'K01104','กฟส.เฉลิมพระเกียรติ':'K01105',
-  'กฟส.ร่อนพิบูลย์':'K01401','กฟส.จุฬาภรณ์':'K01402','กฟส.ชะอวด':'K01601',
-  // K02 — กฟจ.สุราษฎร์ธานี
-  'กฟจ.สุราษฎร์ธานี':'K02101','กฟส.บ้านนาเดิม':'K02102','กฟส.บ้านนาสาร':'K02401',
-  // K03 — กฟจ.ตรัง
-  'กฟจ.ตรัง':'K03101','กฟส.สิเกา':'K03102','กฟส.นาโยง':'K03103',
-  'กฟส.กันตัง':'K03201','กฟส.เกาะลิบง':'K03203','กฟส.บ้านเกาะมุกด์':'K03204',
-  'กฟส.ย่านตาขาว':'K03401','กฟส.เกาะสุกร':'K03403','กฟส.หาดสำราญ':'K03404','กฟส.ปะเหลียน':'K03501',
-  // K04 — กฟจ.กระบี่
-  'กฟจ.กระบี่':'K04101','กฟส.บ้านเกาะพีพี':'K04107','กฟส.อ่าวนาง':'K04108',
-  'กฟส.อ่าวลึก':'K04201','กฟส.ปลายพระยา':'K04202',
-  'กฟส.คลองท่อม':'K04301','กฟส.ลำทับ':'K04302',
-  'กฟส.เกาะลันตา':'K04401','กฟส.เหนือคลอง':'K04501','กฟส.เขาพนม':'K04601',
-  // K05 — กฟจ.พังงา
-  'กฟจ.พังงา':'K05101','กฟส.ทับปุด':'K05103',
-  'กฟส.ท้ายเหมือง':'K05301','กฟส.ตะกั่วทุ่ง':'K05401',
-  // K06 — กฟจ.ภูเก็ต
-  'กฟจ.ภูเก็ต':'K06101','กฟส.ฉลอง':'K06401',
-  // K07 — กฟส.ทุ่งสง
-  'กฟส.ทุ่งสง':'K07101','กฟส.นาบอน':'K07102','กฟส.บางขัน':'K07104',
-  'กฟส.ฉวาง':'K07201','กฟส.พิปูน':'K07202','กฟส.ช้างกลาง':'K07301',
-  'กฟส.ทุ่งใหญ่':'K07401','กฟส.ถ้ำพรรณรา':'K07402',
-  // K08 — กฟส.เกาะสมุย
-  'กฟส.เกาะสมุย':'K08101','กฟส.เกาะเต่า':'K08103','กฟส.เกาะพะงัน':'K08201',
-  // K09 — กฟส.พุนพิน
-  'กฟส.พุนพิน':'K09101','กฟส.เคียนซา':'K09105','กฟส.ท่าฉาง':'K09106',
-  'กฟส.ไชยา':'K09201','กฟส.บ้านตาขุน':'K09301','กฟส.พนม':'K09303',
-  'กฟส.ท่าชนะ':'K09401','กฟส.คีรีรัฐนิคม':'K09501','กฟส.วิภาวดี':'K09502',
-  // K10 — กฟส.ปากพนัง
-  'กฟส.ปากพนัง':'K10101','กฟส.เชียรใหญ่':'K10102','กฟส.หัวไทร':'K10201',
-  // K11 — กฟส.ถลาง
-  'กฟส.ถลาง':'K11101','กฟส.เกาะยาว':'K11102',
-  // K12 — กฟส.ตะกั่วป่า
-  'กฟส.ตะกั่วป่า':'K12101','กฟส.กะปง':'K12102','กฟส.คุระบุรี':'K12103','กฟส.บ้านเขาหลัก':'K12104',
-  // K13 — กฟส.ป่าตอง
-  'กฟส.ป่าตอง':'K13101',
-  // K14 — กฟส.กาญจนดิษฐ์
-  'กฟส.กาญจนดิษฐ์':'K14101','กฟส.ดอนสัก':'K14102',
-  // K15 — กฟส.เวียงสระ
-  'กฟส.เวียงสระ':'K15101','กฟส.ชัยบุรี':'K15102','กฟส.พระแสง':'K15201',
-  // K16 — กฟส.ท่าศาลา
-  'กฟส.ท่าศาลา':'K16101','กฟส.นบพิตำ':'K16102','กฟส.สิชล':'K16201','กฟส.ขนอม':'K16301',
-  // K17 — กฟส.ห้วยยอด
-  'กฟส.ห้วยยอด':'K17101','กฟส.วังวิเศษ':'K17102','กฟส.รัษฎา':'K17103',
-};
 // cache Results sheet ที่โหลดมาแล้ว (key = gfjCode เช่น 'K04')
 const orgResultsCache={};
 
@@ -745,17 +676,9 @@ function parseFB(){
   return FB.map(r=>({code:r[0],name:r[1],dept:r[2],group:r[3],responsible:r[4],result:r[5],status:r[6],score:r[7],monthly:MONTHLY_SCORES[r[0]]||{},targets:TARGETS[r[0]]||null}));
 }
 
-// fetch พร้อม timeout (ms) — ป้องกัน hang ไม่มีที่สิ้นสุด
-function fetchT(url, ms=8000){
-  const ctrl=new AbortController();
-  const id=setTimeout(()=>ctrl.abort(),ms);
-  return fetch(url,{signal:ctrl.signal}).finally(()=>clearTimeout(id));
-}
-
 async function loadData(){
   const btn=document.getElementById('rbtn');
   btn.classList.add('loading');btn.disabled=true;
-  try{
   await loadOrgList();
 
   const urlLP=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=Landing%20Page&t=${Date.now()}`;
@@ -763,7 +686,7 @@ async function loadData(){
   const urlKS=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=KPISummary&headers=1&t=${Date.now()}`;
 
   try{
-    const [resLP, resKS] = await Promise.all([fetchT(urlLP), fetchT(urlKS)]);
+    const [resLP, resKS] = await Promise.all([fetch(urlLP), fetch(urlKS)]);
     const [txtLP, txtKS] = await Promise.all([resLP.text(), resKS.text()]);
 
     // --- parse Landing Page ---
@@ -938,23 +861,16 @@ async function loadData(){
   }
 
   document.getElementById('upd').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  btn.classList.remove('loading');btn.disabled=false;
   setupOrgFilter();
   af();renderDept();renderAlert();renderTrendTable();
-  }catch(outerErr){
-    allData=parseFB();
-    toast('เกิดข้อผิดพลาด: '+outerErr.message,'er');
-    setupOrgFilter();
-    af();renderDept();renderAlert();renderTrendTable();
-  }finally{
-    btn.classList.remove('loading');btn.disabled=false;
-    hideLoad();
-  }
+  hideLoad();
 }
 
 async function loadOrgList(){
   try{
     const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=OrgMap&t=${Date.now()}`;
-    const res=await fetchT(url);const txt=await res.text();
+    const res=await fetch(url);const txt=await res.text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(!m)throw new Error('no match');
     const rows=JSON.parse(m[1]).table.rows;
@@ -973,120 +889,21 @@ async function loadOrgList(){
     });
     const orgs=['ภาพรวม กฟต.2',...gfj.sort((a,b)=>(window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap[b]||'')),...gfs.sort((a,b)=>(window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap[b]||''))];
     if(orgs.length>2){ORG_LIST=orgs;console.log('OrgList loaded:',orgs.length,'หน่วยงาน');}
-    // merge ORG_CODE6_MAP เป็น fallback สำหรับหน่วยงานที่ไม่มีใน OrgMap
-    Object.keys(ORG_CODE6_MAP).forEach(k=>{ if(!window.orgCodeMap[k]) window.orgCodeMap[k]=ORG_CODE6_MAP[k]; });
-  }catch(e){
-    console.log('OrgList fallback:',e.message);
-    // ใช้ ORG_CODE6_MAP ทั้งหมด
-    window.orgCodeMap=Object.assign({},ORG_CODE6_MAP);
-  }
+  }catch(e){console.log('OrgList fallback:',e.message);}
 }
-
-// --- Searchable Org Dropdown ---
-let _orgSelected='all'; // 'all' หรือชื่อหน่วยงาน
 
 function setupOrgFilter(){
-  const prev=_orgSelected||'all';
-  buildOrgDrop();
-  // restore label
-  const inp=document.getElementById('orgSearch');
-  if(inp) inp.value = prev==='all'?'':prev;
+  const sel=document.getElementById('fO');
+  const prev=sel.value||'all';
+  sel.innerHTML='<option value="all">ภาพรวม กฟต.2</option>';
+  const gfj=ORG_LIST.filter(o=>o.startsWith('กฟจ.'));
+  const gfs=ORG_LIST.filter(o=>o.startsWith('กฟส.'));
+  if(gfj.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าจังหวัด —';gfj.sort((a,b)=>(window.orgCodeMap&&window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap&&window.orgCodeMap[b]||'')).forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
+  if(gfs.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าสาขา —';gfs.sort((a,b)=>(window.orgCodeMap&&window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap&&window.orgCodeMap[b]||'')).forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
+  if(prev&&[...sel.options].some(o=>o.value===prev))sel.value=prev;
 }
 
-function buildOrgDrop(){
-  const drop=document.getElementById('orgDrop');
-  if(!drop) return;
-  const cm=window.orgCodeMap||{};
-  const sortFn=(a,b)=>(cm[a]||'').localeCompare(cm[b]||'');
-  const gfj=ORG_LIST.filter(o=>o.startsWith('กฟจ.')).sort(sortFn);
-  const gfs=ORG_LIST.filter(o=>o.startsWith('กฟส.')).sort(sortFn);
-  const rows=[];
-  rows.push({label:'ภาพรวม กฟต.2',value:'all',group:''});
-  if(gfj.length){rows.push({label:'— การไฟฟ้าจังหวัด —',value:null,group:'hdr'});gfj.forEach(o=>rows.push({label:o,value:o,group:'gfj'}));}
-  if(gfs.length){rows.push({label:'— การไฟฟ้าสาขา —',value:null,group:'hdr'});gfs.forEach(o=>rows.push({label:o,value:o,group:'gfs'}));}
-  drop._rows=rows;
-  renderOrgDrop('');
-}
-
-function renderOrgDrop(q){
-  const drop=document.getElementById('orgDrop');
-  if(!drop||!drop._rows) return;
-  const rows=drop._rows;
-  const ql=q.toLowerCase();
-  drop.innerHTML='';
-  let hasItem=false;
-  rows.forEach(r=>{
-    if(r.group==='hdr'){
-      // show header only if next items match
-      const peek=rows.slice(rows.indexOf(r)+1).some(x=>x.value&&(!ql||x.label.toLowerCase().includes(ql)));
-      if(!peek) return;
-      const d=document.createElement('div');
-      d.textContent=r.label;
-      d.style.cssText='padding:4px 10px;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid var(--bdr);margin-top:2px';
-      drop.appendChild(d);
-    } else {
-      if(ql && !r.label.toLowerCase().includes(ql)) return;
-      hasItem=true;
-      const d=document.createElement('div');
-      d.textContent=r.label;
-      d.dataset.val=r.value;
-      const isSelected=(r.value===_orgSelected)||(r.value==='all'&&_orgSelected==='all');
-      d.style.cssText=`padding:5px 12px;font-size:11px;cursor:pointer;color:${isSelected?'var(--bl2)':'var(--t)'};background:${isSelected?'var(--blbg)':'transparent'}`;
-      d.onmousedown=()=>selectOrg(r.value,r.label);
-      d.onmouseover=()=>d.style.background=isSelected?'var(--blbg)':'var(--bg4)';
-      d.onmouseout=()=>d.style.background=isSelected?'var(--blbg)':'transparent';
-      drop.appendChild(d);
-    }
-  });
-  if(!hasItem){
-    const d=document.createElement('div');
-    d.textContent='ไม่พบหน่วยงาน';
-    d.style.cssText='padding:8px 12px;font-size:11px;color:var(--t3);text-align:center';
-    drop.appendChild(d);
-  }
-}
-
-function clearOrgSearch(){
-  const inp=document.getElementById('orgSearch');
-  if(inp) inp.value=''; // ล้างข้อความเก่าทันที
-  showOrgDrop();
-}
-
-function showOrgDrop(){
-  const drop=document.getElementById('orgDrop');
-  if(!drop) return;
-  if(!drop._rows) buildOrgDrop();
-  renderOrgDrop(document.getElementById('orgSearch').value||'');
-  drop.style.display='block';
-  document.getElementById('orgSearch').style.borderColor='var(--bl2)';
-}
-
-function hideOrgDrop(){
-  const drop=document.getElementById('orgDrop');
-  if(drop) drop.style.display='none';
-  const inp=document.getElementById('orgSearch');
-  if(inp){
-    inp.style.borderColor='';
-    // restore selected label
-    inp.value=_orgSelected==='all'?'':_orgSelected;
-  }
-}
-
-function filterOrgDrop(){
-  renderOrgDrop(document.getElementById('orgSearch').value||'');
-  const drop=document.getElementById('orgDrop');
-  if(drop) drop.style.display='block';
-}
-
-function selectOrg(val,label){
-  _orgSelected=val||'all';
-  const inp=document.getElementById('orgSearch');
-  if(inp) inp.value=_orgSelected==='all'?'':label;
-  hideOrgDrop();
-  af();
-}
-
-function clearOrg(){selectOrg('all','');}
+function clearOrg(){document.getElementById('fO').value='all';af();}
 
 // โหลด Results_Kxx sheet แล้ว merge ข้อมูลเข้า allData
 async function loadOrgResults(gfjCode){
@@ -1094,7 +911,7 @@ async function loadOrgResults(gfjCode){
   try{
     const sheetName='Results_'+gfjCode;
     const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
-    const res=await fetchT(url);
+    const res=await fetch(url);
     const txt=await res.text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(!m) throw new Error('parse error');
@@ -1162,18 +979,13 @@ async function loadOrgResults(gfjCode){
           const v=gv(row,col);
           if(v!==null) monthlyRes[MKKEYS[i]]=parseFloat(v)||v;
         });
-        // เก็บเฉพาะ orgCode ที่มีข้อมูลจริง (มี result หรือ score)
-        const hasData = result!==null || score!==null ||
-          Object.keys(monthlyRes).length>0 || Object.keys(monthlyScore).length>0;
-        if(hasData){
-          kpiOrgData[kpiCode][orgCode]={
-            targets,
-            result,
-            score:score!==null?parseFloat(score)||null:null,
-            monthlyScore,
-            monthlyRes
-          };
-        }
+        kpiOrgData[kpiCode][orgCode]={
+          targets,
+          result,
+          score:score!==null?parseFloat(score)||null:null,
+          monthlyScore,
+          monthlyRes
+        };
       });
     });
 
@@ -1194,7 +1006,7 @@ function getOrgCode(orgName){
 async function af(){
   const g=document.getElementById('fG').value;
   const d=document.getElementById('fD').value;
-  const org=_orgSelected||'all';
+  const org=document.getElementById('fO').value;
   const s=document.getElementById('fS').value;
   const sc=document.getElementById('fSc').value;
   curOrg=org;
@@ -1227,12 +1039,7 @@ async function af(){
           // อัปเดต orgKpis จาก Results sheet จริง (ดู KPI ทั้งหมดที่มีแถวสำหรับหน่วยงานนี้)
           const kpisFromCache = Object.keys(cache.kpiOrgData).filter(code=>{
             const od=cache.kpiOrgData[code];
-            if(!od||!od[orgCode6]) return false; // ไม่มีข้อมูลของหน่วยงานนี้เลย
-            const ov=od[orgCode6];
-            // ต้องมีผลหรือคะแนน หรือผลรายเดือนอย่างน้อย 1 เดือน
-            return ov.result!==null || ov.score!==null ||
-              Object.keys(ov.monthlyRes||{}).length>0 ||
-              Object.keys(ov.monthlyScore||{}).length>0;
+            return od&&od[orgCode6]!==undefined; // มีแถวใน Results sheet
           });
           if(kpisFromCache.length>0) orgKpis=kpisFromCache;
           // merge ข้อมูลเข้า allData ชั่วคราว
@@ -1294,25 +1101,15 @@ async function af(){
   tData=[...fData];rT();
 }
 
-function sT(el){
-  document.querySelectorAll('.tabb').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');curTab=el.dataset.t;
-  let d=[...fData];
-  if(curTab==='policy')d=d.filter(x=>x.group.includes('นโยบาย'));
-  if(curTab==='duty')d=d.filter(x=>x.group.includes('หน้าที่'));
-  if(curTab==='low')d=d.filter(x=>x.score!==null&&x.score<3);
-  if(curTab==='pend')d=d.filter(x=>x.score===null);
-  tData=d;applySort();rT();
-}
+let sortMode='default';
 
 function setSortMode(mode){
   sortMode=mode;
-  // update button styles
   ['default','asc','desc'].forEach(m=>{
     const btn=document.getElementById('sortBtn-'+m);
     if(btn) btn.classList.toggle('sort-on', m===mode);
   });
-  // clear table header sort indicators
+  // ล้าง sort indicator ของ column headers
   ['code','name','dept','resp','res','sc'].forEach(n=>{
     const e=document.getElementById('th-'+n);if(e)e.className='';
   });
@@ -1323,7 +1120,6 @@ function setSortMode(mode){
 
 function applySort(){
   if(sortMode==='default'){
-    // เรียงตามรหัส KPI (natural sort)
     tData.sort((a,b)=>a.code.localeCompare(b.code,'th',{numeric:true}));
   } else if(sortMode==='asc'){
     // คะแนนน้อย→มาก (null ไว้ท้าย)
@@ -1342,6 +1138,17 @@ function applySort(){
       return b.score-a.score || a.code.localeCompare(b.code,'th',{numeric:true});
     });
   }
+}
+
+function sT(el){
+  document.querySelectorAll('.tabb').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');curTab=el.dataset.t;
+  let d=[...fData];
+  if(curTab==='policy')d=d.filter(x=>x.group.includes('นโยบาย'));
+  if(curTab==='duty')d=d.filter(x=>x.group.includes('หน้าที่'));
+  if(curTab==='low')d=d.filter(x=>x.score!==null&&x.score<3);
+  if(curTab==='pend')d=d.filter(x=>x.score===null);
+  tData=d;applySort();rT();
 }
 
 function sSort(k){
@@ -1804,8 +1611,11 @@ window.addEventListener('scroll',()=>{
 window.addEventListener('DOMContentLoaded',()=>{
   allData=parseFB();
   setupOrgFilter();
+  const fO=document.getElementById('fO');
   setTimeout(()=>{
-    selectOrg('กฟส.อ่าวลึก','กฟส.อ่าวลึก');
+    const opt=[...fO.options].find(o=>o.value==='กฟส.อ่าวลึก');
+    if(opt) fO.value='กฟส.อ่าวลึก';
+    af();
   },50);
   renderDept();renderAlert();renderTrendTable();
   hideLoad();
