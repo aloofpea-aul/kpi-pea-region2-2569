@@ -204,7 +204,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
 </style>
 </head>
 <body>
-<div id="lov"><div class="sp"></div><div class="lt">กำลังโหลดข้อมูล KPI กฟต.2 ปี 2569...</div></div>
+<div id="lov" class="h" style="display:none"><div class="sp"></div><div class="lt">กำลังโหลดข้อมูล KPI กฟต.2 ปี 2569...</div></div>
 <div id="toast"></div>
 
 <div class="mover" id="mover" onclick="if(event.target===this)cM()">
@@ -762,19 +762,33 @@ function parseFB(){
   return FB.map(r=>({code:r[0],name:r[1],dept:r[2],group:r[3],responsible:r[4],result:r[5],status:r[6],score:r[7],monthly:MONTHLY_SCORES[r[0]]||{},targets:TARGETS[r[0]]||null}));
 }
 
-// fetch พร้อม timeout (ms) — ป้องกัน hang ไม่มีที่สิ้นสุด
+// fetch พร้อม timeout (ms) — ใช้ Promise.race เพื่อความน่าเชื่อถือสูงสุด
 function fetchT(url, ms=8000){
   const ctrl=new AbortController();
-  const id=setTimeout(()=>ctrl.abort(),ms);
-  return fetch(url,{signal:ctrl.signal}).finally(()=>clearTimeout(id));
+  const timer=new Promise((_,rej)=>setTimeout(()=>{
+    ctrl.abort();
+    rej(new Error('fetch timeout '+ms+'ms'));
+  },ms));
+  return Promise.race([fetch(url,{signal:ctrl.signal}),timer]);
 }
 
 async function loadData(){
   const btn=document.getElementById('rbtn');
   btn.classList.add('loading');btn.disabled=true;
+  showLoad();
+  // Step 1: load OrgList (non-blocking, fallback ถ้าไม่ได้)
   try{
-  await loadOrgList();
+    await Promise.race([
+      loadOrgList(),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('OrgList timeout')),9000))
+    ]);
+  }catch(orgErr){
+    console.log('OrgList fallback:',orgErr.message);
+    window.orgCodeMap=Object.assign({},ORG_CODE6_MAP);
+  }
 
+  // Step 2: load KPI data — outer try/finally guarantees hideLoad always runs
+  try{
   const urlLP=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=Landing%20Page&t=${Date.now()}`;
   // เพิ่ม tq=select* เพื่อให้ gviz ส่งข้อมูลครบ และใช้ headers=1
   const urlKS=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=KPISummary&headers=1&t=${Date.now()}`;
@@ -956,15 +970,16 @@ async function loadData(){
 
   document.getElementById('upd').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
   setupOrgFilter();
-  af();renderDept();renderAlert();renderTrendTable();renderRanking();
+  af();renderDept();renderAlert();renderTrendTable();
   }catch(outerErr){
     allData=parseFB();
     toast('เกิดข้อผิดพลาด: '+outerErr.message,'er');
     setupOrgFilter();
-    af();renderDept();renderAlert();renderTrendTable();renderRanking();
+    af();renderDept();renderAlert();renderTrendTable();
   }finally{
     btn.classList.remove('loading');btn.disabled=false;
     hideLoad();
+    setTimeout(()=>renderRanking(),100); // background หลัง UI render เสร็จ
   }
 }
 
@@ -1097,10 +1112,12 @@ function filterOrgDrop(){
 
 function selectOrg(val,label){
   _orgSelected=val||'all';
+  _rankShowAll=false; // reset ทุกครั้งที่เปลี่ยน org
   const inp=document.getElementById('orgSearch');
   if(inp) inp.value=_orgSelected==='all'?'':label;
   hideOrgDrop();
   af();
+  setTimeout(()=>renderRanking(),50); // update ranking หลัง af() เสร็จ
 }
 
 function clearOrg(){selectOrg('all','');}
@@ -1600,60 +1617,52 @@ function renderTrendTable(){
 // === RANKING ===
 let _rankShowAll=false;
 
-function getOrgGroup(code6){
-  // code6 เช่น K04201, K04101
-  if(!code6||code6==='all') return null;
-  const suffix=parseInt(code6.slice(-2)); // เลข 2 ตัวท้าย
-  if(suffix===1){
-    // กลุ่ม กฟจ. — ตัวอักษร 3 ตัวหน้า + '1xx' 
-    // หรือ กลุ่ม จุดรวมงาน (Kxx101)
-    const prefix=code6.slice(0,3); // K04
-    const midDigit=code6.slice(3,4); // '1' หรือ '2','3'...
-    if(midDigit==='1') return {type:'gfj', prefix, key:prefix+'1'}; // กฟจ.กลุ่ม
-    return {type:'gfs_head', prefix, key:code6}; // จุดรวมงาน เช่น K04201
-  }
-  // กลุ่ม กฟส. ย่อย — Kxx2xx, Kxx3xx, ...
-  const prefix=code6.slice(0,3);
-  const midDigit=code6.slice(3,4);
-  return {type:'gfs_sub', prefix, key:prefix+midDigit}; // กลุ่มเดียวกัน เช่น K042
+function getOrgType(code6){
+  // กำหนดประเภทหน่วยงานจากรหัส 6 หลัก
+  // K04101 → กฟจ. (ตำแหน่งที่ 4 เป็น '1' และลงท้าย '01')
+  // K04201 → จุดรวมงาน กฟส. (ตำแหน่งที่ 4 ไม่ใช่ '1' และลงท้าย '01')
+  // K04202 → กฟส. ย่อย (ไม่ลงท้าย '01')
+  if(!code6) return null;
+  const mid=code6[3];       // ตัวที่ 4: '1','2','3'...
+  const last2=code6.slice(-2); // 2 ตัวท้าย
+  if(mid==='1'&&last2==='01') return 'gfj';       // กฟจ. / จุดรวมงานใหญ่
+  if(last2==='01') return 'gfs_head';              // จุดรวมงาน กฟส. (26 หน่วย)
+  return 'gfs_sub';                                // กฟส. ย่อย
 }
 
 function getRankingPeers(selectedOrg){
-  // คืน list ชื่อหน่วยงานในกลุ่มเดียวกัน
   const cm=window.orgCodeMap||{};
   const code6=cm[selectedOrg]||ORG_CODE6_MAP[selectedOrg]||null;
-  
+  const allOrgs=ORG_LIST.filter(o=>o!=='ภาพรวม กฟต.2');
+
   if(!code6||selectedOrg==='all'){
-    // ภาพรวม — ranking ทุกหน่วยงาน กฟจ. (101)
-    return ORG_LIST.filter(o=>o!=='ภาพรวม กฟต.2');
+    // ภาพรวม → ทุกหน่วยงานในระบบ
+    return allOrgs;
   }
-  
-  const grp=getOrgGroup(code6);
-  if(!grp) return ORG_LIST.filter(o=>o!=='ภาพรวม กฟต.2');
-  
-  if(grp.type==='gfj'){
-    // กฟจ. — เฉพาะ กฟจ. ของตัวเอง ไม่เอา กฟส. มาด้วย
-    return ORG_LIST.filter(o=>{
-      const c=cm[o]||ORG_CODE6_MAP[o];
-      if(!c) return false;
-      return c.slice(0,3)===grp.prefix && c.slice(3,4)==='1';
+
+  const type=getOrgType(code6);
+
+  if(type==='gfj'){
+    // กฟจ. Kxx101 → ranking เฉพาะ กฟจ. ทั้ง 17 หน่วย (Kxx101 ทุกตัว)
+    return allOrgs.filter(o=>{
+      const c=cm[o]||ORG_CODE6_MAP[o]||'';
+      return c[3]==='1'&&c.slice(-2)==='01';
     });
   }
-  
-  if(grp.type==='gfs_head'){
-    // จุดรวมงาน เช่น K04201 → กลุ่ม กฟส. ที่มีรหัสขึ้นต้น K042xx
-    return ORG_LIST.filter(o=>{
-      const c=cm[o]||ORG_CODE6_MAP[o];
-      if(!c) return false;
-      return c.slice(0,4)===code6.slice(0,4); // K042
+
+  if(type==='gfs_head'){
+    // จุดรวมงาน กฟส. เช่น K04201 → ranking กลุ่ม กฟส. ทั้ง 26 หน่วย (ลงท้าย 01 ทุกตัวที่ไม่ใช่ กฟจ.)
+    return allOrgs.filter(o=>{
+      const c=cm[o]||ORG_CODE6_MAP[o]||'';
+      return c[3]!=='1'&&c.slice(-2)==='01';
     });
   }
-  
-  // gfs_sub — กลุ่มเดียวกัน เช่น K042
-  return ORG_LIST.filter(o=>{
-    const c=cm[o]||ORG_CODE6_MAP[o];
-    if(!c) return false;
-    return c.slice(0,4)===grp.key;
+
+  // กฟส. ย่อย เช่น K04202 → ranking กลุ่มเดียวกัน (K042xx ทั้งหมด)
+  const grpPrefix=code6.slice(0,4); // K042
+  return allOrgs.filter(o=>{
+    const c=cm[o]||ORG_CODE6_MAP[o]||'';
+    return c.slice(0,4)===grpPrefix;
   });
 }
 
@@ -1683,11 +1692,33 @@ function getOrgAvgScore(orgName){
   return scores.length?scores.reduce((a,b)=>a+b,0)/scores.length:null;
 }
 
-function renderRanking(){
+async function renderRanking(){
   const org=_orgSelected||'all';
   const peers=getRankingPeers(org);
   const cm=window.orgCodeMap||{};
-  
+
+  // หา gfjCodes ทั้งหมดที่ต้อง load
+  const neededGfj=new Set();
+  peers.forEach(name=>{
+    const c=cm[name]||ORG_CODE6_MAP[name]||'';
+    if(c&&c!=='K04201') neededGfj.add(c.slice(0,3));
+  });
+
+  // แสดง loading ก่อน
+  const listEl=document.getElementById('rankList');
+  if(listEl) listEl.innerHTML='<div style="padding:12px;color:var(--t3);font-size:11px;text-align:center">⏳ กำลังโหลด Ranking...</div>';
+
+  // preload ทุก sheet ที่ยังไม่มีใน cache (parallel, timeout 10s)
+  const toLoad=[...neededGfj].filter(g=>!orgResultsCache[g]);
+  if(toLoad.length>0){
+    await Promise.allSettled(toLoad.map(g=>
+      Promise.race([
+        loadOrgResults(g),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),10000))
+      ]).catch(e=>console.log('Ranking preload skip:',g,e.message))
+    ));
+  }
+
   // คำนวณคะแนนแต่ละหน่วยงาน
   const ranked=peers.map(name=>({
     name,
@@ -1937,6 +1968,7 @@ function expCSV(){
 
 let tTimer;
 function toast(msg,type='ok'){const el=document.getElementById('toast');el.textContent=msg;el.className='on '+type;clearTimeout(tTimer);tTimer=setTimeout(()=>el.className='',3500);}
+function showLoad(){const el=document.getElementById('lov');el.style.display='flex';requestAnimationFrame(()=>el.classList.remove('h'));}
 function hideLoad(){const el=document.getElementById('lov');el.classList.add('h');setTimeout(()=>el.style.display='none',400);}
 
 // ปุ่ม scroll ขึ้น/ลง
@@ -1951,14 +1983,16 @@ window.addEventListener('scroll',()=>{
 
 
 window.addEventListener('DOMContentLoaded',()=>{
+  // แสดง fallback data ทันที — ไม่รอ network
   allData=parseFB();
+  allDataBase=JSON.parse(JSON.stringify(allData));
   setupOrgFilter();
-  setTimeout(()=>{
-    selectOrg('กฟส.อ่าวลึก','กฟส.อ่าวลึก');
-  },50);
-  renderDept();renderAlert();renderTrendTable();renderRanking();
+  setTimeout(()=>{ selectOrg('กฟส.อ่าวลึก','กฟส.อ่าวลึก'); },50);
+  renderDept();renderAlert();renderTrendTable();
+  // ซ่อน loading ทันที ไม่ว่าจะเกิดอะไร
   hideLoad();
-  loadData();
+  // โหลดข้อมูลจริงใน background หลังจาก UI แสดงแล้ว
+  setTimeout(()=>{ loadData(); },200);
 });
 </script>
 </body>
