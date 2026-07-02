@@ -94,6 +94,10 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .tsrch{padding:4px 10px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;width:180px;transition:border-color .15s}
 .tsrch:focus{outline:none;border-color:var(--bl2)}
 .tsrch::placeholder{color:var(--t3)}
+.sort-btn{display:flex;align-items:center;gap:3px;padding:4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t3);font-family:var(--fn);font-size:10px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sort-btn:hover{color:var(--t);border-color:var(--bdr2)}
+.sort-btn.sort-on{background:var(--blbg);border-color:var(--bl2);color:var(--bl2)}
+.sort-icon{font-size:11px;line-height:1}
 .twrap{overflow-x:auto;max-height:460px;overflow-y:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead th{position:sticky;top:0;z-index:5;background:var(--bg3);padding:7px 10px;text-align:left;font-weight:500;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bdr);white-space:nowrap;cursor:pointer;user-select:none}
@@ -298,7 +302,20 @@ tbody td{padding:7px 10px;vertical-align:middle}
           <button class="tabb" data-t="pend" onclick="sT(this)">รอรายงาน</button>
         </div>
       </div>
-      <input type="text" class="tsrch" id="tsrch" placeholder="ค้นหา KPI..." oninput="rT()">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <input type="text" class="tsrch" id="tsrch" placeholder="ค้นหา KPI..." oninput="rT()">
+        <div style="display:flex;gap:3px">
+          <button id="sortBtn-default" class="sort-btn sort-on" onclick="setSortMode('default')" title="เรียงตามรหัส KPI">
+            <span>รหัส</span><span class="sort-icon">↕</span>
+          </button>
+          <button id="sortBtn-asc" class="sort-btn" onclick="setSortMode('asc')" title="คะแนนน้อย→มาก">
+            <span>คะแนน</span><span class="sort-icon">↑</span>
+          </button>
+          <button id="sortBtn-desc" class="sort-btn" onclick="setSortMode('desc')" title="คะแนนมาก→น้อย">
+            <span>คะแนน</span><span class="sort-icon">↓</span>
+          </button>
+        </div>
+      </div>
     </div>
     <div class="twrap">
       <table>
@@ -622,7 +639,7 @@ const FB=[
 ];
 
 let allData=[],allDataBase=[],fData=[],tData=[];
-let curTab='all',sKey=null,sDir=1,curOrg='all';
+let curTab='all',sKey=null,sDir=1,curOrg='all',sortMode='default';
 let charts={};
 
 // map ชื่อหน่วยงาน → รหัสจุดรวมงาน (ยืนยันจาก OrgMap จริง)
@@ -1285,7 +1302,46 @@ function sT(el){
   if(curTab==='duty')d=d.filter(x=>x.group.includes('หน้าที่'));
   if(curTab==='low')d=d.filter(x=>x.score!==null&&x.score<3);
   if(curTab==='pend')d=d.filter(x=>x.score===null);
-  tData=d;rT();
+  tData=d;applySort();rT();
+}
+
+function setSortMode(mode){
+  sortMode=mode;
+  // update button styles
+  ['default','asc','desc'].forEach(m=>{
+    const btn=document.getElementById('sortBtn-'+m);
+    if(btn) btn.classList.toggle('sort-on', m===mode);
+  });
+  // clear table header sort indicators
+  ['code','name','dept','resp','res','sc'].forEach(n=>{
+    const e=document.getElementById('th-'+n);if(e)e.className='';
+  });
+  sKey=null;
+  applySort();
+  rT();
+}
+
+function applySort(){
+  if(sortMode==='default'){
+    // เรียงตามรหัส KPI (natural sort)
+    tData.sort((a,b)=>a.code.localeCompare(b.code,'th',{numeric:true}));
+  } else if(sortMode==='asc'){
+    // คะแนนน้อย→มาก (null ไว้ท้าย)
+    tData.sort((a,b)=>{
+      if(a.score===null&&b.score===null) return a.code.localeCompare(b.code,'th',{numeric:true});
+      if(a.score===null) return 1;
+      if(b.score===null) return -1;
+      return a.score-b.score || a.code.localeCompare(b.code,'th',{numeric:true});
+    });
+  } else if(sortMode==='desc'){
+    // คะแนนมาก→น้อย (null ไว้ท้าย)
+    tData.sort((a,b)=>{
+      if(a.score===null&&b.score===null) return a.code.localeCompare(b.code,'th',{numeric:true});
+      if(a.score===null) return 1;
+      if(b.score===null) return -1;
+      return b.score-a.score || a.code.localeCompare(b.code,'th',{numeric:true});
+    });
+  }
 }
 
 function sSort(k){
@@ -1468,6 +1524,7 @@ function rCharts(){
 
 function rT(){
   const q=document.getElementById('tsrch').value.toLowerCase();
+  if(sKey===null) applySort();
   let d=tData;
   if(q)d=d.filter(x=>x.code.toLowerCase().includes(q)||x.name.toLowerCase().includes(q)||x.dept.toLowerCase().includes(q)||x.responsible.toLowerCase().includes(q));
   const tbody=document.getElementById('tBody');
