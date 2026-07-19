@@ -283,8 +283,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     </div>
     <div class="cc">
       <div class="cc-t"><div class="cc-dot" style="background:var(--am2)"></div>การกระจายคะแนน</div>
-      <div style="position:relative;width:100%;height:185px"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
-      <div class="cleg" id="legDist" style="margin-top:10px;flex-wrap:wrap;gap:6px"></div>
+      <div style="position:relative;width:100%;height:160px"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
     </div>
   </div>
   <div class="sl" style="align-items:center">
@@ -687,17 +686,24 @@ function parseFB(){
   return FB.map(r=>({code:r[0],name:r[1],dept:r[2],group:r[3],responsible:r[4],result:r[5],status:r[6],score:r[7],monthly:MONTHLY_SCORES[r[0]]||{},targets:TARGETS[r[0]]||null}));
 }
 
+// fetch พร้อม timeout 8 วิ — ป้องกัน hang
+function fetchT(url,ms=8000){
+  const ctrl=new AbortController();
+  const id=setTimeout(()=>ctrl.abort(),ms);
+  return fetch(url,{signal:ctrl.signal}).finally(()=>clearTimeout(id));
+}
+
 async function loadData(){
   const btn=document.getElementById('rbtn');
   btn.classList.add('loading');btn.disabled=true;
-  await loadOrgList();
+  try{
+    await loadOrgList();
 
-  const urlLP=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=Landing%20Page&t=${Date.now()}`;
-  // เพิ่ม tq=select* เพื่อให้ gviz ส่งข้อมูลครบ และใช้ headers=1
-  const urlKS=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=KPISummary&headers=1&t=${Date.now()}`;
+    const urlLP=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=Landing%20Page&t=${Date.now()}`;
+    const urlKS=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=KPISummary&headers=1&t=${Date.now()}`;
 
   try{
-    const [resLP, resKS] = await Promise.all([fetch(urlLP), fetch(urlKS)]);
+    const [resLP, resKS] = await Promise.all([fetchT(urlLP), fetchT(urlKS)]);
     const [txtLP, txtKS] = await Promise.all([resLP.text(), resKS.text()]);
 
     // --- parse Landing Page ---
@@ -871,17 +877,24 @@ async function loadData(){
     toast('ใช้ข้อมูล fallback: '+e.message,'er');
   }
 
-  document.getElementById('upd').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-  btn.classList.remove('loading');btn.disabled=false;
-  setupOrgFilter();
-  af();renderDept();renderAlert();renderTrendTable();
-  hideLoad();
+    document.getElementById('upd').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    setupOrgFilter();
+    af();renderDept();renderAlert();renderTrendTable();
+  }catch(outerErr){
+    allData=parseFB();
+    toast('เกิดข้อผิดพลาด: '+outerErr.message,'er');
+    setupOrgFilter();
+    af();renderDept();renderAlert();renderTrendTable();
+  }finally{
+    btn.classList.remove('loading');btn.disabled=false;
+    hideLoad();
+  }
 }
 
 async function loadOrgList(){
   try{
     const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=OrgMap&t=${Date.now()}`;
-    const res=await fetch(url);const txt=await res.text();
+    const res=await fetchT(url);const txt=await res.text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(!m)throw new Error('no match');
     const rows=JSON.parse(m[1]).table.rows;
@@ -1395,34 +1408,83 @@ function rCharts(){
     else{bk[4]++;bkItems[4].push(d);}
   });
   const bkLabels=['5.000','4–4.9','3–3.9','2–2.9','1–1.9'];
+  const bkColors=['#3fb884','#388bfd','#d29922','#f85149','#da3633'];
+  window.bkItems_=bkItems;
   dC('dist');
   charts.dist=new Chart(document.getElementById('cDist'),{
     type:'bar',
-    data:{labels:bkLabels,datasets:[{data:bk,backgroundColor:['#3fb884','#388bfd','#d29922','#f85149','#da3633'],borderWidth:0,borderRadius:4}]},
+    data:{labels:bkLabels,datasets:[{data:bk,backgroundColor:bkColors,borderWidth:0,borderRadius:4}]},
     options:{responsive:true,maintainAspectRatio:false,
-      scales:{y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#b1bac4',font:{size:10}},grid:{display:false}}},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} KPI`}}},
+      scales:{
+        y:{display:false},
+        x:{
+          ticks:{
+            color:'#b1bac4',font:{size:11},
+            // ทำให้ label คลิกได้โดยแสดงสี cursor pointer ผ่าน canvas onClick
+          },
+          grid:{display:false}
+        }
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`${ctx.raw} KPI`}},
+        // แสดงตัวเลขบนแท่ง
+        datalabels:{display:false}
+      },
+      // แสดงตัวเลขบนแท่งผ่าน afterDraw
       onClick:(e,el)=>{
-        if(!el.length)return;
-        const idx=el[0].index;
-        showWatch(bkItems[idx],`🏆 คะแนน ${bkLabels[idx]}`);
-        document.getElementById('watchReset').style.display='inline-block';
-        document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
+        // กดที่แท่ง
+        if(el.length){
+          const idx=el[0].index;
+          showWatch(bkItems[idx],\`🏆 คะแนน \${bkLabels[idx]}\`);
+          document.getElementById('watchReset').style.display='inline-block';
+          document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
+          return;
+        }
+        // กดที่ label ใต้กราฟ — ตรวจตำแหน่ง x ว่าอยู่ใน tick ไหน
+        const chart=charts.dist;
+        if(!chart) return;
+        const xAxis=chart.scales.x;
+        const mouseX=e.native.offsetX;
+        const mouseY=e.native.offsetY;
+        const chartBottom=chart.chartArea.bottom;
+        // ต้องกดใต้ chartArea
+        if(mouseY < chartBottom - 4) return;
+        // หา tick ที่ใกล้ที่สุด
+        let closest=-1, minDist=40;
+        xAxis.ticks.forEach((tick,i)=>{
+          const px=xAxis.getPixelForTick(i);
+          const dist=Math.abs(mouseX-px);
+          if(dist<minDist){minDist=dist;closest=i;}
+        });
+        if(closest>=0){
+          showWatch(bkItems[closest],\`🏆 คะแนน \${bkLabels[closest]}\`);
+          document.getElementById('watchReset').style.display='inline-block';
+          document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
+        }
       }
-    }
+    },
+    plugins:[{
+      // plugin สำหรับแสดงตัวเลขบนแท่ง
+      id:'distLabels',
+      afterDatasetDraw(chart){
+        const {ctx,data,scales:{x,y}}=chart;
+        const ds=data.datasets[0];
+        ds.data.forEach((val,i)=>{
+          if(!val) return;
+          const xPos=x.getPixelForValue(i);
+          const yPos=chart.getDatasetMeta(0).data[i].y;
+          ctx.save();
+          ctx.font='bold 11px IBM Plex Mono, monospace';
+          ctx.fillStyle='#f0f6fc';
+          ctx.textAlign='center';
+          ctx.textBaseline='bottom';
+          ctx.fillText(val, xPos, yPos-3);
+          ctx.restore();
+        });
+      }
+    }]
   });
-  // render legend ใต้กราฟ — กดได้
-  const bkColors=['#3fb884','#388bfd','#d29922','#f85149','#da3633'];
-  document.getElementById('legDist').innerHTML=bkLabels.map((lbl,i)=>`
-    <div class="cleg-i" style="cursor:pointer;padding:3px 8px;border-radius:4px;border:1px solid transparent;transition:all .15s"
-      onmouseover="this.style.borderColor=bkColors_[${i}];this.style.background='rgba(0,0,0,.2)'"
-      onmouseout="this.style.borderColor='transparent';this.style.background=''"
-      onclick="showWatch(bkItems_[${i}],'🏆 คะแนน ${lbl}');document.getElementById('watchReset').style.display='inline-block';document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'})">
-      <div class="cleg-d" style="background:${bkColors[i]}"></div>
-      <span>${lbl} <span style="color:var(--t3)">(${bk[i]})</span></span>
-    </div>`).join('');
-  // เก็บ ref สำหรับ onclick ใน legend
-  window.bkItems_=bkItems; window.bkColors_=bkColors;
 }
 
 function rT(){
