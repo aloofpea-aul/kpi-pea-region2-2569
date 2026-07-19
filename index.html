@@ -1436,7 +1436,7 @@ function rCharts(){
         // กดที่แท่ง
         if(el.length){
           const idx=el[0].index;
-          showWatch(bkItems[idx],\`🏆 คะแนน \${bkLabels[idx]}\`);
+          showWatch(bkItems[idx],`🏆 คะแนน ${bkLabels[idx]}`);
           document.getElementById('watchReset').style.display='inline-block';
           document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
           return;
@@ -1458,7 +1458,7 @@ function rCharts(){
           if(dist<minDist){minDist=dist;closest=i;}
         });
         if(closest>=0){
-          showWatch(bkItems[closest],\`🏆 คะแนน \${bkLabels[closest]}\`);
+          showWatch(bkItems[closest],`🏆 คะแนน ${bkLabels[closest]}`);
           document.getElementById('watchReset').style.display='inline-block';
           document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
         }
