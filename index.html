@@ -138,7 +138,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .mclose{width:26px;height:26px;background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:15px;flex-shrink:0;transition:all .15s}
 .mclose:hover{background:var(--bg4)}
 .mbody{padding:14px 18px 18px}
-.mscbig{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r);margin-bottom:14px}
+.mscbig{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:var(--r);margin-bottom:14px}
 .mscbig.s5{background:rgba(26,127,94,.12);border:1px solid rgba(26,127,94,.2)}.mscbig.s4{background:rgba(31,111,235,.1);border:1px solid rgba(31,111,235,.2)}.mscbig.s3{background:rgba(158,106,3,.1);border:1px solid rgba(158,106,3,.2)}.mscbig.s12{background:rgba(218,54,51,.08);border:1px solid rgba(218,54,51,.2)}.mscbig.sna{background:var(--bg3);border:1px solid var(--bdr)}
 .mscnum{font-family:var(--mo);font-size:30px;font-weight:600;line-height:1}
 .s5 .mscnum{color:#3fb884}.s4 .mscnum{color:#388bfd}.s3 .mscnum{color:#d29922}.s12 .mscnum{color:#f85149}.sna .mscnum{color:var(--t3)}
@@ -1649,36 +1649,72 @@ function oM(code){
   // ชื่อหน่วยงานที่แสดงในตาราง — ถ้าเลือกหน่วยงานใช้ชื่อนั้น ไม่งั้นใช้ กฟส.อล.
   const orgLabel = (curOrg&&curOrg!=='all') ? curOrg : 'กฟส.อล.';
   const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('⭐ คะแนน '+orgLabel,scAol,'#3fb884')}${buildMonthTable('ผล '+orgLabel,aol,'#6e9e7e')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟต.2',res,'#8b949e')}</tbody></table></div>${hasChart?`<div style="position:relative;height:200px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
-  // คำนวณ progress ไปสู่เป้า 5
+  // คำนวณ progress ไปสู่คะแนน 5
   const gap = sc!==null ? Math.max(0, 5 - sc) : null;
   const pct = sc!==null ? Math.min(100, sc/5*100) : 0;
   const gapColor = gap===null?'var(--t3)':gap===0?'var(--tl2)':gap<1?'var(--bl2)':gap<2?'var(--am2)':'var(--rd2)';
   const barColor = sc===null?'var(--bg5)':sc>=5?'var(--tl2)':sc>=4?'var(--bl2)':sc>=3?'var(--am2)':'var(--rd2)';
+
+  // เป้าหมาย Lv5 (ผลที่ต้องทำได้เพื่อได้คะแนน 5)
+  const tgt5 = item.targets&&item.targets[5]!=null ? item.targets[5] : null;
+  const tgtUnit = item.targets&&item.targets.unit ? item.targets.unit : '';
+  const currentResult = item.result!==null ? parseFloat(item.result) : null;
+
+  // คำนวณผลที่ขาดอีก (เทียบกับเป้า Lv5)
+  let resultGapHTML = '';
+  if(tgt5!==null && currentResult!==null && sc<5){
+    const tgt5num = parseFloat(tgt5);
+    const resultGap = tgt5num - currentResult;
+    // บางตัวยิ่งน้อยยิ่งดี (เช่น SAIDI, ข้อร้องเรียน) → resultGap อาจติดลบ
+    const resultGapFmt = Math.abs(resultGap).toLocaleString('th-TH',{maximumFractionDigits:3});
+    const dirLabel = resultGap > 0 ? 'ต้องเพิ่มอีก' : resultGap < 0 ? 'ทำได้เกินเป้าแล้ว' : 'ถึงเป้าพอดี';
+    const dirColor = resultGap <= 0 ? 'var(--tl2)' : 'var(--am2)';
+    const tgt5Fmt = parseFloat(tgt5).toLocaleString('th-TH',{maximumFractionDigits:3});
+    resultGapHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;
+        background:rgba(255,255,255,0.04);border-radius:6px;padding:6px 10px;margin-top:4px;
+        border:1px solid var(--bdr)">
+        <div>
+          <div style="font-size:9px;color:var(--t3);margin-bottom:2px">ผลดำเนินการเป้า Lv5</div>
+          <div style="font-size:12px;font-weight:600;color:var(--tl2);font-family:var(--mo)">${tgt5Fmt} ${tgtUnit}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;color:var(--t3);margin-bottom:2px">${dirLabel}</div>
+          <div style="font-size:12px;font-weight:600;color:${dirColor};font-family:var(--mo)">${resultGap<=0?'✓':''} ${resultGapFmt} ${tgtUnit}</div>
+        </div>
+      </div>`;
+  }
+
   const gapHTML = gap===null ? '' : gap===0
-    ? `<div style="display:flex;align-items:center;gap:5px;margin-top:2px">
-        <span style="font-size:18px">🎯</span>
-        <span style="font-size:11px;color:var(--tl2);font-weight:600">ได้คะแนนเต็ม!</span>
+    ? `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;
+        background:rgba(26,127,94,.1);border-radius:6px;border:1px solid rgba(26,127,94,.2)">
+        <span style="font-size:20px">🎯</span>
+        <div>
+          <div style="font-size:11px;color:var(--tl2);font-weight:600">ได้คะแนนเต็ม 5.000!</div>
+          ${tgt5!==null?`<div style="font-size:10px;color:var(--t3)">เป้า Lv5 = ${parseFloat(tgt5).toLocaleString('th-TH',{maximumFractionDigits:3})} ${tgtUnit}</div>`:''}
+        </div>
        </div>`
-    : `<div style="margin-top:6px">
+    : `<div style="margin-top:2px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-size:10px;color:var(--t3)">ความคืบหน้าสู่ 5.000</span>
-          <span style="font-size:11px;font-weight:600;color:${gapColor};font-family:var(--mo)">ขาดอีก ${gap.toFixed(3)}</span>
+          <span style="font-size:10px;color:var(--t3)">ความคืบหน้าสู่คะแนน 5.000</span>
+          <span style="font-size:11px;font-weight:600;color:${gapColor};font-family:var(--mo)">ขาดอีก ${gap.toFixed(3)} คะแนน</span>
         </div>
         <div style="height:6px;background:var(--bg5);border-radius:3px;overflow:hidden">
-          <div style="height:100%;width:${pct.toFixed(1)}%;background:${barColor};border-radius:3px;transition:width .4s ease"></div>
+          <div style="height:100%;width:${pct.toFixed(1)}%;background:${barColor};border-radius:3px;transition:width .5s ease"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-top:2px">
+        <div style="display:flex;justify-content:space-between;margin-top:2px;margin-bottom:4px">
           <span style="font-size:9px;color:var(--t3);font-family:var(--mo)">0</span>
           <span style="font-size:9px;color:var(--t3);font-family:var(--mo)">${pct.toFixed(0)}%</span>
           <span style="font-size:9px;color:var(--t3);font-family:var(--mo)">5.000</span>
         </div>
+        ${resultGapHTML}
        </div>`;
 
   document.getElementById('mBody').innerHTML=`
-    <div class="mscbig ${scCls}" style="flex-direction:column;align-items:stretch;gap:6px">
+    <div class="mscbig ${scCls}">
       <div style="display:flex;align-items:center;gap:12px">
         <div class="mscnum">${sc!==null?sc.toFixed(3):'N/A'}</div>
-        <div class="mscinfo"><p>${scLbl}</p><small>ผลล่าสุด: ${resFmt}${estimateBadge} · งวด: ${item.status||'—'}</small></div>
+        <div class="mscinfo" style="flex:1"><p>${scLbl}</p><small>ผลล่าสุด: ${resFmt}${estimateBadge} · งวด: ${item.status||'—'}</small></div>
       </div>
       ${gapHTML}
     </div>
