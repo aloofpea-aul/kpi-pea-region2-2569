@@ -284,6 +284,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="cc">
       <div class="cc-t"><div class="cc-dot" style="background:var(--am2)"></div>การกระจายคะแนน</div>
       <div style="position:relative;width:100%;height:185px"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
+      <div class="cleg" id="legDist" style="margin-top:10px;flex-wrap:wrap;gap:6px"></div>
     </div>
   </div>
   <div class="sl" style="align-items:center">
@@ -1410,6 +1411,18 @@ function rCharts(){
       }
     }
   });
+  // render legend ใต้กราฟ — กดได้
+  const bkColors=['#3fb884','#388bfd','#d29922','#f85149','#da3633'];
+  document.getElementById('legDist').innerHTML=bkLabels.map((lbl,i)=>`
+    <div class="cleg-i" style="cursor:pointer;padding:3px 8px;border-radius:4px;border:1px solid transparent;transition:all .15s"
+      onmouseover="this.style.borderColor=bkColors_[${i}];this.style.background='rgba(0,0,0,.2)'"
+      onmouseout="this.style.borderColor='transparent';this.style.background=''"
+      onclick="showWatch(bkItems_[${i}],'🏆 คะแนน ${lbl}');document.getElementById('watchReset').style.display='inline-block';document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'})">
+      <div class="cleg-d" style="background:${bkColors[i]}"></div>
+      <span>${lbl} <span style="color:var(--t3)">(${bk[i]})</span></span>
+    </div>`).join('');
+  // เก็บ ref สำหรับ onclick ใน legend
+  window.bkItems_=bkItems; window.bkColors_=bkColors;
 }
 
 function rT(){
