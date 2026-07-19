@@ -276,15 +276,24 @@ tbody td{padding:7px 10px;vertical-align:middle}
   <div class="sl">การวิเคราะห์</div>
   <div class="rg4">
     <div class="cc">
-      <div class="cc-t"><div class="cc-dot" style="background:var(--am2)"></div>Ranking กฟส. (S)</div>
-      <div id="rankList" style="padding:2px 0"></div>
-    </div>
-    <div class="cc">
-      <div class="cc-t"><div class="cc-dot" style="background:var(--tl2)"></div>Ranking กฟส. (XS)</div>
+      <div class="cc-t" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px"><div class="cc-dot" style="background:var(--tl2)"></div>Ranking กฟส. (XS)</div>
+        <button onclick="toggleRankView('rankListXS','rankBtnXS')" id="rankBtnXS" class="sort-btn" style="font-size:9px">ทั้งหมด ▼</button>
+      </div>
       <div id="rankListXS" style="padding:2px 0"></div>
     </div>
     <div class="cc">
-      <div class="cc-t"><div class="cc-dot" style="background:var(--pu2)"></div>Ranking L + M + กฟจ.</div>
+      <div class="cc-t" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px"><div class="cc-dot" style="background:var(--am2)"></div>Ranking กฟส. (S)</div>
+        <button onclick="toggleRankView('rankList','rankBtnS')" id="rankBtnS" class="sort-btn" style="font-size:9px">ทั้งหมด ▼</button>
+      </div>
+      <div id="rankList" style="padding:2px 0"></div>
+    </div>
+    <div class="cc">
+      <div class="cc-t" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px"><div class="cc-dot" style="background:var(--pu2)"></div>Ranking L + M + กฟจ.</div>
+        <button onclick="toggleRankView('rankListLM','rankBtnLM')" id="rankBtnLM" class="sort-btn" style="font-size:9px">ทั้งหมด ▼</button>
+      </div>
       <div id="rankListLM" style="padding:2px 0"></div>
     </div>
     <div class="cc">
@@ -1470,16 +1479,28 @@ const ORG_LM_CODES={
 };
 
 // generic render function สำหรับทุก ranking card
+// state: กี่อันดับที่แสดง (5=ย่อ, 999=ทั้งหมด)
+const rankViewState={rankList:5, rankListXS:5, rankListLM:5};
+
+function toggleRankView(elId, btnId){
+  const expanded = rankViewState[elId]===999;
+  rankViewState[elId] = expanded ? 5 : 999;
+  const btn=document.getElementById(btnId);
+  if(btn) btn.textContent=expanded?'ทั้งหมด ▼':'ย่อ ▲';
+  const orgMap={rankList:ORG_S_CODES, rankListXS:ORG_XS_CODES, rankListLM:ORG_LM_CODES};
+  renderRankingFor(elId, orgMap[elId], true, rankViewState[elId]);
+}
+
 async function preloadAndRenderAll(){
   // รวม กฟจ. ทั้งหมดที่ต้องโหลด
   const allOrgs={...ORG_S_CODES,...ORG_XS_CODES,...ORG_LM_CODES};
   const needed=new Set(Object.keys(allOrgs).map(n=>ORG_GFJ_CODE[n]).filter(Boolean));
   const missing=[...needed].filter(g=>!orgResultsCache[g]);
   if(missing.length) await Promise.all(missing.map(g=>loadOrgResults(g)));
-  // render ทุก card — แสดงทั้งหมด ไม่จำกัด top N
-  renderRankingFor('rankList',   ORG_S_CODES,  true, 999);
-  renderRankingFor('rankListXS', ORG_XS_CODES, true, 999);
-  renderRankingFor('rankListLM', ORG_LM_CODES, true, 999);
+  // render top 5 ก่อน ส่วนที่เหลือกดปุ่มดู
+  renderRankingFor('rankList',   ORG_S_CODES,  true, rankViewState.rankList);
+  renderRankingFor('rankListXS', ORG_XS_CODES, true, rankViewState.rankListXS);
+  renderRankingFor('rankListLM', ORG_LM_CODES, true, rankViewState.rankListLM);
 }
 
 function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
@@ -1534,8 +1555,9 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
       </div>
     </div>`;
   }).join('');
-  if(!expanded&&ranks.length>topN){
-    el.innerHTML+=`<div style="text-align:center;padding:4px;font-size:9px;color:var(--t3)">แสดง ${topN} จาก ${ranks.length} หน่วยงาน</div>`;
+  if(topN<ranks.length){
+    const hidden=ranks.length-Math.min(topN,ranks.length);
+    if(hidden>0) el.innerHTML+=`<div style="text-align:center;padding:4px;font-size:9px;color:var(--t3)">${topN>=ranks.length?'ครบทุกหน่วยงาน':'ยังมีอีก '+hidden+' หน่วยงาน → กดปุ่ม ทั้งหมด ▼'}</div>`;
   }
 }
 
