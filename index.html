@@ -1254,7 +1254,7 @@ async function af(){
     return true;
   });
   document.getElementById('fcn').textContent=fData.length;
-  rMetrics();rCharts();rWatch();
+  rMetrics();await rCharts();rWatch();
   curTab='all';
   document.querySelectorAll('.tabb').forEach(b=>b.classList.remove('on'));
   document.querySelector('.tabb[data-t="all"]').classList.add('on');
@@ -1565,11 +1565,11 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
 
 
 
-function rCharts(){
+async function rCharts(){
   const rep=fData.filter(d=>d.score!==null);
   const pend=fData.filter(d=>d.score===null);
   window.rep_=rep; window.pend_=pend;
-  preloadAndRenderAll();
+  await preloadAndRenderAll();
 
 
   const bk=[0,0,0,0,0];
@@ -2006,15 +2006,16 @@ window.addEventListener('scroll',()=>{
 },{passive:true});
 
 
-window.addEventListener('DOMContentLoaded',()=>{
+window.addEventListener('DOMContentLoaded', async ()=>{
   allData=parseFB();
   setupOrgFilter();
-  setTimeout(()=>{
-    selectOrg('กฟส.อ่าวลึก','กฟส.อ่าวลึก');
-  },50);
+  // selectOrg แบบไม่ await — แค่ set state ก่อน loadData
+  _orgSel='กฟส.อ่าวลึก';
+  const inp=document.getElementById('orgSearch');
+  if(inp) inp.value='กฟส.อ่าวลึก';
+  // โหลดข้อมูลจริง — hideLoad() จะถูกเรียกใน finally
+  await loadData();
   renderDept();renderAlert();renderTrendTable();
-  hideLoad();
-  loadData();
 });
 </script>
 </body>
