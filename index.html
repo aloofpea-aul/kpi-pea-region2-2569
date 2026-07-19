@@ -929,12 +929,12 @@ async function loadData(){
 
     document.getElementById('upd').textContent=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     setupOrgFilter();
-    af();renderDept();renderAlert();renderTrendTable();
+    await af();renderDept();renderAlert();renderTrendTable();
   }catch(outerErr){
     allData=parseFB();
     toast('เกิดข้อผิดพลาด: '+outerErr.message,'er');
     setupOrgFilter();
-    af();renderDept();renderAlert();renderTrendTable();
+    await af();renderDept();renderAlert();renderTrendTable();
   }finally{
     btn.classList.remove('loading');btn.disabled=false;
     hideLoad();
@@ -2006,16 +2006,13 @@ window.addEventListener('scroll',()=>{
 },{passive:true});
 
 
-window.addEventListener('DOMContentLoaded', async ()=>{
+window.addEventListener('DOMContentLoaded', ()=>{
+  // set fallback data และ org ที่ต้องการก่อน
   allData=parseFB();
-  setupOrgFilter();
-  // selectOrg แบบไม่ await — แค่ set state ก่อน loadData
+  allDataBase=JSON.parse(JSON.stringify(allData));
   _orgSel='กฟส.อ่าวลึก';
-  const inp=document.getElementById('orgSearch');
-  if(inp) inp.value='กฟส.อ่าวลึก';
-  // โหลดข้อมูลจริง — hideLoad() จะถูกเรียกใน finally
-  await loadData();
-  renderDept();renderAlert();renderTrendTable();
+  // loadData จะโหลดข้อมูลจริง → af() → render ทุกอย่าง → hideLoad()
+  loadData();
 });
 </script>
 </body>
