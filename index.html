@@ -283,7 +283,8 @@ tbody td{padding:7px 10px;vertical-align:middle}
     </div>
     <div class="cc">
       <div class="cc-t"><div class="cc-dot" style="background:var(--am2)"></div>การกระจายคะแนน</div>
-      <div style="position:relative;width:100%;height:180px;overflow:hidden"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
+      <div style="position:relative;width:100%;height:150px;overflow:hidden"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
+      <div id="distLabelRow" style="display:flex;justify-content:space-around;margin-top:4px"></div>
     </div>
   </div>
   <div class="sl" style="align-items:center">
@@ -1419,10 +1420,7 @@ function rCharts(){
       scales:{
         y:{display:false},
         x:{
-          ticks:{
-            color:'#b1bac4',font:{size:11},
-            // ทำให้ label คลิกได้โดยแสดงสี cursor pointer ผ่าน canvas onClick
-          },
+          ticks:{display:false},
           grid:{display:false}
         }
       },
@@ -1434,35 +1432,11 @@ function rCharts(){
       },
       // แสดงตัวเลขบนแท่งผ่าน afterDraw
       onClick:(e,el)=>{
-        // กดที่แท่ง
-        if(el.length){
-          const idx=el[0].index;
-          showWatch(bkItems[idx],`🏆 คะแนน ${bkLabels[idx]}`);
-          document.getElementById('watchReset').style.display='inline-block';
-          document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
-          return;
-        }
-        // กดที่ label ใต้กราฟ — ตรวจตำแหน่ง x ว่าอยู่ใน tick ไหน
-        const chart=charts.dist;
-        if(!chart) return;
-        const xAxis=chart.scales.x;
-        const mouseX=e.native.offsetX;
-        const mouseY=e.native.offsetY;
-        const chartBottom=chart.chartArea.bottom;
-        // ต้องกดใต้ chartArea
-        if(mouseY < chartBottom - 4) return;
-        // หา tick ที่ใกล้ที่สุด
-        let closest=-1, minDist=40;
-        xAxis.ticks.forEach((tick,i)=>{
-          const px=xAxis.getPixelForTick(i);
-          const dist=Math.abs(mouseX-px);
-          if(dist<minDist){minDist=dist;closest=i;}
-        });
-        if(closest>=0){
-          showWatch(bkItems[closest],`🏆 คะแนน ${bkLabels[closest]}`);
-          document.getElementById('watchReset').style.display='inline-block';
-          document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
-        }
+        if(!el.length) return;
+        const idx=el[0].index;
+        showWatch(bkItems[idx],`🏆 คะแนน ${bkLabels[idx]}`);
+        document.getElementById('watchReset').style.display='inline-block';
+        document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
       }
     },
     plugins:[{
@@ -1486,6 +1460,36 @@ function rCharts(){
       }
     }]
   });
+
+  // render HTML label row ใต้กราฟ — กดได้แน่นอน
+  const distLabelRow=document.getElementById('distLabelRow');
+  if(distLabelRow){
+    const bkColors2=['#3fb884','#388bfd','#d29922','#f85149','#da3633'];
+    distLabelRow.innerHTML=bkLabels.map((lbl,i)=>{
+      const d=document.createElement('div');
+      d.style.cssText='flex:1;text-align:center;cursor:pointer;padding:5px 2px;border-radius:4px;transition:background .15s;font-size:10px;line-height:1.4;user-select:none;font-family:var(--mo);color:'+bkColors2[i];
+      d.textContent=lbl;
+      d.title='กดเพื่อดู KPI คะแนน '+lbl+' ('+bk[i]+' รายการ)';
+      d.onmouseover=()=>d.style.background='rgba(255,255,255,0.07)';
+      d.onmouseout=()=>d.style.background='';
+      d.onclick=()=>{
+        showWatch(bkItems[i],'🏆 คะแนน '+lbl);
+        document.getElementById('watchReset').style.display='inline-block';
+        document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
+      };
+      return d.outerHTML;
+    }).join('');
+    // ติด event listener หลัง innerHTML เพราะ outerHTML ไม่ copy event
+    [...distLabelRow.children].forEach((el,i)=>{
+      el.onclick=()=>{
+        showWatch(bkItems[i],'🏆 คะแนน '+bkLabels[i]);
+        document.getElementById('watchReset').style.display='inline-block';
+        document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
+      };
+      el.onmouseover=()=>el.style.background='rgba(255,255,255,0.07)';
+      el.onmouseout=()=>el.style.background='';
+    });
+  }
 }
 
 function rT(){
