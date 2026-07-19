@@ -697,6 +697,8 @@ function fetchT(url,ms=8000){
 async function loadData(){
   const btn=document.getElementById('rbtn');
   btn.classList.add('loading');btn.disabled=true;
+  // ล้าง cache Results sheet เพื่อโหลดข้อมูลใหม่จาก Google Sheets
+  Object.keys(orgResultsCache).forEach(k=>delete orgResultsCache[k]);
   try{
     await loadOrgList();
 
@@ -1109,13 +1111,18 @@ async function loadOrgResults(gfjCode){
           const v=gv(row,col);
           if(v!==null) monthlyRes[MKKEYS[i]]=parseFloat(v)||v;
         });
-        kpiOrgData[kpiCode][orgCode]={
-          targets,
-          result,
-          score:score!==null?parseFloat(score)||null:null,
-          monthlyScore,
-          monthlyRes
-        };
+        // เก็บเฉพาะ orgCode ที่มีข้อมูลจริง
+        const hasAnyData = result!==null || score!==null ||
+          Object.keys(monthlyScore).length>0 || Object.keys(monthlyRes).length>0;
+        if(hasAnyData){
+          kpiOrgData[kpiCode][orgCode]={
+            targets,
+            result,
+            score:score!==null?parseFloat(score)||null:null,
+            monthlyScore,
+            monthlyRes
+          };
+        }
       });
     });
 
@@ -1143,6 +1150,8 @@ async function af(){
 
   // Reset allData จาก base ก่อนทุกครั้ง เพื่อไม่ให้ข้อมูลหน่วยงานก่อนหน้าค้างอยู่
   if(allDataBase.length>0) allData=JSON.parse(JSON.stringify(allDataBase));
+  // clear orgResultsCache ทุกครั้งที่ switch หน่วยงาน เพื่อโหลดข้อมูลใหม่จาก sheet
+  // (คง cache ไว้เพื่อประสิทธิภาพ — ล้างเฉพาะตอน refresh กด รีเฟรช)
 
   let orgKpis=null;
   if(org!=='all') orgKpis=ORG_KPI_MAP[org]||GFS_BASE;
@@ -1169,7 +1178,13 @@ async function af(){
           // อัปเดต orgKpis จาก Results sheet จริง (ดู KPI ทั้งหมดที่มีแถวสำหรับหน่วยงานนี้)
           const kpisFromCache = Object.keys(cache.kpiOrgData).filter(code=>{
             const od=cache.kpiOrgData[code];
-            return od&&od[orgCode6]!==undefined; // มีแถวใน Results sheet
+            if(!od||!od[orgCode6]) return false;
+            const ov=od[orgCode6];
+            // ต้องมีผล หรือคะแนน หรือผลรายเดือน หรือคะแนนรายเดือน อย่างน้อย 1 ค่า
+            return ov.result!==null ||
+                   ov.score!==null ||
+                   Object.keys(ov.monthlyRes||{}).length>0 ||
+                   Object.keys(ov.monthlyScore||{}).length>0;
           });
           if(kpisFromCache.length>0) orgKpis=kpisFromCache;
           // merge ข้อมูลเข้า allData ชั่วคราว
