@@ -285,13 +285,26 @@ tbody td{padding:7px 10px;vertical-align:middle}
       </div>
     </div>
     <div class="cc">
-      <div class="cc-t"><div class="cc-dot" style="background:var(--tl2)"></div>คะแนนเฉลี่ยรายฝ่าย</div>
-      <div style="position:relative;width:100%;height:180px;overflow:hidden"><canvas id="cDept" role="img" aria-label="คะแนนรายฝ่าย"></canvas></div>
+      <div class="cc-t" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px"><div class="cc-dot" style="background:var(--tl2)"></div><span>Ranking กฟส. (XS)</span></div>
+        <span id="rankToggleXS" onclick="toggleRankingXS()" style="font-size:9px;color:var(--bl2);cursor:pointer;padding:2px 7px;border:1px solid rgba(56,139,253,.3);border-radius:10px;background:var(--blbg)">ดูทั้งหมด ▼</span>
+      </div>
+      <div id="rankListXS" style="padding:2px 0"></div>
     </div>
     <div class="cc">
       <div class="cc-t"><div class="cc-dot" style="background:var(--am2)"></div>การกระจายคะแนน</div>
       <div style="position:relative;width:100%;height:150px;overflow:hidden"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
       <div id="distLabelRow" style="display:flex;justify-content:space-around;margin-top:4px"></div>
+    </div>
+  </div>
+  <div class="sl">Ranking กฟส./กฟจ. (L + M)</div>
+  <div class="cg" style="grid-template-columns:1fr;margin-bottom:14px">
+    <div class="cc">
+      <div class="cc-t" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px"><div class="cc-dot" style="background:var(--pu2)"></div><span>Ranking กฟส./กฟจ. กลุ่ม L และ M</span></div>
+        <span id="rankToggleLM" onclick="toggleRankingLM()" style="font-size:9px;color:var(--bl2);cursor:pointer;padding:2px 7px;border:1px solid rgba(56,139,253,.3);border-radius:10px;background:var(--blbg)">ดูทั้งหมด ▼</span>
+      </div>
+      <div id="rankListLM" style="padding:2px 0;display:grid;grid-template-columns:1fr 1fr;gap:0 16px"></div>
     </div>
   </div>
   <div class="sl" style="align-items:center">
@@ -1444,7 +1457,34 @@ const ORG_S_CODES={
   // K16
   'กฟส.สิชล':'K16201','กฟส.ขนอม':'K16301',
 };
+const ORG_XS_CODES={
+  'กฟส.ลานสกา':'K01102','กฟส.พรหมคีรี':'K01103','กฟส.พระพรหม':'K01104',
+  'กฟส.เฉลิมพระเกียรติ':'K01105','กฟส.จุฬาภรณ์':'K01402',
+  'กฟส.บ้านนาเดิม':'K02102',
+  'กฟส.สิเกา':'K03102','กฟส.นาโยง':'K03103','กฟส.เกาะลิบง':'K03203',
+  'กฟส.บ้านเกาะมุกด์':'K03204','กฟส.เกาะสุกร':'K03403','กฟส.หาดสำราญ':'K03404',
+  'กฟส.บ้านเกาะพีพี':'K04107','กฟส.อ่าวนาง':'K04108','กฟส.ปลายพระยา':'K04202',
+  'กฟส.ลำทับ':'K04302','กฟส.ทับปุด':'K05103',
+  'กฟส.นาบอน':'K07102','กฟส.บางขัน':'K07104','กฟส.พิปูน':'K07202','กฟส.ถ้ำพรรณรา':'K07402',
+  'กฟส.เกาะเต่า':'K08103',
+  'กฟส.เคียนซา':'K09105','กฟส.ท่าฉาง':'K09106','กฟส.พนม':'K09303','กฟส.วิภาวดี':'K09502',
+  'กฟส.เชียรใหญ่':'K10102','กฟส.เกาะยาว':'K11102',
+  'กฟส.กะปง':'K12102','กฟส.คุระบุรี':'K12103','กฟส.บ้านเขาหลัก':'K12104',
+  'กฟส.ดอนสัก':'K14102','กฟส.ชัยบุรี':'K15102',
+  'กฟส.นบพิตำ':'K16102','กฟส.วังวิเศษ':'K17102','กฟส.รัษฎา':'K17103',
+};
+const ORG_LM_CODES={
+  // L
+  'กฟจ.นครศรีธรรมราช':'K01101','กฟจ.สุราษฎร์ธานี':'K02101','กฟจ.ภูเก็ต':'K06101',
+  'กฟส.ทุ่งสง':'K07101','กฟส.เกาะสมุย':'K08101','กฟส.พุนพิน':'K09101',
+  'กฟส.ถลาง':'K11101','กฟส.ป่าตอง':'K13101',
+  // M
+  'กฟส.ปากพนัง':'K10101','กฟส.ตะกั่วป่า':'K12101','กฟส.กาญจนดิษฐ์':'K14101',
+  'กฟส.เวียงสระ':'K15101','กฟส.ท่าศาลา':'K16101','กฟส.ห้วยยอด':'K17101',
+};
 let rankExpanded=false;
+let rankExpandedXS=false;
+let rankExpandedLM=false;
 
 async function toggleRanking(){
   rankExpanded=!rankExpanded;
@@ -1457,19 +1497,45 @@ async function toggleRanking(){
     if(missing.length>0) await Promise.all(missing.map(g=>loadOrgResults(g)));
   }
   renderRanking();
+  renderRankingFor('rankListXS',ORG_XS_CODES,rankExpandedXS,5);
+  renderRankingFor('rankListLM',ORG_LM_CODES,rankExpandedLM,14,true);
   btn.textContent=rankExpanded?'ย่อ ▲':'ดูทั้งหมด ▼';
 }
 
-function renderRanking(){
-  const el=document.getElementById('rankList');
+async function toggleRankingXS(){
+  rankExpandedXS=!rankExpandedXS;
+  const btn=document.getElementById('rankToggleXS');
+  if(rankExpandedXS){
+    btn.textContent='⏳ กำลังโหลด...';
+    const needed=new Set(Object.keys(ORG_XS_CODES).map(n=>ORG_GFJ_CODE[n]).filter(Boolean));
+    const missing=[...needed].filter(g=>!orgResultsCache[g]);
+    if(missing.length) await Promise.all(missing.map(g=>loadOrgResults(g)));
+  }
+  renderRankingFor('rankListXS', ORG_XS_CODES, rankExpandedXS, 5);
+  btn.textContent=rankExpandedXS?'ย่อ ▲':'ดูทั้งหมด ▼';
+}
+
+async function toggleRankingLM(){
+  rankExpandedLM=!rankExpandedLM;
+  const btn=document.getElementById('rankToggleLM');
+  if(rankExpandedLM){
+    btn.textContent='⏳ กำลังโหลด...';
+    const needed=new Set(Object.keys(ORG_LM_CODES).map(n=>ORG_GFJ_CODE[n]).filter(Boolean));
+    const missing=[...needed].filter(g=>!orgResultsCache[g]);
+    if(missing.length) await Promise.all(missing.map(g=>loadOrgResults(g)));
+  }
+  renderRankingFor('rankListLM', ORG_LM_CODES, rankExpandedLM, 14, true);
+  btn.textContent=rankExpandedLM?'ย่อ ▲':'ดูทั้งหมด ▼';
+}
+
+// generic render function สำหรับทุก ranking card
+function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
+  const el=document.getElementById(elId);
   if(!el) return;
-  // ดึงคะแนนเฉลี่ยของแต่ละหน่วยงาน (S) จาก orgResultsCache
-  // ถ้ายังไม่มีข้อมูลให้แสดง N/A
-  const orgNames=Object.keys(ORG_S_CODES);
+  const orgNames=Object.keys(orgCodes);
   const ranks=orgNames.map(name=>{
-    // ลอง lookup คะแนนล่าสุดจาก orgResultsCache
     const gfj=ORG_GFJ_CODE&&ORG_GFJ_CODE[name];
-    const code6=ORG_S_CODES[name];
+    const code6=orgCodes[name];
     let avg=null;
     if(gfj && orgResultsCache[gfj] && code6){
       const cache=orgResultsCache[gfj];
@@ -1479,36 +1545,34 @@ function renderRanking(){
       });
       if(scores.length>0) avg=scores.reduce((a,b)=>a+b,0)/scores.length;
     }
-    // fallback: ถ้าเป็น กฟส.อ่าวลึก ใช้ fData
     if(name==='กฟส.อ่าวลึก'&&allData.length>0){
       const rep=allData.filter(d=>d.score!==null);
       if(rep.length) avg=rep.reduce((s,d)=>s+d.score,0)/rep.length;
     }
     return {name,code6,avg};
   });
-  // เรียงจากมากไปน้อย (null ไว้ท้าย)
   ranks.sort((a,b)=>{
     if(a.avg===null&&b.avg===null) return 0;
-    if(a.avg===null) return 1;
-    if(b.avg===null) return -1;
+    if(a.avg===null) return 1; if(b.avg===null) return -1;
     return b.avg-a.avg;
   });
-  const showN=rankExpanded?ranks.length:5;
+  const showN=expanded?ranks.length:topN;
   const displayed=ranks.slice(0,showN);
-  const maxAvg=ranks[0]&&ranks[0].avg?ranks[0].avg:5;
   el.innerHTML=displayed.map((r,i)=>{
     const rank=i+1;
-    const isAOL=r.name==='กฟส.อ่าวลึก';
     const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
     const pct=r.avg!==null?r.avg/5*100:0;
     const barCol=r.avg===null?'var(--bg5)':r.avg>=5?'var(--tl2)':r.avg>=4?'var(--bl2)':r.avg>=3?'var(--am2)':'var(--rd2)';
-    const highlight=isAOL?'background:rgba(56,139,253,.06);border-radius:6px;':'';
-    return `<div style="display:flex;align-items:center;gap:7px;padding:4px 6px;${highlight}cursor:pointer"
-      onclick="selectOrg('${r.name}','${r.name}')" title="คลิกเพื่อดู KPI ของ ${r.name}">
+    const isAOL=r.name==='กฟส.อ่าวลึก';
+    const hi=isAOL?'background:rgba(56,139,253,.06);border-radius:6px;':'';
+    const isGFJ=r.name.startsWith('กฟจ.');
+    const nameColor=isAOL?'var(--bl2)':isGFJ?'var(--am2)':'var(--t2)';
+    return `<div style="display:flex;align-items:center;gap:7px;padding:4px 6px;${hi}cursor:pointer"
+      onclick="selectOrg('${r.name}','${r.name}')" title="${r.name}">
       <div style="width:18px;text-align:center;font-size:11px;color:var(--t3);font-family:var(--mo);flex-shrink:0">${medal||rank}</div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
-          <span style="font-size:10px;color:${isAOL?'var(--bl2)':'var(--t2)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;font-weight:${isAOL?'600':'400'}">${r.name}</span>
+          <span style="font-size:10px;color:${nameColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;font-weight:${isAOL||isGFJ?'600':'400'}">${r.name}</span>
           <span style="font-size:10px;font-family:var(--mo);color:${barCol};flex-shrink:0;margin-left:4px">${r.avg!==null?r.avg.toFixed(3):'N/A'}</span>
         </div>
         <div style="height:3px;background:var(--bg4);border-radius:2px;overflow:hidden">
@@ -1517,10 +1581,16 @@ function renderRanking(){
       </div>
     </div>`;
   }).join('');
-  if(!rankExpanded&&ranks.length>5){
-    el.innerHTML+=`<div style="text-align:center;padding:4px;font-size:9px;color:var(--t3)">แสดง 5 จาก ${ranks.length} หน่วยงาน</div>`;
+  if(!expanded&&ranks.length>topN){
+    el.innerHTML+=`<div style="text-align:center;padding:4px;font-size:9px;color:var(--t3)">แสดง ${topN} จาก ${ranks.length} หน่วยงาน</div>`;
   }
 }
+
+function renderRanking(){
+  renderRankingFor('rankList', ORG_S_CODES, rankExpanded, 5);
+}
+
+
 
 function rCharts(){
   const rep=fData.filter(d=>d.score!==null);
@@ -1528,25 +1598,7 @@ function rCharts(){
   window.rep_=rep; window.pend_=pend;
   renderRanking();
 
-  const depts=['ฝวบ.','ฝปบ.','ฝสบ.','กสข.','อื่นๆ'];
-  const davg=depts.map(dep=>{const its=fData.filter(x=>x.dept===dep&&x.score!==null);return its.length?parseFloat((its.reduce((s,x)=>s+x.score,0)/its.length).toFixed(3)):0;});
-  dC('dept');
-  charts.dept=new Chart(document.getElementById('cDept'),{
-    type:'bar',
-    data:{labels:depts,datasets:[{data:davg,backgroundColor:davg.map(v=>v>=4.5?'#3fb884':v>=3.5?'#388bfd':v>=2.5?'#d29922':'#f85149'),borderWidth:0,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      scales:{y:{min:0,max:5,ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},x:{ticks:{color:'#b1bac4',font:{size:11}},grid:{display:false}}},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`คะแนนเฉลี่ย: ${ctx.raw}`}}},
-      onClick:(e,el)=>{
-        if(!el.length)return;
-        const dep=depts[el[0].index];
-        const list=fData.filter(x=>x.dept===dep);
-        showWatch(list,`📂 ฝ่าย ${dep}`);
-        document.getElementById('watchReset').style.display='inline-block';
-        document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
-      }
-    }
-  });
+
 
   const bk=[0,0,0,0,0];
   const bkItems=[[],[],[],[],[]];
