@@ -802,14 +802,44 @@ async function loadData(){
           if(aol!==null) monthlyAOL[k]=parseFloat(aol)||aol;
           if(scAol!==null) monthlyScoreAOL[k]=parseFloat(scAol)||scAol;
         });
+        // ตรวจว่า col51 (ผลล่าสุด) ต่างจากเดือนสุดท้ายใน monthlyAOL → ประมาณการ
+        const resultLatestRaw = gv(51);
+        const scoreLatestRaw  = gv(52);
+        // หาเดือนสุดท้ายที่มีใน monthlyAOL
+        const lastAOLKey = MKKEYS.slice().reverse().find(k=>monthlyAOL[k]!==undefined&&monthlyAOL[k]!=='');
+        const lastAOLVal = lastAOLKey ? monthlyAOL[lastAOLKey] : null;
+        // ถ้า col51 ≠ เดือนสุดท้าย → มาจากประมาณการ (เดือนถัดไป)
+        const isEstimate = resultLatestRaw!==null && lastAOLVal!==null &&
+          parseFloat(resultLatestRaw)!==parseFloat(lastAOLVal);
+        // หาชื่อเดือนถัดไปหลังจาก lastAOLKey
+        const MONTH_TH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+        const MKKEYS_TH_MAP={jan:'ม.ค.',feb:'ก.พ.',mar:'มี.ค.',apr:'เม.ย.',may:'พ.ค.',jun:'มิ.ย.',jul:'ก.ค.',aug:'ส.ค.',sep:'ก.ย.',oct:'ต.ค.',nov:'พ.ย.',dec:'ธ.ค.'};
+        let estimateMonthLabel='';
+        if(isEstimate && lastAOLKey){
+          const lastIdx=MKKEYS.indexOf(lastAOLKey);
+          const nextIdx=(lastIdx+1)%12;
+          estimateMonthLabel=MKKEYS_TH_MAP[MKKEYS[nextIdx]]||'';
+        }
+        // ถ้าเป็นประมาณการ ใส่เข้า monthlyAOL และ monthlyScoreAOL ด้วย key พิเศษ 'estimate'
+        if(isEstimate && estimateMonthLabel){
+          const nextKey=lastAOLKey?MKKEYS[(MKKEYS.indexOf(lastAOLKey)+1)%12]:'';
+          if(nextKey && monthlyAOL[nextKey]===undefined){
+            monthlyAOL[nextKey]=parseFloat(resultLatestRaw)||resultLatestRaw;
+          }
+          if(nextKey && scoreLatestRaw!==null && monthlyScoreAOL[nextKey]===undefined){
+            monthlyScoreAOL[nextKey]=parseFloat(scoreLatestRaw)||scoreLatestRaw;
+          }
+        }
         ksMap[code]={
           targets,
           monthly,
           monthlyRes,
           monthlyAOL,
           monthlyScoreAOL,
-          resultLatestAOL: gv(51),
-          scoreLatestAOL:  gv(52),
+          resultLatestAOL: resultLatestRaw,
+          scoreLatestAOL:  scoreLatestRaw,
+          isEstimate,
+          estimateMonthLabel,
           name: kpiName,
           responsible: kpiDept
         };
@@ -828,7 +858,7 @@ async function loadData(){
         const lp=lpMap[code]||lpMap[lpTrim]||{};
         ndFinal.push({
           code,
-          name: ks.name||lp.name||code,           // ใช้ชื่อจาก KPISummary ก่อน (ถูกต้องเสมอ)
+          name: ks.name||lp.name||code,
           dept: lp.dept||'',
           group: lp.group||'',
           responsible: lp.responsible||ks.responsible||'',
@@ -839,7 +869,9 @@ async function loadData(){
           monthly: ks.monthly,
           monthlyRes: ks.monthlyRes,
           monthlyAOL: ks.monthlyAOL,
-          monthlyScoreAOL: ks.monthlyScoreAOL
+          monthlyScoreAOL: ks.monthlyScoreAOL,
+          isEstimate: ks.isEstimate||false,
+          estimateMonthLabel: ks.estimateMonthLabel||'',
         });
       });
       // เรียงตาม KPI_SHEETS order
@@ -1308,8 +1340,13 @@ function renderMonthRow(item){
     if(sa===undefined||sa==='') return`<div><div class="mon-cell empty">—</div><div class="mon-lbl">${lbl}</div></div>`;
     const cls=k===latestKey?'latest':'has';
     const disp=parseFloat(sa).toFixed(2);
-    const tip=`${lbl}: คะแนน อล. = ${parseFloat(sa).toFixed(3)}`;
-    return`<div><div class="mon-cell ${cls}" title="${tip}">${disp}</div><div class="mon-lbl">${lbl}</div></div>`;
+    // ตรวจว่าเป็นเดือนประมาณการ (มีผล AOL แต่ไม่มีผลรายเดือนปกติ)
+    const resAol=item.monthlyAOL||{};
+    const isEst=item.isEstimate && k===latestKey && !Object.keys(resAol).slice(0,MONTH_KEYS.indexOf(k)).some(x=>resAol[x]);
+    const estStyle=item.isEstimate&&k===latestKey&&MONTH_KEYS.indexOf(k)>MONTH_KEYS.indexOf(hasScAol[hasScAol.length-2]||'')?'background:var(--ambg);color:var(--am2);border-color:rgba(158,106,3,.3)':'';
+    const tip=`${lbl}: คะแนน${item.isEstimate&&k===latestKey?' (ประมาณการ)':''} = ${parseFloat(sa).toFixed(3)}`;
+    const prefix=item.isEstimate&&k===latestKey?'~':'';
+    return`<div><div class="mon-cell ${cls}" title="${tip}" style="${estStyle}">${prefix}${disp}</div><div class="mon-lbl">${lbl}</div></div>`;
   }).join('')+'</div>';
 }
 
@@ -1506,7 +1543,7 @@ function rT(){
     <td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td>
     <td style="font-size:10px;color:var(--t3);max-width:130px;line-height:1.4">${item.responsible}</td>
     <td style="white-space:nowrap;padding:4px 10px">${renderTargetRow(item.targets,item.score)}</td>
-    <td class="tr2">${item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—'}</td>
+    <td class="tr2">${item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—'}${item.isEstimate?`<br><span style="font-size:9px;color:var(--am2);font-family:var(--fn)">~ประมาณการ ${item.estimateMonthLabel}</span>`:''}  </td>
     <td class="ts"><span class="pill ${getPC(item.score)}">${item.score!==null?item.score.toFixed(3):'N/A'}</span></td>
     <td class="${item.score!==null?'sok':'spnd'}" style="font-size:10px;white-space:nowrap">${item.status||'—'}</td>
     <td style="padding:4px 8px;min-width:160px">${renderMonthRow(item)}</td>
@@ -1589,6 +1626,7 @@ function oM(code){
   const sc=item.score;
   const scCls=sc===null?'sna':sc>=5?'s5':sc>=4?'s4':sc>=3?'s3':'s12';
   const scLbl=sc===null?'ยังไม่มีผล':sc>=5?'ผ่านเกณฑ์สูงสุด':sc>=4?'ผ่านเกณฑ์ดี':sc>=3?'ผ่านเกณฑ์':sc>=2?'ต้องเฝ้าระวัง':'ต้องปรับปรุงด่วน';
+  const estimateBadge=item.isEstimate?` <span style="font-size:10px;color:var(--am2);background:var(--ambg);padding:1px 6px;border-radius:4px;border:1px solid rgba(158,106,3,.3)">~ประมาณการ ${item.estimateMonthLabel}</span>`:'';  
   const resFmt=item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—';
   const mk2=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
   const ml=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
@@ -1614,7 +1652,7 @@ function oM(code){
   document.getElementById('mBody').innerHTML=`
     <div class="mscbig ${scCls}">
       <div class="mscnum">${sc!==null?sc.toFixed(3):'N/A'}</div>
-      <div class="mscinfo"><p>${scLbl}</p><small>ผลล่าสุด: ${resFmt} · งวด: ${item.status||'—'}</small></div>
+      <div class="mscinfo"><p>${scLbl}</p><small>ผลล่าสุด: ${resFmt}${estimateBadge} · งวด: ${item.status||'—'}</small></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
       <div class="mf"><div class="mf-l">กลุ่ม KPI</div><div class="mf-v">${item.group||'—'}</div></div>
