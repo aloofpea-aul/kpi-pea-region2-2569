@@ -1649,10 +1649,38 @@ function oM(code){
   // ชื่อหน่วยงานที่แสดงในตาราง — ถ้าเลือกหน่วยงานใช้ชื่อนั้น ไม่งั้นใช้ กฟส.อล.
   const orgLabel = (curOrg&&curOrg!=='all') ? curOrg : 'กฟส.อล.';
   const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('⭐ คะแนน '+orgLabel,scAol,'#3fb884')}${buildMonthTable('ผล '+orgLabel,aol,'#6e9e7e')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟต.2',res,'#8b949e')}</tbody></table></div>${hasChart?`<div style="position:relative;height:200px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
+  // คำนวณ progress ไปสู่เป้า 5
+  const gap = sc!==null ? Math.max(0, 5 - sc) : null;
+  const pct = sc!==null ? Math.min(100, sc/5*100) : 0;
+  const gapColor = gap===null?'var(--t3)':gap===0?'var(--tl2)':gap<1?'var(--bl2)':gap<2?'var(--am2)':'var(--rd2)';
+  const barColor = sc===null?'var(--bg5)':sc>=5?'var(--tl2)':sc>=4?'var(--bl2)':sc>=3?'var(--am2)':'var(--rd2)';
+  const gapHTML = gap===null ? '' : gap===0
+    ? `<div style="display:flex;align-items:center;gap:5px;margin-top:2px">
+        <span style="font-size:18px">🎯</span>
+        <span style="font-size:11px;color:var(--tl2);font-weight:600">ได้คะแนนเต็ม!</span>
+       </div>`
+    : `<div style="margin-top:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:10px;color:var(--t3)">ความคืบหน้าสู่ 5.000</span>
+          <span style="font-size:11px;font-weight:600;color:${gapColor};font-family:var(--mo)">ขาดอีก ${gap.toFixed(3)}</span>
+        </div>
+        <div style="height:6px;background:var(--bg5);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${pct.toFixed(1)}%;background:${barColor};border-radius:3px;transition:width .4s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:2px">
+          <span style="font-size:9px;color:var(--t3);font-family:var(--mo)">0</span>
+          <span style="font-size:9px;color:var(--t3);font-family:var(--mo)">${pct.toFixed(0)}%</span>
+          <span style="font-size:9px;color:var(--t3);font-family:var(--mo)">5.000</span>
+        </div>
+       </div>`;
+
   document.getElementById('mBody').innerHTML=`
-    <div class="mscbig ${scCls}">
-      <div class="mscnum">${sc!==null?sc.toFixed(3):'N/A'}</div>
-      <div class="mscinfo"><p>${scLbl}</p><small>ผลล่าสุด: ${resFmt}${estimateBadge} · งวด: ${item.status||'—'}</small></div>
+    <div class="mscbig ${scCls}" style="flex-direction:column;align-items:stretch;gap:6px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="mscnum">${sc!==null?sc.toFixed(3):'N/A'}</div>
+        <div class="mscinfo"><p>${scLbl}</p><small>ผลล่าสุด: ${resFmt}${estimateBadge} · งวด: ${item.status||'—'}</small></div>
+      </div>
+      ${gapHTML}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
       <div class="mf"><div class="mf-l">กลุ่ม KPI</div><div class="mf-v">${item.group||'—'}</div></div>
