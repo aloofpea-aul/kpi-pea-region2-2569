@@ -273,9 +273,16 @@ tbody td{padding:7px 10px;vertical-align:middle}
   <div class="sl">การวิเคราะห์</div>
   <div class="cg">
     <div class="cc">
-      <div class="cc-t"><div class="cc-dot" style="background:var(--bl2)"></div>สถานะการรายงาน</div>
-      <div style="position:relative;width:100%;height:180px;overflow:hidden"><canvas id="cStatus" role="img" aria-label="สถานะ"></canvas></div>
-      <div class="cleg" id="legStatus"></div>
+      <div class="cc-t" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="cc-dot" style="background:var(--am2)"></div>
+          <span>Ranking กฟส. (S)</span>
+        </div>
+        <span id="rankToggle" onclick="toggleRanking()" style="font-size:9px;color:var(--bl2);cursor:pointer;padding:2px 7px;border:1px solid rgba(56,139,253,.3);border-radius:10px;background:var(--blbg)">ดูทั้งหมด ▼</span>
+      </div>
+      <div id="rankCard" style="overflow:hidden;transition:max-height .3s ease">
+        <div id="rankList" style="padding:2px 0"></div>
+      </div>
     </div>
     <div class="cc">
       <div class="cc-t"><div class="cc-dot" style="background:var(--tl2)"></div>คะแนนเฉลี่ยรายฝ่าย</div>
@@ -1408,28 +1415,93 @@ function resetWatch(){
 
 function rWatch(){ showWatch(null,'KPI ที่ต้องเฝ้าระวัง'); }
 
+// รายชื่อหน่วยงาน (S) จาก OrgMap
+const ORG_S_CODES={
+  'กฟส.ร่อนพิบูลย์':'K01401','กฟส.ชะอวด':'K01601','กฟส.บ้านนาสาร':'K02401',
+  'กฟจ.ตรัง':'K03101','กฟส.กันตัง':'K03201','กฟส.ย่านตาขาว':'K03401','กฟส.ปะเหลียน':'K03501',
+  'กฟจ.กระบี่':'K04101','กฟส.อ่าวลึก':'K04201','กฟส.คลองท่อม':'K04301',
+  'กฟส.เกาะลันตา':'K04401','กฟส.เหนือคลอง':'K04501','กฟส.เขาพนม':'K04601',
+  'กฟจ.พังงา':'K05101','กฟส.ท้ายเหมือง':'K05301','กฟส.ตะกั่วทุ่ง':'K05401',
+  'กฟส.ฉลอง':'K06401','กฟส.ฉวาง':'K07201','กฟส.ช้างกลาง':'K07301','กฟส.ทุ่งใหญ่':'K07401',
+  'กฟส.เกาะพะงัน':'K08201','กฟส.ไชยา':'K09201','กฟส.บ้านตาขุน':'K09301',
+  'กฟส.ท่าชนะ':'K09401','กฟส.คีรีรัฐนิคม':'K09501','กฟส.หัวไทร':'K10201',
+  'กฟส.พระแสง':'K15201','กฟส.สิชล':'K16201','กฟส.ขนอม':'K16301',
+};
+let rankExpanded=false;
+
+function toggleRanking(){
+  rankExpanded=!rankExpanded;
+  renderRanking();
+  document.getElementById('rankToggle').textContent=rankExpanded?'ย่อ ▲':'ดูทั้งหมด ▼';
+}
+
+function renderRanking(){
+  const el=document.getElementById('rankList');
+  if(!el) return;
+  // ดึงคะแนนเฉลี่ยของแต่ละหน่วยงาน (S) จาก orgResultsCache
+  // ถ้ายังไม่มีข้อมูลให้แสดง N/A
+  const orgNames=Object.keys(ORG_S_CODES);
+  const ranks=orgNames.map(name=>{
+    // ลอง lookup คะแนนล่าสุดจาก orgResultsCache
+    const gfj=ORG_GFJ_CODE&&ORG_GFJ_CODE[name];
+    const code6=ORG_S_CODES[name];
+    let avg=null;
+    if(gfj && orgResultsCache[gfj] && code6){
+      const cache=orgResultsCache[gfj];
+      const scores=[];
+      Object.values(cache.kpiOrgData||{}).forEach(od=>{
+        if(od[code6]&&od[code6].score!==null) scores.push(od[code6].score);
+      });
+      if(scores.length>0) avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+    }
+    // fallback: ถ้าเป็น กฟส.อ่าวลึก ใช้ fData
+    if(name==='กฟส.อ่าวลึก'&&allData.length>0){
+      const rep=allData.filter(d=>d.score!==null);
+      if(rep.length) avg=rep.reduce((s,d)=>s+d.score,0)/rep.length;
+    }
+    return {name,code6,avg};
+  });
+  // เรียงจากมากไปน้อย (null ไว้ท้าย)
+  ranks.sort((a,b)=>{
+    if(a.avg===null&&b.avg===null) return 0;
+    if(a.avg===null) return 1;
+    if(b.avg===null) return -1;
+    return b.avg-a.avg;
+  });
+  const showN=rankExpanded?ranks.length:5;
+  const displayed=ranks.slice(0,showN);
+  const maxAvg=ranks[0]&&ranks[0].avg?ranks[0].avg:5;
+  el.innerHTML=displayed.map((r,i)=>{
+    const rank=i+1;
+    const isAOL=r.name==='กฟส.อ่าวลึก';
+    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    const pct=r.avg!==null?r.avg/5*100:0;
+    const barCol=r.avg===null?'var(--bg5)':r.avg>=5?'var(--tl2)':r.avg>=4?'var(--bl2)':r.avg>=3?'var(--am2)':'var(--rd2)';
+    const highlight=isAOL?'background:rgba(56,139,253,.06);border-radius:6px;':'';
+    return `<div style="display:flex;align-items:center;gap:7px;padding:4px 6px;${highlight}cursor:pointer"
+      onclick="selectOrg('${r.name}','${r.name}')" title="คลิกเพื่อดู KPI ของ ${r.name}">
+      <div style="width:18px;text-align:center;font-size:11px;color:var(--t3);font-family:var(--mo);flex-shrink:0">${medal||rank}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+          <span style="font-size:10px;color:${isAOL?'var(--bl2)':'var(--t2)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;font-weight:${isAOL?'600':'400'}">${r.name}</span>
+          <span style="font-size:10px;font-family:var(--mo);color:${barCol};flex-shrink:0;margin-left:4px">${r.avg!==null?r.avg.toFixed(3):'N/A'}</span>
+        </div>
+        <div style="height:3px;background:var(--bg4);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${pct.toFixed(1)}%;background:${barCol};border-radius:2px"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  if(!rankExpanded&&ranks.length>5){
+    el.innerHTML+=`<div style="text-align:center;padding:4px;font-size:9px;color:var(--t3)">แสดง 5 จาก ${ranks.length} หน่วยงาน</div>`;
+  }
+}
+
 function rCharts(){
   const rep=fData.filter(d=>d.score!==null);
   const pend=fData.filter(d=>d.score===null);
-  dC('status');
-  charts.status=new Chart(document.getElementById('cStatus'),{
-    type:'doughnut',
-    data:{labels:['มีผลแล้ว','ยังไม่รายงาน'],datasets:[{data:[rep.length,pend.length],backgroundColor:['#3fb884','#388bfd'],borderWidth:0,hoverOffset:6}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} รายการ`}}},
-      onClick:(e,el)=>{
-        if(!el.length)return;
-        const idx=el[0].index;
-        if(idx===0){showWatch(rep,'✅ มีผลแล้ว');}
-        else{showWatch(pend,'⏳ ยังไม่รายงาน');}
-        document.getElementById('watchReset').style.display='inline-block';
-        document.getElementById('watchT').scrollIntoView({behavior:'smooth',block:'nearest'});
-      }
-    }
-  });
-  document.getElementById('legStatus').innerHTML=`<div class="cleg-i" style="cursor:pointer" onclick="showWatch(rep_,'✅ มีผลแล้ว');document.getElementById('watchReset').style.display='inline-block'"><div class="cleg-d" style="background:#3fb884"></div>มีผลแล้ว (${rep.length})</div><div class="cleg-i" style="cursor:pointer" onclick="showWatch(pend_,'⏳ ยังไม่รายงาน');document.getElementById('watchReset').style.display='inline-block'"><div class="cleg-d" style="background:#388bfd"></div>รอรายงาน (${pend.length})</div>`;
-  // เก็บ ref สำหรับ legend click
   window.rep_=rep; window.pend_=pend;
+  renderRanking();
 
   const depts=['ฝวบ.','ฝปบ.','ฝสบ.','กสข.','อื่นๆ'];
   const davg=depts.map(dep=>{const its=fData.filter(x=>x.dept===dep&&x.score!==null);return its.length?parseFloat((its.reduce((s,x)=>s+x.score,0)/its.length).toFixed(3)):0;});
