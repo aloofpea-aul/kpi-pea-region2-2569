@@ -189,6 +189,11 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .sort-btn:hover{color:var(--t);border-color:var(--bdr2)}
 .sort-btn.sort-on{background:var(--blbg);border-color:var(--bl2);color:var(--bl2)}
 .sort-icon{font-size:11px;line-height:1}
+
+.org-drop-item{padding:5px 12px;font-size:11px;cursor:pointer;color:var(--t)}
+.org-drop-item:hover{background:var(--bg4)}
+.org-drop-item.selected{color:var(--bl2);background:var(--blbg)}
+.org-drop-hdr{padding:3px 10px;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid var(--bdr);margin-top:2px}
 </style>
 </head>
 <body>
@@ -245,7 +250,12 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <select id="fD" onchange="af()"><option value="all">ทั้งหมด</option><option value="ฝวบ.">ฝวบ.</option><option value="ฝปบ.">ฝปบ.</option><option value="ฝสบ.">ฝสบ.</option><option value="กสข.">กสข.</option><option value="อื่นๆ">อื่นๆ</option></select>
     <div class="fdiv"></div>
     <label>หน่วยงาน</label>
-    <select id="fO" onchange="af()"><option value="all">ภาพรวม กฟต.2</option></select>
+    <div id="orgWrap" style="position:relative;display:inline-block">
+      <input id="orgSearch" type="text" autocomplete="off" placeholder="ค้นหาหน่วยงาน..."
+        style="padding:4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;width:170px;transition:border-color .15s"
+        onfocus="this.value='';showOrgDrop()" oninput="filterOrgDrop(this.value)" onblur="setTimeout(hideOrgDrop,180)">
+      <div id="orgDrop" style="display:none;position:absolute;top:calc(100% + 2px);left:0;min-width:200px;max-height:260px;overflow-y:auto;background:var(--bg3);border:1px solid var(--bdr2);border-radius:var(--r);z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.4)"></div>
+    </div>
     <div class="fdiv"></div>
     <label>สถานะ</label>
     <select id="fS" onchange="af()"><option value="all">ทั้งหมด</option><option value="rep">มีผลแล้ว</option><option value="pend">ยังไม่รายงาน</option></select>
@@ -892,18 +902,91 @@ async function loadOrgList(){
   }catch(e){console.log('OrgList fallback:',e.message);}
 }
 
+let _orgSel='all'; // state: ค่าที่เลือกอยู่
+
 function setupOrgFilter(){
-  const sel=document.getElementById('fO');
-  const prev=sel.value||'all';
-  sel.innerHTML='<option value="all">ภาพรวม กฟต.2</option>';
-  const gfj=ORG_LIST.filter(o=>o.startsWith('กฟจ.'));
-  const gfs=ORG_LIST.filter(o=>o.startsWith('กฟส.'));
-  if(gfj.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าจังหวัด —';gfj.sort((a,b)=>(window.orgCodeMap&&window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap&&window.orgCodeMap[b]||'')).forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
-  if(gfs.length){const g=document.createElement('optgroup');g.label='— การไฟฟ้าสาขา —';gfs.sort((a,b)=>(window.orgCodeMap&&window.orgCodeMap[a]||'').localeCompare(window.orgCodeMap&&window.orgCodeMap[b]||'')).forEach(o=>{const opt=document.createElement('option');opt.value=o;opt.textContent=o;g.appendChild(opt);});sel.appendChild(g);}
-  if(prev&&[...sel.options].some(o=>o.value===prev))sel.value=prev;
+  buildOrgDrop();
+  // restore ชื่อใน input
+  const inp=document.getElementById('orgSearch');
+  if(inp) inp.value=_orgSel==='all'?'':_orgSel;
 }
 
-function clearOrg(){document.getElementById('fO').value='all';af();}
+function buildOrgDrop(){
+  const drop=document.getElementById('orgDrop');
+  if(!drop) return;
+  const cm=window.orgCodeMap||{};
+  const sortFn=(a,b)=>(cm[a]||'').localeCompare(cm[b]||'');
+  const gfj=ORG_LIST.filter(o=>o.startsWith('กฟจ.')).sort(sortFn);
+  const gfs=ORG_LIST.filter(o=>o.startsWith('กฟส.')).sort(sortFn);
+  // สร้าง rows array
+  const rows=[{label:'ภาพรวม กฟต.2',val:'all'}];
+  if(gfj.length){ rows.push({label:'— การไฟฟ้าจังหวัด —',val:null}); gfj.forEach(o=>rows.push({label:o,val:o})); }
+  if(gfs.length){ rows.push({label:'— การไฟฟ้าสาขา —',val:null}); gfs.forEach(o=>rows.push({label:o,val:o})); }
+  drop._rows=rows;
+  renderOrgDrop('');
+}
+
+function renderOrgDrop(q){
+  const drop=document.getElementById('orgDrop');
+  if(!drop||!drop._rows) return;
+  const ql=q.toLowerCase();
+  drop.innerHTML='';
+  let hasItem=false;
+  drop._rows.forEach((r,idx)=>{
+    if(r.val===null){
+      // header — แสดงก็ต่อเมื่อมี item ถัดไปที่ match
+      const hasNext=drop._rows.slice(idx+1).some(x=>x.val&&(!ql||x.label.toLowerCase().includes(ql)));
+      if(!hasNext) return;
+      const d=document.createElement('div');
+      d.className='org-drop-hdr'; d.textContent=r.label;
+      drop.appendChild(d); return;
+    }
+    if(ql&&!r.label.toLowerCase().includes(ql)) return;
+    hasItem=true;
+    const d=document.createElement('div');
+    d.className='org-drop-item'+(r.val===_orgSel?' selected':'');
+    d.textContent=r.label;
+    d.onmousedown=()=>selectOrg(r.val,r.label);
+    drop.appendChild(d);
+  });
+  if(!hasItem){
+    const d=document.createElement('div');
+    d.textContent='ไม่พบหน่วยงาน';
+    d.style.cssText='padding:8px 12px;font-size:11px;color:var(--t3);text-align:center';
+    drop.appendChild(d);
+  }
+}
+
+function showOrgDrop(){
+  const drop=document.getElementById('orgDrop');
+  if(!drop) return;
+  if(!drop._rows) buildOrgDrop();
+  renderOrgDrop('');
+  drop.style.display='block';
+  document.getElementById('orgSearch').style.borderColor='var(--bl2)';
+}
+
+function hideOrgDrop(){
+  const drop=document.getElementById('orgDrop');
+  if(drop) drop.style.display='none';
+  const inp=document.getElementById('orgSearch');
+  if(inp){ inp.style.borderColor=''; inp.value=_orgSel==='all'?'':_orgSel; }
+}
+
+function filterOrgDrop(q){
+  const drop=document.getElementById('orgDrop');
+  if(drop){ if(!drop._rows) buildOrgDrop(); drop.style.display='block'; renderOrgDrop(q); }
+}
+
+function selectOrg(val,label){
+  _orgSel=val||'all';
+  const inp=document.getElementById('orgSearch');
+  if(inp) inp.value=_orgSel==='all'?'':label;
+  hideOrgDrop();
+  af();
+}
+
+function clearOrg(){ selectOrg('all',''); }
 
 // โหลด Results_Kxx sheet แล้ว merge ข้อมูลเข้า allData
 async function loadOrgResults(gfjCode){
@@ -1006,7 +1089,7 @@ function getOrgCode(orgName){
 async function af(){
   const g=document.getElementById('fG').value;
   const d=document.getElementById('fD').value;
-  const org=document.getElementById('fO').value;
+  const org=_orgSel||'all';
   const s=document.getElementById('fS').value;
   const sc=document.getElementById('fSc').value;
   curOrg=org;
@@ -1611,11 +1694,8 @@ window.addEventListener('scroll',()=>{
 window.addEventListener('DOMContentLoaded',()=>{
   allData=parseFB();
   setupOrgFilter();
-  const fO=document.getElementById('fO');
   setTimeout(()=>{
-    const opt=[...fO.options].find(o=>o.value==='กฟส.อ่าวลึก');
-    if(opt) fO.value='กฟส.อ่าวลึก';
-    af();
+    selectOrg('กฟส.อ่าวลึก','กฟส.อ่าวลึก');
   },50);
   renderDept();renderAlert();renderTrendTable();
   hideLoad();
