@@ -274,16 +274,16 @@ tbody td{padding:7px 10px;vertical-align:middle}
   <div class="cg">
     <div class="cc">
       <div class="cc-t"><div class="cc-dot" style="background:var(--bl2)"></div>สถานะการรายงาน</div>
-      <div style="position:relative;width:100%;height:185px"><canvas id="cStatus" role="img" aria-label="สถานะ"></canvas></div>
+      <div style="position:relative;width:100%;height:180px;overflow:hidden"><canvas id="cStatus" role="img" aria-label="สถานะ"></canvas></div>
       <div class="cleg" id="legStatus"></div>
     </div>
     <div class="cc">
       <div class="cc-t"><div class="cc-dot" style="background:var(--tl2)"></div>คะแนนเฉลี่ยรายฝ่าย</div>
-      <div style="position:relative;width:100%;height:185px"><canvas id="cDept" role="img" aria-label="คะแนนรายฝ่าย"></canvas></div>
+      <div style="position:relative;width:100%;height:180px;overflow:hidden"><canvas id="cDept" role="img" aria-label="คะแนนรายฝ่าย"></canvas></div>
     </div>
     <div class="cc">
       <div class="cc-t"><div class="cc-dot" style="background:var(--am2)"></div>การกระจายคะแนน</div>
-      <div style="position:relative;width:100%;height:160px"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
+      <div style="position:relative;width:100%;height:180px;overflow:hidden"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
     </div>
   </div>
   <div class="sl" style="align-items:center">
@@ -1415,6 +1415,7 @@ function rCharts(){
     type:'bar',
     data:{labels:bkLabels,datasets:[{data:bk,backgroundColor:bkColors,borderWidth:0,borderRadius:4}]},
     options:{responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:18,left:4,right:4,bottom:2}},
       scales:{
         y:{display:false},
         x:{
