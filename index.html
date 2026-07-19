@@ -1469,8 +1469,11 @@ const ORG_XS_CODES={
   'กฟส.นบพิตำ':'K16102','กฟส.วังวิเศษ':'K17102','กฟส.รัษฎา':'K17103',
 };
 const ORG_LM_CODES={
+  // กฟจ. ทุกแห่ง (L + S ที่เป็น กฟจ.)
+  'กฟจ.นครศรีธรรมราช':'K01101','กฟจ.สุราษฎร์ธานี':'K02101',
+  'กฟจ.ตรัง':'K03101','กฟจ.กระบี่':'K04101','กฟจ.พังงา':'K05101',
+  'กฟจ.ภูเก็ต':'K06101',
   // L
-  'กฟจ.นครศรีธรรมราช':'K01101','กฟจ.สุราษฎร์ธานี':'K02101','กฟจ.ภูเก็ต':'K06101',
   'กฟส.ทุ่งสง':'K07101','กฟส.เกาะสมุย':'K08101','กฟส.พุนพิน':'K09101',
   'กฟส.ถลาง':'K11101','กฟส.ป่าตอง':'K13101',
   // M
@@ -1530,8 +1533,7 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
     if(a.avg===null) return 1; if(b.avg===null) return -1;
     return b.avg-a.avg;
   });
-  const showN=expanded?ranks.length:topN;
-  const displayed=ranks.slice(0,showN);
+  const displayed=ranks.slice(0,topN);
   el.innerHTML=displayed.map((r,i)=>{
     const rank=i+1;
     const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
@@ -1555,9 +1557,9 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
       </div>
     </div>`;
   }).join('');
-  if(topN<ranks.length){
-    const hidden=ranks.length-Math.min(topN,ranks.length);
-    if(hidden>0) el.innerHTML+=`<div style="text-align:center;padding:4px;font-size:9px;color:var(--t3)">${topN>=ranks.length?'ครบทุกหน่วยงาน':'ยังมีอีก '+hidden+' หน่วยงาน → กดปุ่ม ทั้งหมด ▼'}</div>`;
+  if(topN < ranks.length){
+    const hidden = ranks.length - topN;
+    el.innerHTML += `<div style="text-align:center;padding:4px;font-size:9px;color:var(--t3)">ยังมีอีก ${hidden} หน่วยงาน</div>`;
   }
 }
 
