@@ -1402,13 +1402,13 @@ function rCharts(){
   const bk=[0,0,0,0,0];
   const bkItems=[[],[],[],[],[]];
   rep.forEach(d=>{
-    if(d.score>=5){bk[0]++;bkItems[0].push(d);}
-    else if(d.score>=4){bk[1]++;bkItems[1].push(d);}
-    else if(d.score>=3){bk[2]++;bkItems[2].push(d);}
-    else if(d.score>=2){bk[3]++;bkItems[3].push(d);}
-    else{bk[4]++;bkItems[4].push(d);}
+    if(d.score===5){bk[0]++;bkItems[0].push(d);}        // เต็ม 5.000 พอดี
+    else if(d.score>=4){bk[1]++;bkItems[1].push(d);}    // 4.000–4.999
+    else if(d.score>=3){bk[2]++;bkItems[2].push(d);}    // 3.000–3.999
+    else if(d.score>=2){bk[3]++;bkItems[3].push(d);}    // 2.000–2.999
+    else{bk[4]++;bkItems[4].push(d);}                   // ต่ำกว่า 2
   });
-  const bkLabels=['5.000','4–4.9','3–3.9','2–2.9','1–1.9'];
+  const bkLabels=['= 5.000','4–4.9','3–3.9','2–2.9','< 2'];
   const bkColors=['#3fb884','#388bfd','#d29922','#f85149','#da3633'];
   window.bkItems_=bkItems;
   dC('dist');
