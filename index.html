@@ -66,6 +66,9 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .pb-f{height:100%;border-radius:2px;transition:width .5s ease}
 .pb-f.tl{background:var(--tl2)}.pb-f.bl{background:var(--bl2)}.pb-f.am{background:var(--am2)}
 .cg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.rg4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:1100px){.rg4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.rg4{grid-template-columns:1fr}}
 @media(max-width:900px){.cg{grid-template-columns:1fr}}
 .cc{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px 18px}
 .cc-t{font-size:11px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
@@ -271,40 +274,23 @@ tbody td{padding:7px 10px;vertical-align:middle}
   <div class="sl">ภาพรวม</div>
   <div class="mg" id="mg"></div>
   <div class="sl">การวิเคราะห์</div>
-  <div class="cg">
+  <div class="rg4">
     <div class="cc">
-      <div class="cc-t" style="justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="cc-dot" style="background:var(--am2)"></div>
-          <span>Ranking กฟส. (S)</span>
-        </div>
-        <span id="rankToggle" onclick="toggleRanking()" style="font-size:9px;color:var(--bl2);cursor:pointer;padding:2px 7px;border:1px solid rgba(56,139,253,.3);border-radius:10px;background:var(--blbg)">ดูทั้งหมด ▼</span>
-      </div>
-      <div id="rankCard" style="overflow:hidden;transition:max-height .3s ease">
-        <div id="rankList" style="padding:2px 0"></div>
-      </div>
+      <div class="cc-t"><div class="cc-dot" style="background:var(--am2)"></div>Ranking กฟส. (S)</div>
+      <div id="rankList" style="padding:2px 0"></div>
     </div>
     <div class="cc">
-      <div class="cc-t" style="justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:6px"><div class="cc-dot" style="background:var(--tl2)"></div><span>Ranking กฟส. (XS)</span></div>
-        <span id="rankToggleXS" onclick="toggleRankingXS()" style="font-size:9px;color:var(--bl2);cursor:pointer;padding:2px 7px;border:1px solid rgba(56,139,253,.3);border-radius:10px;background:var(--blbg)">ดูทั้งหมด ▼</span>
-      </div>
+      <div class="cc-t"><div class="cc-dot" style="background:var(--tl2)"></div>Ranking กฟส. (XS)</div>
       <div id="rankListXS" style="padding:2px 0"></div>
+    </div>
+    <div class="cc">
+      <div class="cc-t"><div class="cc-dot" style="background:var(--pu2)"></div>Ranking L + M + กฟจ.</div>
+      <div id="rankListLM" style="padding:2px 0"></div>
     </div>
     <div class="cc">
       <div class="cc-t"><div class="cc-dot" style="background:var(--am2)"></div>การกระจายคะแนน</div>
       <div style="position:relative;width:100%;height:150px;overflow:hidden"><canvas id="cDist" role="img" aria-label="การกระจายคะแนน"></canvas></div>
       <div id="distLabelRow" style="display:flex;justify-content:space-around;margin-top:4px"></div>
-    </div>
-  </div>
-  <div class="sl">Ranking กฟส./กฟจ. (L + M)</div>
-  <div class="cg" style="grid-template-columns:1fr;margin-bottom:14px">
-    <div class="cc">
-      <div class="cc-t" style="justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:6px"><div class="cc-dot" style="background:var(--pu2)"></div><span>Ranking กฟส./กฟจ. กลุ่ม L และ M</span></div>
-        <span id="rankToggleLM" onclick="toggleRankingLM()" style="font-size:9px;color:var(--bl2);cursor:pointer;padding:2px 7px;border:1px solid rgba(56,139,253,.3);border-radius:10px;background:var(--blbg)">ดูทั้งหมด ▼</span>
-      </div>
-      <div id="rankListLM" style="padding:2px 0;display:grid;grid-template-columns:1fr 1fr;gap:0 16px"></div>
     </div>
   </div>
   <div class="sl" style="align-items:center">
@@ -1482,53 +1468,20 @@ const ORG_LM_CODES={
   'กฟส.ปากพนัง':'K10101','กฟส.ตะกั่วป่า':'K12101','กฟส.กาญจนดิษฐ์':'K14101',
   'กฟส.เวียงสระ':'K15101','กฟส.ท่าศาลา':'K16101','กฟส.ห้วยยอด':'K17101',
 };
-let rankExpanded=false;
-let rankExpandedXS=false;
-let rankExpandedLM=false;
-
-async function toggleRanking(){
-  rankExpanded=!rankExpanded;
-  const btn=document.getElementById('rankToggle');
-  if(rankExpanded){
-    btn.textContent='⏳ กำลังโหลด...';
-    // preload Results sheet ทุก กฟจ. ที่เกี่ยวกับ กฟส.(S) ที่ยังไม่มีใน cache
-    const needed=new Set(Object.keys(ORG_S_CODES).map(n=>ORG_GFJ_CODE[n]).filter(Boolean));
-    const missing=[...needed].filter(g=>!orgResultsCache[g]);
-    if(missing.length>0) await Promise.all(missing.map(g=>loadOrgResults(g)));
-  }
-  renderRanking();
-  renderRankingFor('rankListXS',ORG_XS_CODES,rankExpandedXS,5);
-  renderRankingFor('rankListLM',ORG_LM_CODES,rankExpandedLM,14,true);
-  btn.textContent=rankExpanded?'ย่อ ▲':'ดูทั้งหมด ▼';
-}
-
-async function toggleRankingXS(){
-  rankExpandedXS=!rankExpandedXS;
-  const btn=document.getElementById('rankToggleXS');
-  if(rankExpandedXS){
-    btn.textContent='⏳ กำลังโหลด...';
-    const needed=new Set(Object.keys(ORG_XS_CODES).map(n=>ORG_GFJ_CODE[n]).filter(Boolean));
-    const missing=[...needed].filter(g=>!orgResultsCache[g]);
-    if(missing.length) await Promise.all(missing.map(g=>loadOrgResults(g)));
-  }
-  renderRankingFor('rankListXS', ORG_XS_CODES, rankExpandedXS, 5);
-  btn.textContent=rankExpandedXS?'ย่อ ▲':'ดูทั้งหมด ▼';
-}
-
-async function toggleRankingLM(){
-  rankExpandedLM=!rankExpandedLM;
-  const btn=document.getElementById('rankToggleLM');
-  if(rankExpandedLM){
-    btn.textContent='⏳ กำลังโหลด...';
-    const needed=new Set(Object.keys(ORG_LM_CODES).map(n=>ORG_GFJ_CODE[n]).filter(Boolean));
-    const missing=[...needed].filter(g=>!orgResultsCache[g]);
-    if(missing.length) await Promise.all(missing.map(g=>loadOrgResults(g)));
-  }
-  renderRankingFor('rankListLM', ORG_LM_CODES, rankExpandedLM, 14, true);
-  btn.textContent=rankExpandedLM?'ย่อ ▲':'ดูทั้งหมด ▼';
-}
 
 // generic render function สำหรับทุก ranking card
+async function preloadAndRenderAll(){
+  // รวม กฟจ. ทั้งหมดที่ต้องโหลด
+  const allOrgs={...ORG_S_CODES,...ORG_XS_CODES,...ORG_LM_CODES};
+  const needed=new Set(Object.keys(allOrgs).map(n=>ORG_GFJ_CODE[n]).filter(Boolean));
+  const missing=[...needed].filter(g=>!orgResultsCache[g]);
+  if(missing.length) await Promise.all(missing.map(g=>loadOrgResults(g)));
+  // render ทุก card — แสดงทั้งหมด ไม่จำกัด top N
+  renderRankingFor('rankList',   ORG_S_CODES,  true, 999);
+  renderRankingFor('rankListXS', ORG_XS_CODES, true, 999);
+  renderRankingFor('rankListLM', ORG_LM_CODES, true, 999);
+}
+
 function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
   const el=document.getElementById(elId);
   if(!el) return;
@@ -1584,10 +1537,6 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
   if(!expanded&&ranks.length>topN){
     el.innerHTML+=`<div style="text-align:center;padding:4px;font-size:9px;color:var(--t3)">แสดง ${topN} จาก ${ranks.length} หน่วยงาน</div>`;
   }
-}
-
-function renderRanking(){
-  renderRankingFor('rankList', ORG_S_CODES, rankExpanded, 5);
 }
 
 
