@@ -1545,8 +1545,7 @@ function rCharts(){
   const rep=fData.filter(d=>d.score!==null);
   const pend=fData.filter(d=>d.score===null);
   window.rep_=rep; window.pend_=pend;
-  renderRanking();
-
+  preloadAndRenderAll();
 
 
   const bk=[0,0,0,0,0];
