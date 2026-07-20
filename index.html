@@ -197,6 +197,48 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .org-drop-item:hover{background:var(--bg4)}
 .org-drop-item.selected{color:var(--bl2);background:var(--blbg)}
 .org-drop-hdr{padding:3px 10px;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid var(--bdr);margin-top:2px}
+
+/* ===== KPI Notes ===== */
+.notes-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;
+  background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);
+  border-radius:var(--r);color:var(--pu2);font-size:11px;cursor:pointer;
+  transition:all .15s;text-decoration:none}
+.notes-btn:hover{background:rgba(124,58,237,.2)}
+.notes-panel{margin-top:14px;background:var(--bg3);border:1px solid var(--bdr);
+  border-radius:var(--rl);overflow:hidden}
+.notes-panel-hdr{padding:10px 14px;background:var(--bg4);border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;gap:8px}
+.notes-panel-title{font-size:11px;font-weight:500;color:var(--t2);display:flex;align-items:center;gap:6px}
+.notes-list{max-height:320px;overflow-y:auto;padding:8px}
+.note-item{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);
+  padding:10px 12px;margin-bottom:8px;animation:fadeIn .2s ease}
+.note-item:last-child{margin-bottom:0}
+.note-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.note-author{font-size:11px;font-weight:600;color:var(--bl2)}
+.note-time{font-size:10px;color:var(--t3);font-family:var(--mo)}
+.note-type-tag{font-size:9px;padding:1px 6px;border-radius:10px;font-weight:500}
+.nt-text{background:rgba(31,111,235,.1);color:var(--bl2)}
+.nt-link{background:rgba(26,127,94,.1);color:var(--tl2)}
+.nt-file{background:rgba(158,106,3,.1);color:var(--am2)}
+.nt-image{background:rgba(124,58,237,.1);color:var(--pu2)}
+.note-content{font-size:12px;color:var(--t);line-height:1.6;word-break:break-word}
+.note-content a{color:var(--bl2);text-decoration:none}
+.note-content a:hover{text-decoration:underline}
+.note-img{max-width:100%;max-height:200px;border-radius:6px;margin-top:6px;cursor:pointer;border:1px solid var(--bdr)}
+.notes-form{padding:12px 14px;border-top:1px solid var(--bdr);background:var(--bg4)}
+.notes-form-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.notes-form input,.notes-form textarea,.notes-form select{
+  padding:6px 10px;background:var(--bg3);border:1px solid var(--bdr);
+  border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px;
+  transition:border-color .15s}
+.notes-form input:focus,.notes-form textarea:focus,.notes-form select:focus{
+  outline:none;border-color:var(--bl2)}
+.notes-form textarea{width:100%;resize:vertical;min-height:60px}
+.notes-submit{padding:6px 14px;background:var(--pu2);border:none;border-radius:var(--r);
+  color:#fff;font-family:var(--fn);font-size:11px;cursor:pointer;transition:all .15s;font-weight:500}
+.notes-submit:hover{background:var(--pu);opacity:.9}
+.notes-submit:disabled{opacity:.5;cursor:not-allowed}
+.notes-empty{text-align:center;padding:20px;color:var(--t3);font-size:12px}
 </style>
 </head>
 <body>
@@ -751,6 +793,8 @@ const KPI_DOC_LINKS={
   '2.30':'https://docs.google.com/open?id=1iNSXLY9E2dC6lWd6SIJX_5dbMOutgOGKWqbhXHp1dkU',
   '2.31':'https://docs.google.com/open?id=1LywdMMb1iD6rQhjV2YkYDmQ8LhbWE2UOIDjvuEJj5ZE',
 };
+
+const GAS_NOTES_URL='https://script.google.com/macros/s/AKfycbz8QBzRy29ZlEkUCJLfq_fLu48tvomUtF739eK3xWtsSSroq6oX3lvA_N7GDPcytlsP/exec';
 
 const SID='1VmYqWuoTuX_xo7mB2n6LzW6ZH1l_xE0CtzhvzASIkdI';
 const MONTHS=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
@@ -2275,6 +2319,11 @@ function oM(code){
     <div style="margin-bottom:10px">
       <div class="mf"><div class="mf-l">เป้าหมายระดับ 1–5</div><div class="mf-v" style="margin-top:4px">${renderTargetRow(item.targets,sc)}</div></div>
     </div>
+    <div style="margin-bottom:10px">
+      <button class="notes-btn" onclick="openNotes('${curOrg!=='all'?curOrg:'ภาพรวม กฟต.2'}','${item.code}','${item.name}')">
+        📝 บันทึกเพิ่มเติม / แสดงข้อมูล
+      </button>
+    </div>
     ${tableHTML}
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
     ${item.code==='2.28.1'||item.code==='2.28.2'||item.code==='2.29.1'||item.code==='2.29.2'?`<a class="mlink" href="https://peaex.pea.co.th/reports/powerbi/PRD/%E0%B8%81%E0%B8%9F%E0%B8%95.2%20%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%A8%E0%B8%A3%E0%B8%B5%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%A3%E0%B8%B2%E0%B8%8A/02.%20%E0%B8%87%E0%B8%B2%E0%B8%99%E0%B8%A3%E0%B8%B0%E0%B8%AB%E0%B8%A7%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87/A.AUC" target="_blank" style="background:rgba(26,127,94,.12);border-color:rgba(26,127,94,.3);color:#3fb884">
@@ -2406,6 +2455,178 @@ function expCSV(){
 
 let tTimer;
 function toast(msg,type='ok'){const el=document.getElementById('toast');el.textContent=msg;el.className='on '+type;clearTimeout(tTimer);tTimer=setTimeout(()=>el.className='',3500);}
+
+// ==========================================
+// KPI Notes System
+// ==========================================
+const _notesCache = {}; // cache: 'org::kpi' → notes[]
+let _notesCurrentOrg = null;
+let _notesCurrentKpi = null;
+
+async function openNotes(org, kpi, kpiName){
+  _notesCurrentOrg = org;
+  _notesCurrentKpi = kpi;
+  const panelId = 'notesPanel_' + kpi.replace(/[^a-zA-Z0-9]/g,'_');
+  let panel = document.getElementById(panelId);
+  if(panel){
+    panel.style.display = panel.style.display==='none' ? 'block' : 'none';
+    if(panel.style.display==='block') await loadNotes(org, kpi, panelId);
+    return;
+  }
+  // สร้าง panel ใหม่
+  panel = document.createElement('div');
+  panel.id = panelId;
+  panel.className = 'notes-panel';
+  panel.innerHTML = `
+    <div class="notes-panel-hdr">
+      <div class="notes-panel-title">📝 <span>บันทึกเพิ่มเติม — ${kpi} ${kpiName?'('+kpiName.substring(0,30)+')':''}</span></div>
+      <button onclick="document.getElementById('${panelId}').style.display='none'"
+        style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <div class="notes-list" id="notesList_${panelId}">
+      <div class="notes-empty">กำลังโหลด...</div>
+    </div>
+    <div class="notes-form">
+      <div class="notes-form-row">
+        <input id="noteAuthor_${panelId}" placeholder="ชื่อผู้บันทึก *" style="flex:1;min-width:120px" maxlength="50">
+        <select id="noteType_${panelId}" onchange="onNoteTypeChange('${panelId}')">
+          <option value="text">📝 ข้อความ</option>
+          <option value="link">🔗 ลิ้งค์</option>
+          <option value="file">📎 ไฟล์</option>
+          <option value="image">🖼️ รูปภาพ</option>
+        </select>
+      </div>
+      <textarea id="noteContent_${panelId}" placeholder="ข้อความหรือลิ้งค์..."></textarea>
+      <div id="noteFileRow_${panelId}" style="display:none;margin-top:6px">
+        <input type="file" id="noteFile_${panelId}" style="font-size:11px;color:var(--t2)">
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button class="notes-submit" id="noteSubmit_${panelId}"
+          onclick="submitNote('${panelId}','${org}','${kpi}')">💾 บันทึก</button>
+      </div>
+    </div>`;
+  // หา mbody แล้วต่อท้าย
+  const mbody = document.getElementById('mBody');
+  if(mbody) mbody.appendChild(panel);
+  await loadNotes(org, kpi, panelId);
+}
+
+function onNoteTypeChange(panelId){
+  const type = document.getElementById('noteType_'+panelId).value;
+  const fileRow = document.getElementById('noteFileRow_'+panelId);
+  const content = document.getElementById('noteContent_'+panelId);
+  fileRow.style.display = (type==='file'||type==='image') ? 'block' : 'none';
+  content.placeholder = type==='link' ? 'https://...' : type==='file'||type==='image' ? 'คำอธิบาย (ถ้ามี)' : 'ข้อความ...';
+}
+
+async function loadNotes(org, kpi, panelId){
+  const listEl = document.getElementById('notesList_'+panelId);
+  if(!listEl) return;
+  const cacheKey = org+'::'+kpi;
+  try{
+    if(GAS_NOTES_URL==='YOUR_GAS_WEB_APP_URL_HERE'){
+      listEl.innerHTML='<div class="notes-empty" style="color:var(--am2)">⚠️ กรุณาตั้งค่า GAS_NOTES_URL ก่อนใช้งาน</div>';
+      return;
+    }
+    listEl.innerHTML='<div class="notes-empty">กำลังโหลด...</div>';
+    const url = GAS_NOTES_URL+'?action=get&org='+encodeURIComponent(org)+'&kpi='+encodeURIComponent(kpi);
+    const res = await fetch(url);
+    const data = await res.json();
+    if(data.ok){
+      _notesCache[cacheKey] = Array.isArray(data.data) ? data.data : [];
+      renderNotesList(panelId, _notesCache[cacheKey]);
+    } else {
+      listEl.innerHTML='<div class="notes-empty" style="color:var(--rd2)">เกิดข้อผิดพลาด: '+data.error+'</div>';
+    }
+  }catch(e){
+    listEl.innerHTML='<div class="notes-empty" style="color:var(--rd2)">โหลดไม่ได้: '+e.message+'</div>';
+  }
+}
+
+function renderNotesList(panelId, notes){
+  const listEl = document.getElementById('notesList_'+panelId);
+  if(!listEl) return;
+  if(!notes||!notes.length){
+    listEl.innerHTML='<div class="notes-empty">ยังไม่มีบันทึก — เป็นคนแรกที่เพิ่ม!</div>';
+    return;
+  }
+  const typeTag={'text':'nt-text 📝 ข้อความ','link':'nt-link 🔗 ลิ้งค์','file':'nt-file 📎 ไฟล์','image':'nt-image 🖼️ รูปภาพ'};
+  listEl.innerHTML = notes.map(n=>{
+    const [cls,...label] = (typeTag[n.type]||'nt-text 📝').split(' ');
+    let contentHtml = '';
+    if(n.type==='link'){
+      contentHtml = `<a href="${n.content}" target="_blank" rel="noopener">${n.content}</a>`;
+    } else if(n.type==='image'&&n.fileUrl){
+      contentHtml = `${n.content?'<div>'+n.content+'</div>':''}<img src="${n.fileUrl}" class="note-img" onclick="window.open('${n.fileUrl}','_blank')">`;
+    } else if(n.type==='file'&&n.fileUrl){
+      contentHtml = `<a href="${n.fileUrl}" target="_blank" class="notes-btn" style="display:inline-flex;margin-top:4px">📎 ${n.filename||'ดาวน์โหลดไฟล์'}</a>${n.content?'<div style=\'margin-top:4px\'>'+n.content+'</div>':''}`;
+    } else {
+      contentHtml = n.content.replace(/\n/g,'<br>');
+    }
+    return `<div class="note-item">
+      <div class="note-meta">
+        <span class="note-author">👤 ${n.author}</span>
+        <span class="note-type-tag ${cls}">${label.join(' ')}</span>
+        <span class="note-time">🕐 ${n.tsDisplay||n.ts}</span>
+      </div>
+      <div class="note-content">${contentHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+async function submitNote(panelId, org, kpi){
+  const author  = (document.getElementById('noteAuthor_'+panelId).value||'').trim();
+  const type    = document.getElementById('noteType_'+panelId).value;
+  const content = (document.getElementById('noteContent_'+panelId).value||'').trim();
+  const fileEl  = document.getElementById('noteFile_'+panelId);
+
+  if(!author){ toast('กรุณาใส่ชื่อผู้บันทึก','er'); return; }
+  if(!content && (!fileEl||!fileEl.files||!fileEl.files[0])){ toast('กรุณาใส่ข้อมูล','er'); return; }
+  if(GAS_NOTES_URL==='YOUR_GAS_WEB_APP_URL_HERE'){ toast('กรุณาตั้งค่า GAS_NOTES_URL','er'); return; }
+
+  const btn = document.getElementById('noteSubmit_'+panelId);
+  btn.disabled=true; btn.textContent='กำลังบันทึก...';
+
+  try{
+    let payload = { org, kpi, author, type, content };
+    // ถ้ามีไฟล์
+    if((type==='file'||type==='image') && fileEl && fileEl.files && fileEl.files[0]){
+      const file = fileEl.files[0];
+      payload.filename = file.name;
+      payload.mimeType = file.type;
+      payload.fileData = await toBase64(file);
+    }
+    const res = await fetch(GAS_NOTES_URL, {
+      method:'POST',
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.ok){
+      toast('บันทึกสำเร็จ ✓','ok');
+      // reset form
+      document.getElementById('noteContent_'+panelId).value='';
+      if(fileEl) fileEl.value='';
+      // reload
+      await loadNotes(org, kpi, panelId);
+    } else {
+      toast('เกิดข้อผิดพลาด: '+data.error,'er');
+    }
+  }catch(e){
+    toast('บันทึกไม่ได้: '+e.message,'er');
+  } finally {
+    btn.disabled=false; btn.textContent='💾 บันทึก';
+  }
+}
+
+function toBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=rej;
+    r.readAsDataURL(file);
+  });
+}
+
 function hideLoad(){const el=document.getElementById('lov');el.classList.add('h');setTimeout(()=>el.style.display='none',400);}
 
 // ปุ่ม scroll ขึ้น/ลง
