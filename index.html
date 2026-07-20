@@ -2076,8 +2076,10 @@ function calcPEATAScore(orgName, kpiScores){
 function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
   const el=document.getElementById(elId);
   if(!el) return;
+  // คำนวณ allRanks จากทุก org ก่อน (ไม่ filter กลุ่ม) เพื่อใช้หาอันดับรวม
+  const allOrgNames=Object.keys(orgCodes);
   // filter เฉพาะกลุ่ม Kxx ถ้ามี _rankGroupFilter
-  let orgNames=Object.keys(orgCodes);
+  let orgNames=allOrgNames;
   if(_rankGroupFilter){
     orgNames=orgNames.filter(name=>{
       const gfj=ORG_GFJ_CODE&&ORG_GFJ_CODE[name];
@@ -2117,11 +2119,37 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
     return b.avg-a.avg;
   });
   const displayed=ranks.slice(0,topN);
-  // คำนวณอันดับจริงทั้งหมดใน ranks (ก่อน slice)
-  // ranks เรียงจากมาก→น้อยแล้ว อันดับจริง = index+1
+  // คำนวณ allRankMap: orgName → อันดับจริงในกลุ่ม orgCodes ทั้งหมด (ไม่ filter กลุ่ม)
+  const allRankMap={};
+  if(_rankGroupFilter){
+    // sort allOrgNames ด้วยวิธีเดียวกัน แล้ว map อันดับ
+    const _tmpRanks=allOrgNames.map(name=>{
+      const gfj=ORG_GFJ_CODE&&ORG_GFJ_CODE[name];
+      const code6=orgCodes[name];
+      let kpiScores={};
+      if(gfj&&orgResultsCache[gfj]&&code6){
+        const cache=orgResultsCache[gfj];
+        Object.entries(cache.kpiOrgData||{}).forEach(([code,od])=>{
+          if(od[code6]&&od[code6].score!==null) kpiScores[code]=od[code6].score;
+        });
+      }
+      if(name==='กฟส.อ่าวลึก'){
+        const base=allDataBase.length>0?allDataBase:allData;
+        base.forEach(d=>{if(d.score!==null)kpiScores[d.code]=d.score;});
+      }
+      const peata=calcPEATAScore(name,kpiScores);
+      const avg=peata?peata.score:null;
+      return {name,avg};
+    }).sort((a,b)=>{
+      if(a.avg===null&&b.avg===null)return 0;
+      if(a.avg===null)return 1;if(b.avg===null)return -1;
+      return b.avg-a.avg;
+    });
+    _tmpRanks.forEach((o,i)=>{allRankMap[o.name]=i+1;});
+  }
   el.innerHTML=displayed.map((r,i)=>{
-    const groupRank=i+1; // อันดับในกลุ่มที่แสดง (กรองแล้ว)
-    const totalRank=ranks.indexOf(r)+1; // อันดับจริงในกลุ่ม ranks ทั้งหมด (ก่อน slice)
+    const groupRank=i+1; // อันดับในกลุ่มที่กรอง
+    const totalRank=_rankGroupFilter?(allRankMap[r.name]||groupRank):groupRank; // อันดับรวมทั้ง card
     const medal=groupRank===1?'🥇':groupRank===2?'🥈':groupRank===3?'🥉':'';
     const pct=r.avg!==null?r.avg/5*100:0;
     const barCol=r.avg===null?'var(--bg5)':r.avg>=5?'var(--tl2)':r.avg>=4?'var(--bl2)':r.avg>=3?'var(--am2)':'var(--rd2)';
