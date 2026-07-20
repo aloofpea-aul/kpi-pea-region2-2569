@@ -2130,10 +2130,10 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
     const isGFJ=r.name.startsWith('กฟจ.');
     const nameColor=isAOL?'var(--bl2)':isGFJ?'var(--am2)':'var(--t2)';
     // แสดงอันดับ: ถ้ากรองกลุ่ม → "อันดับในกลุ่ม (อันดับรวม/ทั้งหมด)"
-    // format: "อันดับกลุ่ม(อันดับรวม)" เช่น "3(16)" หรือ "🥇(2)"
-    const rankLabel = _rankGroupFilter
-      ? `${medal||groupRank}<span style="font-size:9px;color:var(--t3)">(${totalRank})</span>`
-      : `${medal||groupRank}`;
+    // แสดง: อันดับในกลุ่ม(อันดับรวม) เช่น "3(16)" หรือ "🥇(2)" เสมอ
+    const rankNumStr = medal ? medal+'<span style="font-size:8px;color:var(--t3);font-family:var(--mo);">('+totalRank+')</span>'
+                              : groupRank+'<span style="font-size:8px;color:var(--t3);font-family:var(--mo);">('+totalRank+')</span>';
+    const rankLabel = rankNumStr;
     return `<div style="display:flex;align-items:center;gap:7px;padding:4px 6px;${hi}cursor:pointer;border-radius:4px;transition:background .1s"
       onclick="selectRankGroup('${r.name}')" title="อันดับที่ ${groupRank} ในกลุ่ม | อันดับที่ ${totalRank} จาก ${ranks.length} รวม | กดซ้ำเพื่อยกเลิก">
       <div style="min-width:28px;text-align:center;font-size:11px;color:var(--t3);font-family:var(--mo);flex-shrink:0;line-height:1.3">${rankLabel}</div>
