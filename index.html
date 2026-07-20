@@ -1718,9 +1718,11 @@ function rMetrics(){
 
   // คำนวณผลรวมน้ำหนัก PEATA ของหน่วยงานที่เลือก (Σ weight ทุก KPI ที่มีน้ำหนัก)
   const wKey = ORG_WEIGHT_KEY[curOrg];
-  const month = new Date().getMonth()+1;
-  const W = (month>=1&&month<=6) ? PEATA_W1 : PEATA_W2;
-  const period = (month>=1&&month<=6) ? 'PEATA1 ม.ค.-มิ.ย.' : 'PEATA2 ก.ค.-ธ.ค.';
+  // ใช้เดือนข้อมูลล่าสุด = เดือนปัจจุบัน - 1 (ข้อมูลล่าช้า 1 เดือน)
+  const _now = new Date();
+  const dataMonth = _now.getMonth()===0 ? 12 : _now.getMonth(); // getMonth()=0→ม.ค.→dataMonth=ธ.ค.(12)
+  const W = (dataMonth>=1&&dataMonth<=6) ? PEATA_W1 : PEATA_W2;
+  const period = (dataMonth>=1&&dataMonth<=6) ? 'PEATA1 ม.ค.-มิ.ย.' : 'PEATA2 ก.ค.-ธ.ค.';
   let totalWeight=0, totalWeighted=0, weightedCount=0;
   if(wKey){
     // รวมน้ำหนักเฉพาะ KPI ที่มีคะแนนจริงเท่านั้น
@@ -1873,9 +1875,11 @@ function calcPEATAScore(orgName, kpiScores){
   if(!wKey) return null;
   // ตัดสินรอบ: เดือน 10-12 (ต.ค.-ธ.ค.) = ปีงบ PEATA1 (ม.ค.-มิ.ย. คือเดือน 1-6)
   // ปีงบประมาณ: ต.ค.(10)-มี.ค.(3) = PEATA1, เม.ย.(4)-ก.ย.(9) = PEATA2
-  const month = new Date().getMonth() + 1; // 1-12
-  // PEATA1: ม.ค.-มิ.ย. (เดือน 1-6), PEATA2: ก.ค.-ธ.ค. (เดือน 7-12)
-  const W = (month >= 1 && month <= 6) ? PEATA_W1 : PEATA_W2;
+  // ใช้เดือนข้อมูลล่าสุด = เดือนปัจจุบัน - 1 (ข้อมูลล่าช้า 1 เดือน)
+  const _n = new Date();
+  const dataMonth = _n.getMonth()===0 ? 12 : _n.getMonth();
+  // PEATA1: ข้อมูลเดือน ม.ค.-มิ.ย. (1-6), PEATA2: ก.ค.-ธ.ค. (7-12)
+  const W = (dataMonth >= 1 && dataMonth <= 6) ? PEATA_W1 : PEATA_W2;
   let totalWeighted = 0;
   let totalWeight = 0;
   Object.keys(W).forEach(code=>{
@@ -1890,7 +1894,7 @@ function calcPEATAScore(orgName, kpiScores){
     score: totalWeighted / totalWeight, // คะแนนเฉลี่ยถ่วงน้ำหนัก (0-5)
     weighted: totalWeighted,            // คะแนนรวมถ่วงน้ำหนัก
     totalWeight,
-    period: (month >= 1 && month <= 6) ? 'PEATA1 (ม.ค.-มิ.ย.)' : 'PEATA2 (ก.ค.-ธ.ค.)'
+    period: (dataMonth >= 1 && dataMonth <= 6) ? 'PEATA1 (ม.ค.-มิ.ย.)' : 'PEATA2 (ก.ค.-ธ.ค.)'
   };
 }
 
