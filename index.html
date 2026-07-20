@@ -2398,19 +2398,6 @@ function oM(code){
       </div>
       ${gapHTML}
     </div>
-    ${KPI_DOC_LINKS[item.code]?`
-    <a href="${KPI_DOC_LINKS[item.code]}" target="_blank"
-      style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;
-        background:rgba(56,139,253,.08);border:1px solid rgba(56,139,253,.25);
-        border-radius:var(--r);color:var(--bl2);font-size:11px;text-decoration:none;
-        transition:all .15s;margin-bottom:10px;width:fit-content"
-      onmouseover="this.style.background='rgba(56,139,253,.18)'"
-      onmouseout="this.style.background='rgba(56,139,253,.08)'">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-        <path d="M4 8h8M10 5l3 3-3 3"/><rect x="1" y="3" width="14" height="10" rx="2" stroke-opacity=".4" fill="none"/>
-      </svg>
-      📄 อธิบาย KPI ${item.code}
-    </a>`:''}
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
       <div class="mf"><div class="mf-l">กลุ่ม KPI</div><div class="mf-v">${item.group||'—'}</div></div>
       <div class="mf"><div class="mf-l">ฝ่ายรับผิดชอบ</div><div class="mf-v"><span class="dtag ${getDC(item.dept)}">${item.dept||'—'}</span></div></div>
@@ -2419,19 +2406,17 @@ function oM(code){
     <div style="margin-bottom:10px">
       <div class="mf"><div class="mf-l">เป้าหมายระดับ 1–5</div><div class="mf-v" style="margin-top:4px">${renderTargetRow(item.targets,sc)}</div></div>
     </div>
+    ${tableHTML}
     ${item.code==='2.11'?'<div id="kpi211Widget"></div>':''}
-    <div style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;margin-bottom:4px">
+      ${KPI_DOC_LINKS[item.code]?`<a href="${KPI_DOC_LINKS[item.code]}" target="_blank" class="notes-btn"
+        style="background:rgba(56,139,253,.08);border-color:rgba(56,139,253,.25);color:var(--bl2)">
+        📄 อธิบาย KPI ${item.code}</a>`:''}
       <button class="notes-btn" onclick="openNotes('${curOrg!=='all'?curOrg:'ภาพรวม กฟต.2'}','${item.code}','${item.name}')">
-        📝 บันทึกเพิ่มเติม / แสดงข้อมูล
+        📝 บันทึกเพิ่มเติม
       </button>
       ${KPI_MICROPAGE[item.code]?`<a class="notes-btn" href="${KPI_MICROPAGE[item.code]}?org=${encodeURIComponent(curOrg)}" target="_blank" style="background:rgba(26,127,94,.1);border-color:rgba(26,127,94,.3);color:var(--tl2)">📊 ดูรายละเอียด KPI ${item.code}</a>`:''}
-    </div>
-    ${tableHTML}
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
-    ${item.code==='2.28.1'||item.code==='2.28.2'||item.code==='2.29.1'||item.code==='2.29.2'?`<a class="mlink" href="https://peaex.pea.co.th/reports/powerbi/PRD/%E0%B8%81%E0%B8%9F%E0%B8%95.2%20%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%A8%E0%B8%A3%E0%B8%B5%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%A3%E0%B8%B2%E0%B8%8A/02.%20%E0%B8%87%E0%B8%B2%E0%B8%99%E0%B8%A3%E0%B8%B0%E0%B8%AB%E0%B8%A7%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87/A.AUC" target="_blank" style="background:rgba(26,127,94,.12);border-color:rgba(26,127,94,.3);color:#3fb884">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V9M9 1h6m0 0v6m0-6L7 9"/></svg>
-      📊 ดูรายละเอียดงานก่อสร้าง (Power BI)
-    </a>`:''}
+      ${item.code==='2.28.1'||item.code==='2.28.2'||item.code==='2.29.1'||item.code==='2.29.2'?`<a class="notes-btn" href="https://peaex.pea.co.th/reports/powerbi/PRD/%E0%B8%81%E0%B8%9F%E0%B8%95.2%20%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%A8%E0%B8%A3%E0%B8%B5%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%A3%E0%B8%B2%E0%B8%8A/02.%20%E0%B8%87%E0%B8%B2%E0%B8%99%E0%B8%A3%E0%B8%B0%E0%B8%AB%E0%B8%A7%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87/A.AUC" target="_blank" style="background:rgba(26,127,94,.12);border-color:rgba(26,127,94,.3);color:#3fb884">📊 Power BI งานก่อสร้าง</a>`:''}
     </div>
   `;
   document.getElementById('mover').classList.add('on');
