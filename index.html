@@ -1733,10 +1733,15 @@ function rMetrics(){
       weightedCount++;
     });
   }
-  const peataDisplay = wKey && totalWeight>0
-    ? `<div class="mc-v" style="color:var(--bl2)">${totalWeight.toFixed(2)}</div>
-       <div class="mc-l">ผลรวมน้ำหนัก KPI (มีผล)</div>
-       <div class="mc-s">${period} · ${weightedCount} ตัว</div>`
+  // หา totalWeight ทั้งหมดที่หน่วยงานนี้ควรมี (รวมทุก KPI ที่มีน้ำหนัก)
+  let maxWeight=0;
+  if(wKey){ Object.keys(W).forEach(code=>{ const w=W[code][wKey]; if(w!=null) maxWeight+=w; }); }
+  const pct = maxWeight>0 ? (totalWeight/maxWeight*100) : 0;
+  const peataDisplay = wKey && maxWeight>0
+    ? `<div class="mc-v" style="color:var(--bl2)">${totalWeight.toFixed(2)}<span style="font-size:13px;color:var(--t3)"> / ${maxWeight.toFixed(0)}</span></div>
+       <div class="mc-l">ผลรวมน้ำหนัก KPI ที่มีผล</div>
+       <div class="mc-s">${period} · ${weightedCount} ตัว (${pct.toFixed(0)}%)</div>
+       <div class="pb"><div class="pb-f bl" style="width:${pct}%"></div></div>`
     : `<div class="mc-v" style="color:var(--t3)">—</div>
        <div class="mc-l">ผลรวมน้ำหนัก KPI</div>
        <div class="mc-s">${curOrg==='all'?'เลือกหน่วยงานเพื่อดู':'ไม่มีข้อมูลน้ำหนัก'}</div>`;
@@ -1745,7 +1750,7 @@ function rMetrics(){
     <div class="mc bl"><div class="mc-i">📊</div><div class="mc-v">${fData.length}</div><div class="mc-l">KPI ทั้งหมด</div><div class="mc-s">ตัวชี้วัด</div></div>
     <div class="mc tl"><div class="mc-i">✅</div><div class="mc-v">${rep.length}</div><div class="mc-l">มีผลแล้ว</div><div class="mc-s">${rPct}%</div><div class="pb"><div class="pb-f tl" style="width:${rPct}%"></div></div></div>
     <div class="mc bl"><div class="mc-i">⚖️</div>${peataDisplay}</div>
-    <div class="mc tl"><div class="mc-i">⭐</div><div class="mc-v">${avg.toFixed(3)}</div><div class="mc-l">คะแนนเฉลี่ย</div><div class="mc-s">จากเต็ม 5.000</div><div class="pb"><div class="pb-f tl" style="width:${avg/5*100}%"></div></div></div>
+    <div class="mc tl"><div class="mc-i">⭐</div><div class="mc-v">${(wKey&&totalWeight>0?totalWeighted/totalWeight:avg).toFixed(3)}</div><div class="mc-l">${wKey&&totalWeight>0?'คะแนนเฉลี่ย (PEATA)':'คะแนนเฉลี่ย'}</div><div class="mc-s">${wKey&&totalWeight>0?'ถ่วงน้ำหนัก '+period:'จากเต็ม 5.000'}</div><div class="pb"><div class="pb-f tl" style="width:${(wKey&&totalWeight>0?totalWeighted/totalWeight:avg)/5*100}%"></div></div></div>
     <div class="mc bl"><div class="mc-i">🏆</div><div class="mc-v">${s5}</div><div class="mc-l">ได้คะแนนเต็ม</div><div class="mc-s">${s5Pct}% ของที่มีผล</div><div class="pb"><div class="pb-f bl" style="width:${s5Pct}%"></div></div></div>
     <div class="mc ${low>0?'rd':'tl'}"><div class="mc-i">${low>0?'⚠️':'👍'}</div><div class="mc-v">${low}</div><div class="mc-l">คะแนนต่ำกว่า 3</div><div class="mc-s">ต้องติดตาม</div></div>
   `;
