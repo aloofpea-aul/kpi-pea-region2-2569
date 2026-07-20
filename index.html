@@ -1907,11 +1907,10 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
     if(name==='กฟส.อ่าวลึก'&&allData.length>0){
       allData.forEach(d=>{ if(d.score!==null) kpiScores[d.code]=d.score; });
     }
-    // คำนวณ PEATA weighted score
+    // คำนวณ PEATA weighted score (B: Σ(w×s)/Σw)
     const peata = calcPEATAScore(name, kpiScores);
-    const avg = peata ? peata.score : (Object.values(kpiScores).length>0
-      ? Object.values(kpiScores).reduce((a,b)=>a+b,0)/Object.values(kpiScores).length
-      : null);
+    // ถ้าไม่มีน้ำหนัก PEATA → null (ไม่นำมาเรียง)
+    const avg = peata ? peata.score : null;
     return {name, code6, avg, peata};
   });
   ranks.sort((a,b)=>{
