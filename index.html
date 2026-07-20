@@ -1716,36 +1716,35 @@ function rMetrics(){
   const rPct=fData.length?Math.round(rep.length/fData.length*100):0;
   const s5Pct=rep.length?Math.round(s5/rep.length*100):0;
 
-  // คำนวณผลรวมน้ำหนัก PEATA ของ KPI ที่มีผลใน fData
+  // คำนวณผลรวมน้ำหนัก PEATA ของหน่วยงานที่เลือก (Σ weight ทุก KPI ที่มีน้ำหนัก)
   const wKey = ORG_WEIGHT_KEY[curOrg];
   const month = new Date().getMonth()+1;
   const W = (month>=1&&month<=6) ? PEATA_W1 : PEATA_W2;
   const period = (month>=1&&month<=6) ? 'PEATA1 ม.ค.-มิ.ย.' : 'PEATA2 ก.ค.-ธ.ค.';
-  let totalWeighted=0, totalWeight=0, weightedCount=0;
-  fData.forEach(d=>{
-    if(d.score===null) return;
-    const w = wKey && W[d.code] ? W[d.code][wKey] : null;
-    if(w==null) return;
-    totalWeighted += w * d.score;
-    totalWeight += w;
-    weightedCount++;
-  });
-  const peataScore = totalWeight>0 ? totalWeighted/totalWeight : null;
-  const peataColor = peataScore===null?'var(--t3)':peataScore>=4.5?'var(--tl2)':peataScore>=4?'var(--bl2)':peataScore>=3?'var(--am2)':'var(--rd2)';
-  const peataClass = peataScore===null?'gy':peataScore>=4.5?'tl':peataScore>=4?'bl':peataScore>=3?'am':'rd';
-  const peataDisplay = peataScore!==null
-    ? `<div class="mc-v" style="color:${peataColor}">${peataScore.toFixed(3)}</div>
-       <div class="mc-l">คะแนน PEATA ถ่วงน้ำหนัก</div>
-       <div class="mc-s">${period} · ${weightedCount} KPI</div>
-       <div class="pb"><div class="pb-f tl" style="width:${peataScore/5*100}%;background:${peataColor}"></div></div>`
+  let totalWeight=0, totalWeighted=0, weightedCount=0;
+  if(wKey){
+    // รวมน้ำหนักเฉพาะ KPI ที่มีคะแนนจริงเท่านั้น
+    fData.forEach(d=>{
+      if(d.score===null) return;
+      const w = W[d.code] ? W[d.code][wKey] : null;
+      if(w==null) return;
+      totalWeight   += w;
+      totalWeighted += w * d.score;
+      weightedCount++;
+    });
+  }
+  const peataDisplay = wKey && totalWeight>0
+    ? `<div class="mc-v" style="color:var(--bl2)">${totalWeight.toFixed(2)}</div>
+       <div class="mc-l">ผลรวมน้ำหนัก KPI (มีผล)</div>
+       <div class="mc-s">${period} · ${weightedCount} ตัว</div>`
     : `<div class="mc-v" style="color:var(--t3)">—</div>
-       <div class="mc-l">คะแนน PEATA ถ่วงน้ำหนัก</div>
-       <div class="mc-s">ไม่มีข้อมูลน้ำหนัก</div>`;
+       <div class="mc-l">ผลรวมน้ำหนัก KPI</div>
+       <div class="mc-s">${curOrg==='all'?'เลือกหน่วยงานเพื่อดู':'ไม่มีข้อมูลน้ำหนัก'}</div>`;
 
   document.getElementById('mg').innerHTML=`
     <div class="mc bl"><div class="mc-i">📊</div><div class="mc-v">${fData.length}</div><div class="mc-l">KPI ทั้งหมด</div><div class="mc-s">ตัวชี้วัด</div></div>
     <div class="mc tl"><div class="mc-i">✅</div><div class="mc-v">${rep.length}</div><div class="mc-l">มีผลแล้ว</div><div class="mc-s">${rPct}%</div><div class="pb"><div class="pb-f tl" style="width:${rPct}%"></div></div></div>
-    <div class="mc ${peataClass}"><div class="mc-i">⚖️</div>${peataDisplay}</div>
+    <div class="mc bl"><div class="mc-i">⚖️</div>${peataDisplay}</div>
     <div class="mc tl"><div class="mc-i">⭐</div><div class="mc-v">${avg.toFixed(3)}</div><div class="mc-l">คะแนนเฉลี่ย</div><div class="mc-s">จากเต็ม 5.000</div><div class="pb"><div class="pb-f tl" style="width:${avg/5*100}%"></div></div></div>
     <div class="mc bl"><div class="mc-i">🏆</div><div class="mc-v">${s5}</div><div class="mc-l">ได้คะแนนเต็ม</div><div class="mc-s">${s5Pct}% ของที่มีผล</div><div class="pb"><div class="pb-f bl" style="width:${s5Pct}%"></div></div></div>
     <div class="mc ${low>0?'rd':'tl'}"><div class="mc-i">${low>0?'⚠️':'👍'}</div><div class="mc-v">${low}</div><div class="mc-l">คะแนนต่ำกว่า 3</div><div class="mc-s">ต้องติดตาม</div></div>
