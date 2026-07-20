@@ -1904,8 +1904,11 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
         if(od[code6]&&od[code6].score!==null) kpiScores[code]=od[code6].score;
       });
     }
-    if(name==='กฟส.อ่าวลึก'&&allData.length>0){
-      allData.forEach(d=>{ if(d.score!==null) kpiScores[d.code]=d.score; });
+    if(name==='กฟส.อ่าวลึก'){
+      // ใช้ allDataBase (ข้อมูลดั้งเดิม กฟส.อล. จาก KPISummary) ไม่ใช่ allData
+      // เพราะ allData อาจถูก merge ข้อมูลหน่วยงานอื่นทับไปแล้ว
+      const base = allDataBase.length>0 ? allDataBase : allData;
+      base.forEach(d=>{ if(d.score!==null) kpiScores[d.code]=d.score; });
     }
     // คำนวณ PEATA weighted score (B: Σ(w×s)/Σw)
     const peata = calcPEATAScore(name, kpiScores);
