@@ -1725,8 +1725,11 @@ function rMetrics(){
   const period = (dataMonth>=1&&dataMonth<=6) ? 'PEATA1 ม.ค.-มิ.ย.' : 'PEATA2 ก.ค.-ธ.ค.';
   let totalWeight=0, totalWeighted=0, weightedCount=0;
   if(wKey){
-    // รวมน้ำหนักเฉพาะ KPI ที่มีคะแนนจริงเท่านั้น
-    fData.forEach(d=>{
+    // ใช้แหล่งข้อมูลเดียวกับ ranking
+    // กฟส.อ่าวลึก → ใช้ allDataBase (KPISummary) ไม่ใช่ fData ที่ถูก merge แล้ว
+    const scoreSource = (curOrg==='กฟส.อ่าวลึก' && allDataBase.length>0)
+      ? allDataBase : fData;
+    scoreSource.forEach(d=>{
       if(d.score===null) return;
       const w = W[d.code] ? W[d.code][wKey] : null;
       if(w==null) return;
