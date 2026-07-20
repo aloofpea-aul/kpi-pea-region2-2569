@@ -1991,6 +1991,31 @@ const ORG_LM_CODES={
 // generic render function สำหรับทุก ranking card
 // state: กี่อันดับที่แสดง (5=ย่อ, 999=ทั้งหมด)
 const rankViewState={rankList:5, rankListXS:5, rankListLM:5};
+let _rankGroupFilter=null; // gfjCode ที่กรองอยู่ เช่น 'K04', null=ทั้งหมด
+
+async function selectRankGroup(orgName){
+  const gfj=ORG_GFJ_CODE&&ORG_GFJ_CODE[orgName];
+  if(!gfj) return;
+  _rankGroupFilter = (_rankGroupFilter===gfj) ? null : gfj;
+  renderAllRankingCards();
+  updateRankCardTitles();
+}
+
+function updateRankCardTitles(){
+  const f=_rankGroupFilter;
+  [['rankList','Ranking กฟส. (S)'],['rankListXS','Ranking กฟส. (XS)'],['rankListLM','Ranking L + M + กฟจ.']].forEach(([id,base])=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    const span=el.closest('.cc')&&el.closest('.cc').querySelector('.cc-t span');
+    if(span) span.textContent = f ? base+' — กลุ่ม '+f : base;
+  });
+}
+
+function renderAllRankingCards(){
+  renderRankingFor('rankList',   ORG_S_CODES,  true, rankViewState.rankList);
+  renderRankingFor('rankListXS', ORG_XS_CODES, true, rankViewState.rankListXS);
+  renderRankingFor('rankListLM', ORG_LM_CODES, true, rankViewState.rankListLM);
+}
 
 function toggleRankView(elId, btnId){
   const expanded = rankViewState[elId]===999;
@@ -1998,7 +2023,9 @@ function toggleRankView(elId, btnId){
   const btn=document.getElementById(btnId);
   if(btn) btn.textContent=expanded?'ทั้งหมด ▼':'ย่อ ▲';
   const orgMap={rankList:ORG_S_CODES, rankListXS:ORG_XS_CODES, rankListLM:ORG_LM_CODES};
+  // render เฉพาะ card ที่กด แต่ยังคง filter กลุ่มไว้
   renderRankingFor(elId, orgMap[elId], true, rankViewState[elId]);
+  updateRankCardTitles();
 }
 
 async function preloadAndRenderAll(){
@@ -2007,10 +2034,8 @@ async function preloadAndRenderAll(){
   const needed=new Set(Object.keys(allOrgs).map(n=>ORG_GFJ_CODE[n]).filter(Boolean));
   const missing=[...needed].filter(g=>!orgResultsCache[g]);
   if(missing.length) await Promise.all(missing.map(g=>loadOrgResults(g)));
-  // render top 5 ก่อน ส่วนที่เหลือกดปุ่มดู
-  renderRankingFor('rankList',   ORG_S_CODES,  true, rankViewState.rankList);
-  renderRankingFor('rankListXS', ORG_XS_CODES, true, rankViewState.rankListXS);
-  renderRankingFor('rankListLM', ORG_LM_CODES, true, rankViewState.rankListLM);
+  // render top 5 ก่อน (ไม่ reset _rankGroupFilter เพื่อคง state)
+  renderAllRankingCards();
 }
 
 
@@ -2048,7 +2073,18 @@ function calcPEATAScore(orgName, kpiScores){
 function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
   const el=document.getElementById(elId);
   if(!el) return;
-  const orgNames=Object.keys(orgCodes);
+  // filter เฉพาะกลุ่ม Kxx ถ้ามี _rankGroupFilter
+  let orgNames=Object.keys(orgCodes);
+  if(_rankGroupFilter){
+    orgNames=orgNames.filter(name=>{
+      const gfj=ORG_GFJ_CODE&&ORG_GFJ_CODE[name];
+      return gfj===_rankGroupFilter;
+    });
+  }
+  if(!orgNames.length){
+    el.innerHTML='<div style="text-align:center;padding:12px;font-size:11px;color:var(--t3)">ไม่มีหน่วยงานในกลุ่มนี้</div>';
+    return;
+  }
   const ranks=orgNames.map(name=>{
     const gfj=ORG_GFJ_CODE&&ORG_GFJ_CODE[name];
     const code6=orgCodes[name];
@@ -2087,9 +2123,11 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
     const hi=isAOL?'background:rgba(56,139,253,.06);border-radius:6px;':'';
     const isGFJ=r.name.startsWith('กฟจ.');
     const nameColor=isAOL?'var(--bl2)':isGFJ?'var(--am2)':'var(--t2)';
-    return `<div style="display:flex;align-items:center;gap:7px;padding:4px 6px;${hi}cursor:pointer"
-      onclick="selectOrg('${r.name}','${r.name}')" title="${r.name}${r.peata?' | PEATA: '+r.peata.weighted.toFixed(2)+'/'+r.peata.totalWeight.toFixed(2)+' ('+r.peata.period+')':''}">
-      <div style="width:18px;text-align:center;font-size:11px;color:var(--t3);font-family:var(--mo);flex-shrink:0">${medal||rank}</div>
+    // อันดับในกลุ่ม (ถ้ากรองกลุ่ม) หรืออันดับรวม
+    const groupRank = idx+1;
+    return `<div style="display:flex;align-items:center;gap:7px;padding:4px 6px;${hi}cursor:pointer;border-radius:4px;transition:background .1s"
+      onclick="selectRankGroup('${r.name}')" title="กดเพื่อดูเฉพาะกลุ่ม ${ORG_GFJ_CODE['${r.name}']||''} | คลิกซ้ำเพื่อยกเลิก">
+      <div style="width:18px;text-align:center;font-size:11px;color:var(--t3);font-family:var(--mo);flex-shrink:0">${medal||(groupRank)}</div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
           <span style="font-size:10px;color:${nameColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;font-weight:${isAOL||isGFJ?'600':'400'}">${r.name}</span>
