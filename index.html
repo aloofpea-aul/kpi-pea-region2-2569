@@ -2124,7 +2124,7 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
     const isGFJ=r.name.startsWith('กฟจ.');
     const nameColor=isAOL?'var(--bl2)':isGFJ?'var(--am2)':'var(--t2)';
     // อันดับในกลุ่ม (ถ้ากรองกลุ่ม) หรืออันดับรวม
-    const groupRank = idx+1;
+    const groupRank = i+1;
     return `<div style="display:flex;align-items:center;gap:7px;padding:4px 6px;${hi}cursor:pointer;border-radius:4px;transition:background .1s"
       onclick="selectRankGroup('${r.name}')" title="กดเพื่อดูเฉพาะกลุ่ม ${ORG_GFJ_CODE['${r.name}']||''} | คลิกซ้ำเพื่อยกเลิก">
       <div style="width:18px;text-align:center;font-size:11px;color:var(--t3);font-family:var(--mo);flex-shrink:0">${medal||(groupRank)}</div>
