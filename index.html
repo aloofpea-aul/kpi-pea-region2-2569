@@ -2130,8 +2130,7 @@ function getNoteContentHtml(n){
   if(n.type==='link') return `<a href="${n.content}" target="_blank" rel="noopener">${n.content}</a>`;
   if(n.type==='image'&&n.fileUrl) return `${n.content?'<div>'+n.content+'</div>':''}<img src="${n.fileUrl}" class="note-img" onclick="window.open('${n.fileUrl}','_blank')">`;
   if(n.type==='file'&&n.fileUrl) return `<a href="${n.fileUrl}" target="_blank" class="notes-btn" style="display:inline-flex;margin-top:4px">📎 ${n.filename||'ดาวน์โหลดไฟล์'}</a>${n.content?'<div style="margin-top:4px">'+n.content+'</div>':''}`;
-  return (n.content||'').replace(/
-/g,'<br>');
+  return (n.content||'').split('\n').join('<br>');
 }
 
 function renderNotesList(panelId, notes){
