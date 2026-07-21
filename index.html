@@ -9,12 +9,32 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;--bg5:#2d333b;--bdr:rgba(48,54,61,.9);--bdr2:rgba(56,68,77,.8);--t:#f0f6fc;--t2:#b1bac4;--t3:#8b949e;--bl:#1f6feb;--bl2:#388bfd;--blbg:rgba(31,111,235,.12);--tl:#1a7f5e;--tl2:#3fb884;--tlbg:rgba(26,127,94,.12);--am:#9e6a03;--am2:#d29922;--ambg:rgba(158,106,3,.12);--rd:#da3633;--rd2:#f85149;--rdbg:rgba(218,54,51,.12);--pu:#7c3aed;--pu2:#a78bfa;--pubg:rgba(124,58,237,.12);--r:8px;--rl:12px;--fn:'IBM Plex Sans Thai',sans-serif;--mo:'IBM Plex Mono',monospace}
+:root{
+  /* พื้นหลัง — ขาวอมเทาอ่อน สบายตา */
+  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#f7f9fc;--bg4:#eef1f6;--bg5:#e2e8f0;
+  /* เส้นขอบ */
+  --bdr:rgba(203,213,225,.8);--bdr2:rgba(148,163,184,.5);
+  /* ข้อความ */
+  --t:#1e293b;--t2:#475569;--t3:#94a3b8;
+  /* สีหลัก — ฟ้า */
+  --bl:#1d4ed8;--bl2:#2563eb;--blbg:rgba(37,99,235,.08);
+  /* เขียว */
+  --tl:#15803d;--tl2:#16a34a;--tlbg:rgba(22,163,74,.08);
+  /* เหลือง/ส้ม */
+  --am:#b45309;--am2:#d97706;--ambg:rgba(217,119,6,.08);
+  /* แดง */
+  --rd:#dc2626;--rd2:#ef4444;--rdbg:rgba(220,38,38,.08);
+  /* ม่วง */
+  --pu:#7c3aed;--pu2:#8b5cf6;--pubg:rgba(124,58,237,.08);
+  --r:8px;--rl:12px;
+  --fn:'IBM Plex Sans Thai',sans-serif;--mo:'IBM Plex Mono',monospace
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;font-size:14px}
+body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:3px}
+::-webkit-scrollbar-track{background:var(--bg4)}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--t3)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -1658,8 +1678,8 @@ async function rCharts(){
         // watermark — ชื่อหน่วยงานที่เลือก
         const orgLabel = (curOrg&&curOrg!=='all') ? curOrg : 'ภาพรวม กฟต.2';
         ctx.save();
-        ctx.globalAlpha=0.07;
-        ctx.fillStyle='#ffffff';
+        ctx.globalAlpha=0.06;
+        ctx.fillStyle='#1e293b';
         // คำนวณขนาด font ให้พอดีกับความกว้าง chart
         const maxW = chartArea.right - chartArea.left;
         let fs = Math.min(32, Math.floor(maxW / orgLabel.length * 1.6));
@@ -1752,7 +1772,7 @@ function renderDept(){
   });
   document.getElementById('dg').innerHTML=dd.map(d=>`<div class="dcard"><div class="dchdr"><span class="dname" style="color:${d.c}">${d.dept}</span><span class="davg" style="color:${getSC(d.avg)}">${d.avg.toFixed(3)}</span></div><div class="dstats"><div class="dstat"><div class="dstat-v">${d.total}</div><div class="dstat-l">KPI ทั้งหมด</div></div><div class="dstat"><div class="dstat-v" style="color:var(--tl2)">${d.reported}</div><div class="dstat-l">มีผล</div></div><div class="dstat"><div class="dstat-v" style="color:${d.low>0?'var(--rd2)':'var(--tl2)'}">${d.low}</div><div class="dstat-l">คะแนนต่ำ</div></div></div><div class="pb"><div class="pb-f tl" style="width:${d.total?d.reported/d.total*100:0}%"></div></div></div>`).join('');
   dC('radar');
-  charts.radar=new Chart(document.getElementById('cRadar'),{type:'radar',data:{labels:depts,datasets:[{label:'คะแนนเฉลี่ย',data:dd.map(d=>parseFloat(d.avg.toFixed(3))),backgroundColor:'rgba(56,139,253,.15)',borderColor:'#388bfd',borderWidth:2,pointBackgroundColor:'#388bfd',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{color:'#6e7681',font:{size:10},stepSize:1,backdropColor:'transparent'},grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#8b949e',font:{size:11}}}},plugins:{legend:{display:false}}}});
+  charts.radar=new Chart(document.getElementById('cRadar'),{type:'radar',data:{labels:depts,datasets:[{label:'คะแนนเฉลี่ย',data:dd.map(d=>parseFloat(d.avg.toFixed(3))),backgroundColor:'rgba(56,139,253,.15)',borderColor:'#388bfd',borderWidth:2,pointBackgroundColor:'#388bfd',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{color:'#64748b',font:{size:10},stepSize:1,backdropColor:'transparent'},grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#8b949e',font:{size:11}}}},plugins:{legend:{display:false}}}});
 }
 
 function renderTrend(){
@@ -1786,7 +1806,7 @@ function renderTrend(){
     if(item.score!==null) datasets.push({label:'คะแนนล่าสุด',data:monthOrder.map(()=>item.score),borderColor:'rgba(255,255,255,.2)',borderDash:[4,4],pointRadius:0,fill:false,tension:0});
   }
   dC('trend');
-  charts.trend=new Chart(document.getElementById('cTrend'),{type:'line',data:{labels:monthLabels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5.2,ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}},plugins:{legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10,padding:12}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}`}}}}});
+  charts.trend=new Chart(document.getElementById('cTrend'),{type:'line',data:{labels:monthLabels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5.2,ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}}},plugins:{legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10,padding:12}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}`}}}}});
 }
 
 function renderTrendTable(){
@@ -2029,7 +2049,7 @@ function oM(code){
           tooltip:{
             backgroundColor:'rgba(22,27,34,.95)',
             borderColor:'rgba(48,54,61,.9)',borderWidth:1,
-            titleColor:'#f0f6fc',bodyColor:'#b1bac4',
+            titleColor:'#1e293b',bodyColor:'#475569',
             callbacks:{
               label:ctx=>{
                 const v=ctx.raw;if(v===null)return null;
