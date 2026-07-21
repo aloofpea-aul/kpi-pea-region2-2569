@@ -11,11 +11,11 @@
 <style>
 :root{
   /* พื้นหลัง — ขาวอมเทาอ่อน สบายตา */
-  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#f7f9fc;--bg4:#eef1f6;--bg5:#e2e8f0;
+  --bg:#f1f5f9;--bg2:#ffffff;--bg3:#f8fafc;--bg4:#eef1f6;--bg5:#e2e8f0;
   /* เส้นขอบ */
-  --bdr:rgba(203,213,225,.8);--bdr2:rgba(148,163,184,.5);
+  --bdr:rgba(148,163,184,.5);--bdr2:rgba(148,163,184,.5);
   /* ข้อความ */
-  --t:#1e293b;--t2:#475569;--t3:#94a3b8;
+  --t:#0f172a;--t2:#334155;--t3:#64748b;
   /* สีหลัก — ฟ้า */
   --bl:#1d4ed8;--bl2:#2563eb;--blbg:rgba(37,99,235,.08);
   /* เขียว */
@@ -30,7 +30,7 @@
   --fn:'IBM Plex Sans Thai',sans-serif;--mo:'IBM Plex Mono',monospace
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased;font-weight:400;letter-spacing:.01em}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg4)}
 ::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
@@ -38,7 +38,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.nav{position:sticky;top:0;z-index:200;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);min-height:52px;display:flex;align-items:center;padding:0 20px;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.nav{position:sticky;top:0;z-index:200;background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 50%,#0369a1 100%);box-shadow:0 2px 12px rgba(29,78,216,.25);min-height:52px;display:flex;align-items:center;padding:0 20px;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .nbrand{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .nlogo{width:30px;height:30px;background:var(--bl);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 0 1px rgba(56,139,253,.3)}
 .ntitle{font-size:13px;font-weight:500}
@@ -48,11 +48,11 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .ntab:hover{color:var(--t);background:var(--bg4)}
 .ntab.on{background:var(--bg);color:var(--t);border:1px solid var(--bdr);box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .nright{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.ldot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3)}
+.ldot{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.85)}
 .vcnt{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);
   padding:3px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:20px}
-.vcnt-num{color:var(--bl2);font-weight:600;font-family:var(--mo)}
-.vcnt-today{color:var(--tl2);font-weight:600;font-family:var(--mo)}
+.vcnt-num{color:#93c5fd;font-weight:600;font-family:var(--mo)}
+.vcnt-today{color:#6ee7b7;font-weight:600;font-family:var(--mo)}
 .dot{width:6px;height:6px;background:var(--tl2);border-radius:50%;box-shadow:0 0 5px var(--tl2);animation:pulse 2s ease-in-out infinite}
 .btn{display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t2);font-family:var(--fn);font-size:11px;cursor:pointer;transition:all .15s}
 .btn:hover{background:var(--bg4);border-color:var(--bdr2);color:var(--t)}
