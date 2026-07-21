@@ -17,15 +17,15 @@
   /* ข้อความ */
   --t:#0f172a;--t2:#334155;--t3:#64748b;
   /* สีหลัก — ฟ้า */
-  --bl:#1d4ed8;--bl2:#2563eb;--blbg:rgba(37,99,235,.08);
+  --bl:#1d4ed8;--bl2:#1d4ed8;--blbg:rgba(29,78,216,.1);
   /* เขียว */
-  --tl:#15803d;--tl2:#16a34a;--tlbg:rgba(22,163,74,.08);
+  --tl:#166534;--tl2:#15803d;--tlbg:rgba(22,101,52,.1);
   /* เหลือง/ส้ม */
-  --am:#b45309;--am2:#d97706;--ambg:rgba(217,119,6,.08);
+  --am:#92400e;--am2:#b45309;--ambg:rgba(146,64,14,.1);
   /* แดง */
-  --rd:#dc2626;--rd2:#ef4444;--rdbg:rgba(220,38,38,.08);
+  --rd:#b91c1c;--rd2:#dc2626;--rdbg:rgba(185,28,28,.1);
   /* ม่วง */
-  --pu:#7c3aed;--pu2:#8b5cf6;--pubg:rgba(124,58,237,.08);
+  --pu:#6d28d9;--pu2:#7c3aed;--pubg:rgba(109,40,217,.1);
   --r:8px;--rl:12px;
   --fn:'IBM Plex Sans Thai',sans-serif;--mo:'IBM Plex Mono',monospace
 }
@@ -82,10 +82,10 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .mc.bl::before{background:var(--bl2)}.mc.tl::before{background:var(--tl2)}.mc.am::before{background:var(--am2)}.mc.rd::before{background:var(--rd2)}.mc.pu::before{background:var(--pu2)}.mc.gy::before{background:var(--t3)}
 .mc-i{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:13px}
 .mc.bl .mc-i{background:var(--blbg)}.mc.tl .mc-i{background:var(--tlbg)}.mc.am .mc-i{background:var(--ambg)}.mc.rd .mc-i{background:var(--rdbg)}.mc.pu .mc-i{background:var(--pubg)}.mc.gy .mc-i{background:rgba(110,118,129,.1)}
-.mc-v{font-size:24px;font-weight:600;letter-spacing:-1px;line-height:1;margin-bottom:3px;font-family:var(--mo)}
+.mc-v{font-size:24px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:3px;font-family:var(--mo)}
 .mc.bl .mc-v{color:var(--bl2)}.mc.tl .mc-v{color:var(--tl2)}.mc.am .mc-v{color:var(--am2)}.mc.rd .mc-v{color:var(--rd2)}.mc.pu .mc-v{color:var(--pu2)}.mc.gy .mc-v{color:var(--t2)}
 .mc-l{font-size:10px;color:var(--t3)}
-.mc-s{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--mo)}
+.mc-s{font-size:10px;color:var(--t3);margin-top:2px;font-family:var(--mo);font-weight:500}
 .pb{height:2px;background:var(--bg4);border-radius:2px;margin-top:7px;overflow:hidden}
 .pb-f{height:100%;border-radius:2px;transition:width .5s ease}
 .pb-f.tl{background:var(--tl2)}.pb-f.bl{background:var(--bl2)}.pb-f.am{background:var(--am2)}
@@ -167,7 +167,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .mbody{padding:14px 18px 18px}
 .mscbig{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:var(--r);margin-bottom:14px}
 .mscbig.s5{background:rgba(26,127,94,.12);border:1px solid rgba(26,127,94,.2)}.mscbig.s4{background:rgba(31,111,235,.1);border:1px solid rgba(31,111,235,.2)}.mscbig.s3{background:rgba(158,106,3,.1);border:1px solid rgba(158,106,3,.2)}.mscbig.s12{background:rgba(218,54,51,.08);border:1px solid rgba(218,54,51,.2)}.mscbig.sna{background:var(--bg3);border:1px solid var(--bdr)}
-.mscnum{font-family:var(--mo);font-size:30px;font-weight:600;line-height:1}
+.mscnum{font-family:var(--mo);font-size:30px;font-weight:700;line-height:1;color:var(--t)}
 .s5 .mscnum{color:#3fb884}.s4 .mscnum{color:#388bfd}.s3 .mscnum{color:#d29922}.s12 .mscnum{color:#f85149}.sna .mscnum{color:var(--t3)}
 .mscinfo p{font-size:11px;color:var(--t2)}
 .mscinfo small{font-size:10px;color:var(--t3)}
@@ -1586,7 +1586,7 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
     const totalRank=_rankGroupFilter?(allRankMap[r.name]||groupRank):groupRank; // อันดับรวมทั้ง card
     const medal=groupRank===1?'🥇':groupRank===2?'🥈':groupRank===3?'🥉':'';
     const pct=r.avg!==null?r.avg/5*100:0;
-    const barCol=r.avg===null?'var(--bg5)':r.avg>=5?'var(--tl2)':r.avg>=4?'var(--bl2)':r.avg>=3?'var(--am2)':'var(--rd2)';
+    const barCol=r.avg===null?'var(--bg5)':r.avg>=5?'#15803d':r.avg>=4?'#1d4ed8':r.avg>=3?'#b45309':'#dc2626';
     const isAOL=r.name==='กฟส.อ่าวลึก';
     const hi=isAOL?'background:rgba(56,139,253,.06);border-radius:6px;':'';
     const isGFJ=r.name.startsWith('กฟจ.');
