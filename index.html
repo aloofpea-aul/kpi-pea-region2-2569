@@ -29,6 +29,10 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .ntab.on{background:var(--bg);color:var(--t);border:1px solid var(--bdr);box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .nright{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .ldot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3)}
+.vcnt{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);
+  padding:3px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:20px}
+.vcnt-num{color:var(--bl2);font-weight:600;font-family:var(--mo)}
+.vcnt-today{color:var(--tl2);font-weight:600;font-family:var(--mo)}
 .dot{width:6px;height:6px;background:var(--tl2);border-radius:50%;box-shadow:0 0 5px var(--tl2);animation:pulse 2s ease-in-out infinite}
 .btn{display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t2);font-family:var(--fn);font-size:11px;cursor:pointer;transition:all .15s}
 .btn:hover{background:var(--bg4);border-color:var(--bdr2);color:var(--t)}
@@ -300,6 +304,12 @@ tbody td{padding:7px 10px;vertical-align:middle}
   </div>
   <div class="nright">
     <div class="ldot"><div class="dot"></div><span id="upd">—</span></div>
+    <div class="vcnt" title="ผู้เข้าชมทั้งหมด / วันนี้">
+      👥 <span class="vcnt-num" id="cntTotal">—</span>
+      <span style="color:var(--bdr2)">|</span>
+      <span style="font-size:10px;color:var(--t3)">วันนี้</span>
+      <span class="vcnt-today" id="cntToday">—</span>
+    </div>
     <button class="btn btng" onclick="expCSV()">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1v9M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
       CSV
@@ -591,7 +601,7 @@ function renderKPI211Widget(containerId, orgName){
   +'</div>';
 }
 
-const GAS_NOTES_URL='https://script.google.com/macros/s/AKfycbyTHJfCxFhGTMFVApMsWZycc2XdVXIx_DvEflVuMAkEEMQpCmQgWDpc1svAbBpYVnwz/exec';
+const GAS_NOTES_URL='https://script.google.com/macros/s/AKfycby1RVd7vp30b2LHz8aIg2swIBgH5j6Tt134xeBjo17asE-4WLGqVnqou58RscMbWSFr/exec';
 
 const SID='1VmYqWuoTuX_xo7mB2n6LzW6ZH1l_xE0CtzhvzASIkdI';
 const MONTHS=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
@@ -620,6 +630,25 @@ const orgResultsCache={};
 
 function parseFB(){
   return FB.map(r=>({code:r[0],name:r[1],dept:r[2],group:r[3],responsible:r[4],result:r[5],status:r[6],score:r[7],monthly:MONTHLY_SCORES[r[0]]||{},targets:TARGETS[r[0]]||null}));
+}
+
+// ==========================================
+// Visitor Counter — ใช้ GAS Notes URL เดิม
+// ==========================================
+async function trackVisit(){
+  try{
+    if(GAS_NOTES_URL==='YOUR_GAS_WEB_APP_URL_HERE') return;
+    // บันทึก visit
+    const today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    const res = await fetch(GAS_NOTES_URL+'?action=visit&date='+today);
+    const data = await res.json();
+    if(data.ok){
+      document.getElementById('cntTotal').textContent = 
+        (data.total||0).toLocaleString('th-TH');
+      document.getElementById('cntToday').textContent = 
+        (data.today||0).toLocaleString('th-TH');
+    }
+  }catch(e){ console.log('counter error:',e.message); }
 }
 
 // fetch พร้อม timeout 8 วิ — ป้องกัน hang
@@ -2341,6 +2370,7 @@ window.addEventListener('scroll',()=>{
 
 
 window.addEventListener('DOMContentLoaded', ()=>{
+  trackVisit(); // นับผู้เข้าชม
   // set fallback data และ org ที่ต้องการก่อน
   allData=parseFB();
   allDataBase=JSON.parse(JSON.stringify(allData));
