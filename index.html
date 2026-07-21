@@ -536,7 +536,7 @@ function renderKPI211Widget(containerId, orgName){
   const sorted=[...KPI211_DATA].filter(o=>o.level&&parseFloat(o.level)>0)
     .sort((a,b)=>parseFloat(b.level||0)-parseFloat(a.level||0));
   const orgRank=sorted.findIndex(o=>o.name===orgName)+1;
-  const lvlColor=l=>{const lv=parseFloat(l);return lv>=5?'#3fb884':lv>=4?'#388bfd':lv>=3?'#d29922':'#f85149';};
+  const lvlColor=l=>{const lv=parseFloat(l);return lv>=5?'#15803d':lv>=4?'#1d4ed8':lv>=3?'#92400e':'#b91c1c';};
 
   let orgSection='';
   if(org){
@@ -585,7 +585,7 @@ function renderKPI211Widget(containerId, orgName){
     const isMe=o.name===orgName;
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
     const pctGood=parseFloat(o.pct||'0')<0;
-    return '<tr style="border-bottom:1px solid var(--bdr);background:'+(isMe?'rgba(56,139,253,.08)':'transparent')+'">'
+    return '<tr style="border-bottom:1px solid rgba(148,163,184,.3);background:'+(isMe?'rgba(29,78,216,.08)':'transparent')+'">'
       +'<td style="padding:4px 6px;color:var(--t3)">'+medal+'</td>'
       +'<td style="padding:4px 6px;color:'+(isMe?'var(--bl2)':'var(--t)')+';font-weight:'+(isMe?'600':'400')+'">'+o.name+'</td>'
       +'<td style="padding:4px 6px;text-align:center;font-family:var(--mo);color:var(--t2)">'+(o.acc_total||'—')+'</td>'
@@ -1590,7 +1590,7 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
     const isAOL=r.name==='กฟส.อ่าวลึก';
     const hi=isAOL?'background:rgba(56,139,253,.06);border-radius:6px;':'';
     const isGFJ=r.name.startsWith('กฟจ.');
-    const nameColor=isAOL?'var(--bl2)':isGFJ?'var(--am2)':'var(--t2)';
+    const nameColor=isAOL?'#1d4ed8':isGFJ?'#92400e':'#334155';
     // แสดงอันดับ: ถ้ากรองกลุ่ม → "อันดับในกลุ่ม (อันดับรวม/ทั้งหมด)"
     // ปกติ: แสดงแค่ medal หรือเลข
     // เมื่อกรองกลุ่ม: แสดง "อันดับกลุ่ม(อันดับรวม)" เช่น "🥇(3)" หรือ "2(16)"
@@ -1700,7 +1700,7 @@ async function rCharts(){
           const yPos=chart.getDatasetMeta(0).data[i].y;
           ctx.save();
           ctx.font='bold 11px IBM Plex Mono, monospace';
-          ctx.fillStyle='#f0f6fc';
+          ctx.fillStyle='#0f172a';
           ctx.textAlign='center';
           ctx.textBaseline='bottom';
           ctx.fillText(val, xPos, yPos-3);
@@ -1763,7 +1763,7 @@ function rT(){
 
 function renderDept(){
   const depts=['ฝวบ.','ฝปบ.','ฝสบ.','กสข.','อื่นๆ'];
-  const dc={'ฝวบ.':'#388bfd','ฝปบ.':'#3fb884','ฝสบ.':'#d29922','กสข.':'#a78bfa','อื่นๆ':'#8b949e'};
+  const dc={'ฝวบ.':'#1d4ed8','ฝปบ.':'#15803d','ฝสบ.':'#92400e','กสข.':'#6d28d9','อื่นๆ':'#475569'};
   const dd=depts.map(dep=>{
     const its=allData.filter(x=>x.dept===dep);
     const rep=its.filter(x=>x.score!==null);
@@ -1772,7 +1772,7 @@ function renderDept(){
   });
   document.getElementById('dg').innerHTML=dd.map(d=>`<div class="dcard"><div class="dchdr"><span class="dname" style="color:${d.c}">${d.dept}</span><span class="davg" style="color:${getSC(d.avg)}">${d.avg.toFixed(3)}</span></div><div class="dstats"><div class="dstat"><div class="dstat-v">${d.total}</div><div class="dstat-l">KPI ทั้งหมด</div></div><div class="dstat"><div class="dstat-v" style="color:#15803d">${d.reported}</div><div class="dstat-l">มีผล</div></div><div class="dstat"><div class="dstat-v" style="color:${d.low>0?'var(--rd2)':'var(--tl2)'}">${d.low}</div><div class="dstat-l">คะแนนต่ำ</div></div></div><div class="pb"><div class="pb-f tl" style="width:${d.total?d.reported/d.total*100:0}%"></div></div></div>`).join('');
   dC('radar');
-  charts.radar=new Chart(document.getElementById('cRadar'),{type:'radar',data:{labels:depts,datasets:[{label:'คะแนนเฉลี่ย',data:dd.map(d=>parseFloat(d.avg.toFixed(3))),backgroundColor:'rgba(56,139,253,.15)',borderColor:'#388bfd',borderWidth:2,pointBackgroundColor:'#388bfd',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{color:'#64748b',font:{size:10},stepSize:1,backdropColor:'transparent'},grid:{color:'rgba(255,255,255,.08)'},angleLines:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#8b949e',font:{size:11}}}},plugins:{legend:{display:false}}}});
+  charts.radar=new Chart(document.getElementById('cRadar'),{type:'radar',data:{labels:depts,datasets:[{label:'คะแนนเฉลี่ย',data:dd.map(d=>parseFloat(d.avg.toFixed(3))),backgroundColor:'rgba(29,78,216,.1)',borderColor:'#1d4ed8',borderWidth:2,pointBackgroundColor:'#1d4ed8',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{color:'#64748b',font:{size:10},stepSize:1,backdropColor:'transparent'},grid:{color:'rgba(0,0,0,.08)'},angleLines:{color:'rgba(0,0,0,.08)'},pointLabels:{color:'#475569',font:{size:11}}}},plugins:{legend:{display:false}}}});
 }
 
 function renderTrend(){
@@ -1806,7 +1806,7 @@ function renderTrend(){
     if(item.score!==null) datasets.push({label:'คะแนนล่าสุด',data:monthOrder.map(()=>item.score),borderColor:'rgba(255,255,255,.2)',borderDash:[4,4],pointRadius:0,fill:false,tension:0});
   }
   dC('trend');
-  charts.trend=new Chart(document.getElementById('cTrend'),{type:'line',data:{labels:monthLabels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5.2,ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}}},plugins:{legend:{labels:{color:'#8b949e',font:{size:10},boxWidth:10,padding:12}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}`}}}}});
+  charts.trend=new Chart(document.getElementById('cTrend'),{type:'line',data:{labels:monthLabels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:5.2,ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}},x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(0,0,0,.06)'}}},plugins:{legend:{labels:{color:'#334155',font:{size:10},boxWidth:10,padding:12}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}`}}}}});
 }
 
 function renderTrendTable(){
@@ -1859,12 +1859,12 @@ function oM(code){
   const hasTable=hasScAol||hasAOL||hasGFT2||hasChart;
   // ชื่อหน่วยงานที่แสดงในตาราง — ถ้าเลือกหน่วยงานใช้ชื่อนั้น ไม่งั้นใช้ กฟส.อล.
   const orgLabel = (curOrg&&curOrg!=='all') ? curOrg : 'กฟส.อล.';
-  const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t3);padding:3px 6px;font-weight:400">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('⭐ คะแนน '+orgLabel,scAol,'#3fb884')}${buildMonthTable('ผล '+orgLabel,aol,'#6e9e7e')}${buildMonthTable('คะแนน กฟต.2',scM,'#388bfd')}${buildMonthTable('ผล กฟต.2',res,'#8b949e')}</tbody></table></div>${hasChart?`<div style="position:relative;height:200px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
+  const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div><div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t2);padding:3px 6px;font-weight:600">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('⭐ คะแนน '+orgLabel,scAol,'#15803d')}${buildMonthTable('ผล '+orgLabel,aol,'#166534')}${buildMonthTable('คะแนน กฟต.2',scM,'#1d4ed8')}${buildMonthTable('ผล กฟต.2',res,'#475569')}</tbody></table></div>${hasChart?`<div style="position:relative;height:200px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
   // คำนวณ progress ไปสู่คะแนน 5
   const gap = sc!==null ? Math.max(0, 5 - sc) : null;
   const pct = sc!==null ? Math.min(100, sc/5*100) : 0;
   const gapColor = gap===null?'var(--t3)':gap===0?'var(--tl2)':gap<1?'var(--bl2)':gap<2?'var(--am2)':'var(--rd2)';
-  const barColor = sc===null?'var(--bg5)':sc>=5?'var(--tl2)':sc>=4?'var(--bl2)':sc>=3?'var(--am2)':'var(--rd2)';
+  const barColor = sc===null?'rgba(148,163,184,.4)':sc>=5?'#15803d':sc>=4?'#1d4ed8':sc>=3?'#92400e':'#b91c1c';
 
   // เป้าหมาย Lv5 (ผลที่ต้องทำได้เพื่อได้คะแนน 5)
   const tgt5 = item.targets&&item.targets[5]!=null ? item.targets[5] : null;
