@@ -2232,8 +2232,28 @@ async function rCharts(){
       // plugin สำหรับแสดงตัวเลขบนแท่ง
       id:'distLabels',
       afterDatasetDraw(chart){
-        const {ctx,data,scales:{x,y}}=chart;
+        const {ctx,data,scales:{x,y},chartArea}=chart;
         const ds=data.datasets[0];
+
+        // watermark — ชื่อหน่วยงานที่เลือก
+        const orgLabel = (curOrg&&curOrg!=='all') ? curOrg : 'ภาพรวม กฟต.2';
+        ctx.save();
+        ctx.globalAlpha=0.07;
+        ctx.fillStyle='#ffffff';
+        // คำนวณขนาด font ให้พอดีกับความกว้าง chart
+        const maxW = chartArea.right - chartArea.left;
+        let fs = Math.min(32, Math.floor(maxW / orgLabel.length * 1.6));
+        fs = Math.max(14, fs);
+        ctx.font=`bold ${fs}px IBM Plex Sans Thai, sans-serif`;
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        const cx=(chartArea.left+chartArea.right)/2;
+        const cy=(chartArea.top+chartArea.bottom)/2;
+        ctx.fillText(orgLabel, cx, cy);
+        ctx.globalAlpha=1;
+        ctx.restore();
+
+        // ตัวเลขบนแท่ง
         ds.data.forEach((val,i)=>{
           if(!val) return;
           const xPos=x.getPixelForValue(i);
