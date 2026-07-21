@@ -2082,6 +2082,7 @@ async function openNotes(org, kpi, kpiName){
       <textarea id="noteContent_${panelId}" placeholder="ข้อความหรือลิ้งค์..."></textarea>
       <div id="noteFileRow_${panelId}" style="display:none;margin-top:6px">
         <input type="file" id="noteFile_${panelId}" style="font-size:11px;color:var(--t2)">
+        <button id="noteCamera_${panelId}" onclick="openCamera('${panelId}')" style="display:none;margin-top:6px;padding:5px 12px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t2);font-family:var(--fn);font-size:11px;cursor:pointer">📷 ถ่ายรูปจากกล้อง</button>
       </div>
       <div style="display:flex;justify-content:flex-end;margin-top:8px">
         <button class="notes-submit" id="noteSubmit_${panelId}"
@@ -2098,8 +2099,47 @@ function onNoteTypeChange(panelId){
   const type = document.getElementById('noteType_'+panelId).value;
   const fileRow = document.getElementById('noteFileRow_'+panelId);
   const content = document.getElementById('noteContent_'+panelId);
+  const fileInput = document.getElementById('noteFile_'+panelId);
+  const cameraBtn = document.getElementById('noteCamera_'+panelId);
+  
   fileRow.style.display = (type==='file'||type==='image') ? 'block' : 'none';
-  content.placeholder = type==='link' ? 'https://...' : type==='file'||type==='image' ? 'คำอธิบาย (ถ้ามี)' : 'ข้อความ...';
+  content.placeholder = type==='link' ? 'https://...' : (type==='file'||type==='image') ? 'คำอธิบาย (ถ้ามี)' : 'ข้อความ...';
+  
+  if(type==='image'){
+    fileInput.accept='image/*';
+    if(cameraBtn) cameraBtn.style.display='inline-block';
+  } else if(type==='file'){
+    fileInput.accept='';
+    if(cameraBtn) cameraBtn.style.display='none';
+  } else {
+    fileInput.accept='';
+    if(cameraBtn) cameraBtn.style.display='none';
+  }
+}
+
+function openCamera(panelId){
+  // สร้าง hidden input พิเศษสำหรับกล้อง
+  const cam = document.createElement('input');
+  cam.type='file';
+  cam.accept='image/*';
+  cam.capture='environment'; // กล้องหลัง, ใช้ 'user' สำหรับกล้องหน้า
+  cam.style.display='none';
+  cam.onchange=()=>{
+    if(!cam.files||!cam.files[0]) return;
+    // copy file ไปยัง noteFile input หลัก
+    const dt = new DataTransfer();
+    dt.items.add(cam.files[0]);
+    const fileInput = document.getElementById('noteFile_'+panelId);
+    if(fileInput){
+      fileInput.files = dt.files;
+      // แสดงชื่อไฟล์
+      const preview = cam.files[0].name;
+      toast('📷 เลือกรูป: '+preview,'ok');
+    }
+    document.body.removeChild(cam);
+  };
+  document.body.appendChild(cam);
+  cam.click();
 }
 
 async function loadNotes(org, kpi, panelId){
