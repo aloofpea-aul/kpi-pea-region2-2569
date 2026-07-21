@@ -198,6 +198,31 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .org-drop-item.selected{color:var(--bl2);background:var(--blbg)}
 .org-drop-hdr{padding:3px 10px;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid var(--bdr);margin-top:2px}
 
+/* ===== KPI Notes =====
+   Reply thread styles */
+.note-replies{margin-top:8px;padding-left:12px;border-left:2px solid var(--bdr2)}
+.note-reply-item{background:var(--bg3);border-radius:var(--r);padding:8px 10px;margin-bottom:6px;font-size:11px}
+.note-reply-item:last-child{margin-bottom:0}
+.reply-btn{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;
+  background:transparent;border:1px solid var(--bdr);border-radius:10px;
+  color:var(--t3);font-size:10px;cursor:pointer;font-family:var(--fn);
+  transition:all .15s;margin-top:6px}
+.reply-btn:hover{border-color:var(--bl2);color:var(--bl2)}
+.reply-form{margin-top:8px;padding:8px 10px;background:var(--bg3);
+  border-radius:var(--r);border:1px solid var(--bdr);display:none}
+.reply-form.open{display:block}
+.reply-form textarea{width:100%;padding:6px 8px;background:var(--bg2);
+  border:1px solid var(--bdr);border-radius:var(--r);color:var(--t);
+  font-family:var(--fn);font-size:11px;resize:none;min-height:50px}
+.reply-form textarea:focus{outline:none;border-color:var(--bl2)}
+.reply-actions{display:flex;gap:6px;margin-top:6px;align-items:center}
+.reply-author-input{flex:1;padding:4px 8px;background:var(--bg2);border:1px solid var(--bdr);
+  border-radius:var(--r);color:var(--t);font-family:var(--fn);font-size:11px}
+.reply-submit{padding:4px 12px;background:var(--bl);border:none;border-radius:var(--r);
+  color:#fff;font-family:var(--fn);font-size:10px;cursor:pointer;font-weight:500}
+.reply-submit:hover{opacity:.85}
+.reply-cancel{padding:4px 8px;background:transparent;border:1px solid var(--bdr);
+  border-radius:var(--r);color:var(--t3);font-family:var(--fn);font-size:10px;cursor:pointer}
 /* ===== KPI Notes ===== */
 .notes-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;
   background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);
@@ -566,7 +591,7 @@ function renderKPI211Widget(containerId, orgName){
   +'</div>';
 }
 
-const GAS_NOTES_URL='https://script.google.com/macros/s/AKfycbx6pRXDIl2A_2Nqzw0M2X7Ty8ZsmOvHKHeEbFQz3iT6vHNr9bdnWod_NeXA2Oqv0H0A/exec';
+const GAS_NOTES_URL='https://script.google.com/macros/s/AKfycbyTHJfCxFhGTMFVApMsWZycc2XdVXIx_DvEflVuMAkEEMQpCmQgWDpc1svAbBpYVnwz/exec';
 
 const SID='1VmYqWuoTuX_xo7mB2n6LzW6ZH1l_xE0CtzhvzASIkdI';
 const MONTHS=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
@@ -2101,6 +2126,14 @@ async function loadNotes(org, kpi, panelId){
   }
 }
 
+function getNoteContentHtml(n){
+  if(n.type==='link') return `<a href="${n.content}" target="_blank" rel="noopener">${n.content}</a>`;
+  if(n.type==='image'&&n.fileUrl) return `${n.content?'<div>'+n.content+'</div>':''}<img src="${n.fileUrl}" class="note-img" onclick="window.open('${n.fileUrl}','_blank')">`;
+  if(n.type==='file'&&n.fileUrl) return `<a href="${n.fileUrl}" target="_blank" class="notes-btn" style="display:inline-flex;margin-top:4px">📎 ${n.filename||'ดาวน์โหลดไฟล์'}</a>${n.content?'<div style="margin-top:4px">'+n.content+'</div>':''}`;
+  return (n.content||'').replace(/
+/g,'<br>');
+}
+
 function renderNotesList(panelId, notes){
   const listEl = document.getElementById('notesList_'+panelId);
   if(!listEl) return;
@@ -2109,27 +2142,97 @@ function renderNotesList(panelId, notes){
     return;
   }
   const typeTag={'text':'nt-text 📝 ข้อความ','link':'nt-link 🔗 ลิ้งค์','file':'nt-file 📎 ไฟล์','image':'nt-image 🖼️ รูปภาพ'};
-  listEl.innerHTML = notes.map(n=>{
+  
+  // แยก top-level notes และ replies
+  const topNotes = notes.filter(n=>!n.replyTo);
+  const repliesMap = {};
+  notes.filter(n=>n.replyTo).forEach(r=>{
+    if(!repliesMap[r.replyTo]) repliesMap[r.replyTo]=[];
+    repliesMap[r.replyTo].push(r);
+  });
+
+  listEl.innerHTML = topNotes.map(n=>{
     const [cls,...label] = (typeTag[n.type]||'nt-text 📝').split(' ');
-    let contentHtml = '';
-    if(n.type==='link'){
-      contentHtml = `<a href="${n.content}" target="_blank" rel="noopener">${n.content}</a>`;
-    } else if(n.type==='image'&&n.fileUrl){
-      contentHtml = `${n.content?'<div>'+n.content+'</div>':''}<img src="${n.fileUrl}" class="note-img" onclick="window.open('${n.fileUrl}','_blank')">`;
-    } else if(n.type==='file'&&n.fileUrl){
-      contentHtml = `<a href="${n.fileUrl}" target="_blank" class="notes-btn" style="display:inline-flex;margin-top:4px">📎 ${n.filename||'ดาวน์โหลดไฟล์'}</a>${n.content?'<div style=\'margin-top:4px\'>'+n.content+'</div>':''}`;
-    } else {
-      contentHtml = n.content.replace(/\n/g,'<br>');
-    }
-    return `<div class="note-item">
+    const replies = repliesMap[n.id]||[];
+    const replyHtml = replies.length ? `
+      <div class="note-replies">
+        ${replies.map(r=>`
+          <div class="note-reply-item">
+            <div class="note-meta" style="margin-bottom:4px">
+              <span class="note-author" style="font-size:10px">↩️ ${r.author}</span>
+              <span class="note-time" style="font-size:9px">🕐 ${r.tsDisplay||r.ts}</span>
+            </div>
+            <div class="note-content">${getNoteContentHtml(r)}</div>
+          </div>`).join('')}
+      </div>` : '';
+
+    return `<div class="note-item" id="note_${n.id}">
       <div class="note-meta">
         <span class="note-author">👤 ${n.author}</span>
         <span class="note-type-tag ${cls}">${label.join(' ')}</span>
         <span class="note-time">🕐 ${n.tsDisplay||n.ts}</span>
       </div>
-      <div class="note-content">${contentHtml}</div>
+      <div class="note-content">${getNoteContentHtml(n)}</div>
+      ${replyHtml}
+      <button class="reply-btn" onclick="toggleReplyForm('${panelId}','${n.id}',this)">
+        💬 ตอบกลับ ${replies.length?'('+replies.length+')':''}
+      </button>
+      <div class="reply-form" id="replyForm_${n.id}">
+        <textarea placeholder="ข้อความตอบกลับ..." rows="2" id="replyText_${n.id}"></textarea>
+        <div class="reply-actions">
+          <input class="reply-author-input" placeholder="ชื่อผู้ตอบ *" id="replyAuthor_${n.id}">
+          <button class="reply-cancel" onclick="toggleReplyForm('${panelId}','${n.id}',null)">ยกเลิก</button>
+          <button class="reply-submit" onclick="submitReply('${panelId}','${n.id}')">ส่ง ↩️</button>
+        </div>
+      </div>
     </div>`;
   }).join('');
+}
+
+function toggleReplyForm(panelId, noteId, btn){
+  const form = document.getElementById('replyForm_'+noteId);
+  if(!form) return;
+  const isOpen = form.classList.contains('open');
+  form.classList.toggle('open', !isOpen);
+  if(!isOpen) document.getElementById('replyText_'+noteId)?.focus();
+}
+
+async function submitReply(panelId, noteId){
+  const author = (document.getElementById('replyAuthor_'+noteId)?.value||'').trim();
+  const content = (document.getElementById('replyText_'+noteId)?.value||'').trim();
+  if(!author){ toast('กรุณาใส่ชื่อผู้ตอบ','er'); return; }
+  if(!content){ toast('กรุณาใส่ข้อความ','er'); return; }
+  if(GAS_NOTES_URL==='YOUR_GAS_WEB_APP_URL_HERE'){ toast('กรุณาตั้งค่า GAS_NOTES_URL','er'); return; }
+
+  // หา org/kpi จาก panelId
+  const cacheKey = Object.keys(_notesCache).find(k=>{
+    const notes = _notesCache[k];
+    return notes && notes.some(n=>n.id===noteId);
+  });
+  if(!cacheKey){ toast('ไม่พบข้อมูลต้นฉบับ','er'); return; }
+  const [org, kpi] = cacheKey.split('::');
+
+  const btn = document.querySelector(`#replyForm_${noteId} .reply-submit`);
+  if(btn){ btn.disabled=true; btn.textContent='กำลังส่ง...'; }
+
+  try{
+    const res = await fetch(GAS_NOTES_URL, {
+      method:'POST',
+      body: JSON.stringify({ org, kpi, author, type:'text', content, replyTo: noteId })
+    });
+    const data = await res.json();
+    if(data.ok){
+      toast('ตอบกลับสำเร็จ ✓','ok');
+      document.getElementById('replyForm_'+noteId)?.classList.remove('open');
+      await loadNotes(org, kpi, panelId);
+    } else {
+      toast('เกิดข้อผิดพลาด: '+data.error,'er');
+    }
+  }catch(e){
+    toast('ส่งไม่ได้: '+e.message,'er');
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='ส่ง ↩️'; }
+  }
 }
 
 async function submitNote(panelId, org, kpi){
