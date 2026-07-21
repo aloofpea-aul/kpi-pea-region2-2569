@@ -601,7 +601,7 @@ function renderKPI211Widget(containerId, orgName){
   +'</div>';
 }
 
-const GAS_NOTES_URL='https://script.google.com/macros/s/AKfycby1RVd7vp30b2LHz8aIg2swIBgH5j6Tt134xeBjo17asE-4WLGqVnqou58RscMbWSFr/exec';
+const GAS_NOTES_URL='https://script.google.com/macros/s/AKfycbyD4hITS55Z2wB9d7XfdyhKRtX_F2P2zZn-Ou8qga8DRTu1BW7HwCZaVLKYoPUx2B0m/exec';
 
 const SID='1VmYqWuoTuX_xo7mB2n6LzW6ZH1l_xE0CtzhvzASIkdI';
 const MONTHS=['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.'];
@@ -2198,32 +2198,78 @@ async function loadNotes(org, kpi, panelId){
 // แปลง Google Drive URL เป็น direct image URL
 function toDriveImgUrl(url){
   if(!url) return url;
-  // รูปแบบ: https://drive.google.com/open?id=FILE_ID
-  // หรือ: https://drive.google.com/file/d/FILE_ID/view
+  // ถ้าเป็น lh3.googleusercontent.com → ใช้ตรงๆ ได้เลย (คมชัด original)
+  if(url.includes('lh3.googleusercontent.com')) return url;
+  // fallback: แปลงจาก drive.google.com URL
   let id = null;
   const m1 = url.match(/[?&]id=([^&]+)/);
   const m2 = url.match(/\/d\/([^\/]+)/);
   if(m1) id = m1[1];
   else if(m2) id = m2[1];
-  if(id) return 'https://drive.google.com/uc?export=view&id='+id; // original quality
+  if(id) return 'https://lh3.googleusercontent.com/d/'+id+'=w1600';
   return url;
 }
 
-function openImgModal(url){
-  // แสดงรูปใหญ่ใน modal
-  let m = document.getElementById('_imgModal');
-  if(!m){
-    m = document.createElement('div');
-    m.id = '_imgModal';
-    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:20px';
-    m.onclick = ()=>m.remove();
-    document.body.appendChild(m);
-  }
-  m.innerHTML = `<div style="position:relative;max-width:90vw;max-height:90vh">
-    <img src="${url}" style="max-width:90vw;max-height:85vh;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:block">
-    <div style="text-align:center;color:rgba(255,255,255,.6);font-size:11px;margin-top:8px">คลิกที่ใดก็ได้เพื่อปิด</div>
-  </div>`;
+function openImgModal(url, filename){
+  // ลบ modal เก่าถ้ามี
+  const old = document.getElementById('_imgModal');
+  if(old) old.remove();
+
+  const m = document.createElement('div');
+  m.id = '_imgModal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';
+  m.onclick = (e)=>{ if(e.target===m) m.remove(); };
+
+  const fname = filename || 'image_'+Date.now()+'.jpg';
+  m.innerHTML = `
+    <div style="position:relative;max-width:90vw;max-height:85vh;text-align:center">
+      <img id="_imgModalImg" src="${url}"
+        style="max-width:90vw;max-height:78vh;border-radius:8px;
+          box-shadow:0 8px 40px rgba(0,0,0,.7);display:block;margin:0 auto;
+          cursor:zoom-in;transition:transform .2s"
+        onclick="this.style.transform=this.style.transform?'':'scale(1.5)'">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+      <button onclick="downloadImg('${url}','${fname}')"
+        style="display:flex;align-items:center;gap:5px;padding:7px 16px;
+          background:var(--bl);border:none;border-radius:var(--r);color:#fff;
+          font-family:var(--fn);font-size:12px;cursor:pointer;font-weight:500">
+        ⬇️ บันทึกภาพ
+      </button>
+      <a href="${url}" target="_blank"
+        style="display:flex;align-items:center;gap:5px;padding:7px 16px;
+          background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);
+          color:var(--t2);font-family:var(--fn);font-size:12px;text-decoration:none">
+        🔗 เปิดในแท็บใหม่
+      </a>
+      <button onclick="document.getElementById('_imgModal').remove()"
+        style="padding:7px 16px;background:transparent;border:1px solid var(--bdr);
+          border-radius:var(--r);color:var(--t3);font-family:var(--fn);
+          font-size:12px;cursor:pointer">
+        ✕ ปิด
+      </button>
+    </div>
+    <div style="color:rgba(255,255,255,.4);font-size:10px;margin-top:8px">
+      คลิกนอกภาพเพื่อปิด • คลิกที่ภาพเพื่อซูม
+    </div>`;
+
   document.body.appendChild(m);
+}
+
+async function downloadImg(url, filename){
+  try{
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }catch(e){
+    // fallback: เปิดใน tab ใหม่แล้วให้ user save เอง
+    window.open(url,'_blank');
+    toast('กด right-click → Save image as เพื่อบันทึกครับ','ok');
+  }
 }
 
 function getNoteContentHtml(n){
@@ -2234,7 +2280,7 @@ function getNoteContentHtml(n){
     return `${n.content?'<div style="margin-bottom:4px">'+n.content+'</div>':''}
       <div style="position:relative;display:inline-block">
         <img src="${imgUrl}" class="note-img"
-          onclick="openImgModal('${imgUrl}')"
+          onclick="openImgModal('${imgUrl}','${n.filename||'image.jpg'}')"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
           style="display:block">
         <a href="${fullUrl}" target="_blank" class="notes-btn"
