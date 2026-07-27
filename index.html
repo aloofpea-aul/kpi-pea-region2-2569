@@ -1181,9 +1181,31 @@ async function af(){
               // หน่วยงานอื่น merge จาก Results_Kxx ได้เลย
               if(!isAOL){
                 if(ov.score!==null) item.score=ov.score;
-                if(Object.keys(ov.monthlyScore||{}).length>0) item.monthlyScoreAOL=ov.monthlyScore;
+                const mScore = ov.monthlyScore||{};
+                const mRes   = ov.monthlyRes||{};
+                if(Object.keys(mScore).length>0) item.monthlyScoreAOL={...mScore};
                 // ผลรายเดือนของหน่วยงานนี้
-                item.monthlyAOL=Object.keys(ov.monthlyRes||{}).length>0 ? ov.monthlyRes : {};
+                item.monthlyAOL = Object.keys(mRes).length>0 ? {...mRes} : {};
+
+                // === estimate inject (เหมือน KPISummary) ===
+                // ถ้า ผลล่าสุด (ov.result) ≠ เดือนสุดท้ายใน monthlyAOL → เป็นประมาณการ
+                const _MKKEYS=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+                const _MKTH={jan:'ม.ค.',feb:'ก.พ.',mar:'มี.ค.',apr:'เม.ย.',may:'พ.ค.',jun:'มิ.ย.',jul:'ก.ค.',aug:'ส.ค.',sep:'ก.ย.',oct:'ต.ค.',nov:'พ.ย.',dec:'ธ.ค.'};
+                const lastMKey=_MKKEYS.slice().reverse().find(k=>item.monthlyAOL[k]!==undefined);
+                const lastMVal=lastMKey?item.monthlyAOL[lastMKey]:null;
+                const ovResult=ov.result!==null?parseFloat(ov.result):null;
+                const isEst2=ovResult!==null&&lastMVal!==null&&ovResult!==parseFloat(lastMVal);
+                if(isEst2&&lastMKey){
+                  const nextIdx=(_MKKEYS.indexOf(lastMKey)+1)%12;
+                  const nextKey=_MKKEYS[nextIdx];
+                  if(item.monthlyAOL[nextKey]===undefined) item.monthlyAOL[nextKey]=ovResult;
+                  if(ov.score!==null&&item.monthlyScoreAOL[nextKey]===undefined)
+                    item.monthlyScoreAOL[nextKey]=parseFloat(ov.score)||ov.score;
+                  item.isEstimate=true;
+                  item.estimateMonthLabel=_MKTH[nextKey]||'';
+                }
+                // ==============================================
+
                 // เป้าหมายของหน่วยงานนี้ (ถ้ามี)
                 if(ov.targets&&Object.keys(ov.targets).length>0){
                   item.targets={
