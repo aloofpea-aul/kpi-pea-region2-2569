@@ -1762,6 +1762,33 @@ function rT(){
   </tr>`).join('');
 }
 
+let _notesPreview={};
+
+async function loadNotesPreview(){
+  if(!GAS_NOTES_URL||GAS_NOTES_URL==='YOUR_GAS_WEB_APP_URL_HERE') return;
+  const org = (curOrg&&curOrg!=='all') ? curOrg : 'กฟส.อ่าวลึก';
+  try{
+    const res = await fetch(GAS_NOTES_URL+'?action=get&org='+encodeURIComponent(org));
+    const data = await res.json();
+    if(!data.ok) return;
+    _notesPreview={};
+    const orgNotes = data.data||{};
+    Object.entries(orgNotes).forEach(([kpi,notes])=>{
+      if(!Array.isArray(notes)||!notes.length) return;
+      const topNotes=notes.filter(n=>!n.replyTo);
+      if(!topNotes.length) return;
+      const latest=topNotes[0];
+      _notesPreview[kpi]={
+        author: latest.author||'',
+        tsDisplay: (latest.tsDisplay||latest.ts||'').substring(0,11),
+        count: notes.length,
+        content: (latest.content||'').substring(0,30)
+      };
+    });
+    rT(); // re-render table
+  }catch(e){ console.log('notes preview:',e); }
+}
+
 function renderNoteBadge(code){
   const np = _notesPreview[code];
   if(!np) return '<span style="font-size:10px;color:#94a3b8">—</span>';
