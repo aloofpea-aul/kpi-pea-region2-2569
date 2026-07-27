@@ -1761,11 +1761,12 @@ function rT(){
     <td style="text-align:center;padding:4px 8px">${(()=>{
       const np=_notesPreview[item.code];
       if(!np) return '<span style="font-size:10px;color:#94a3b8">—</span>';
-      return `<div class="note-badge new" onclick="event.stopPropagation();oM('${item.code}')" title="${np.tsDisplay} — ${np.content}">
-        💬 <span class="nb-author">${np.author}</span>
-        <span style="color:#64748b;font-size:8px;margin-left:2px">${np.count>1?'('+np.count+')':''}</span>
-      </div>
-      <div style="font-size:8px;color:#64748b;margin-top:2px">${np.tsDisplay||''}</div>`;
+      const badge='<div class="note-badge new" onclick="event.stopPropagation();oM(\'' +item.code+ '\')" title="'+np.tsDisplay+' — '+np.content.replace(/"/g,\'\'')+'">'
+        +'💬 <span class="nb-author">'+np.author+'</span>'
+        +(np.count>1?'<span style="color:#64748b;font-size:8px;margin-left:2px">('+np.count+')</span>':'')
+        +'</div>'
+        +'<div style="font-size:8px;color:#64748b;margin-top:2px">'+( np.tsDisplay||'')+'</div>';
+      return badge;
     })()}</td>
   </tr>`).join('');
 }
