@@ -1406,11 +1406,12 @@ function rMetrics(){
     });
   }
   // หา totalWeight ทั้งหมดที่หน่วยงานนี้ควรมี (รวมทุก KPI ที่มีน้ำหนัก)
-  let maxWeight=0;
-  if(wKey){ Object.keys(W).forEach(code=>{ const w=W[code][wKey]; if(w!=null) maxWeight+=w; }); }
-  const pct = maxWeight>0 ? (totalWeight/maxWeight*100) : 0;
-  const peataDisplay = wKey && maxWeight>0
-    ? `<div class="mc-v" style="color:#1d4ed8">${totalWeight.toFixed(2)}<span style="font-size:13px;color:var(--t3)"> / ${maxWeight.toFixed(0)}</span></div>
+  // maxWeight = น้ำหนักรวมของ KPI ที่มีคะแนนจริงเท่านั้น (เหมือน totalWeight แต่ไม่คูณคะแนน)
+  // = totalWeight นั่นเอง เพราะ totalWeight นับเฉพาะ KPI ที่มีทั้งน้ำหนักและคะแนน
+  const maxWeight = totalWeight; // 59.40 สำหรับ กฟส.อ่าวลึก
+  const pct = maxWeight>0 ? 100 : 0; // เสมอ 100% เพราะ max = actual
+  const peataDisplay = wKey && totalWeight>0
+    ? `<div class="mc-v" style="color:#1d4ed8">${totalWeight.toFixed(2)}<span style="font-size:13px;color:var(--t3)"> / 60</span></div>
        <div class="mc-l">ผลรวมน้ำหนัก KPI ที่มีผล</div>
        <div class="mc-s">${period} · ${weightedCount} ตัว (${pct.toFixed(0)}%)</div>
        <div class="pb"><div class="pb-f bl" style="width:${pct}%"></div></div>`
