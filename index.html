@@ -1628,8 +1628,10 @@ async function renderAnomaly(){
   const dir=await loadKpiDir();
   const MK=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
   const TH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  const rev={}; Object.entries(window.orgCodeMap||{}).forEach(([n,c])=>{ if(!rev[c]) rev[c]=n; });
-  const myOrg=weightOrg(); const myCode=(window.orgCodeMap||{})[myOrg];
+  if(!window.orgCodeMap||!Object.keys(window.orgCodeMap).length){ try{ await loadOrgList(); }catch(e){} }
+  const nameMap={...(window.orgCodeMap||{}),...ORG_XS_CODES,...ORG_S_CODES,...ORG_LM_CODES};
+  const rev={}; Object.entries(nameMap).forEach(([n,c])=>{ if(!rev[c]) rev[c]=n; });
+  const myOrg=weightOrg(); const myCode=nameMap[myOrg];
   const inScope=c6=>_anScope==='all'||c6===myCode;
   const fmt=v=>{const n=parseFloat(v); return isNaN(n)?v:n.toLocaleString('th-TH',{maximumFractionDigits:3});};
   const R={formula:[],drop:[],outl:[],gap:[],stale:[],incomp:[]}; let checked=0;
@@ -1659,10 +1661,16 @@ async function renderAnomaly(){
     if(valid.length>=5){ const cnt={}; valid.forEach(x=>cnt[x]=(cnt[x]||0)+1); const mode=+Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];
       arr.forEach(([c6,v],i)=>{ if(inScope(c6)&&lm[i]>=0&&mode-lm[i]>=2) R.stale.push({code,org:rev[c6]||c6,c6,txt:`ข้อมูลถึง <b>${TH[lm[i]]}</b> · หน่วยอื่นส่วนใหญ่ถึง <b>${TH[mode]}</b>`,sev:mode-lm[i]}); }); }
     const rs=arr.map(([c6,v])=>parseFloat(v.result)).filter(x=>!isNaN(x)&&x!==0);
-    if(rs.length>=8){ const srt=[...rs].sort((a,b)=>a-b); const med=srt[Math.floor(srt.length/2)];
-      if(Math.abs(med)>1e-9) arr.forEach(([c6,v])=>{ if(!inScope(c6)) return; const r=parseFloat(v.result); if(isNaN(r)||r===0) return; const q=r/med;
-        if(q>=8||q<=1/8){ const hint=q<0?'เครื่องหมายกลับ?':q>=8?`สูงกว่า ${Math.round(q)} เท่า${q>=9.5&&q<=10.5||q>=95&&q<=105?' — ทศนิยมหาย?':''}`:`ต่ำกว่า ${Math.round(1/q)} เท่า`;
-          R.outl.push({code,org:rev[c6]||c6,c6,txt:`ผล <b>${fmt(r)}</b> · ค่ากลางของหน่วยอื่น <b>${fmt(med)}</b> — ${hint}`,sev:Math.abs(Math.log(Math.abs(q)||1e-9))+(q<0?5:0)}); } }); }
+    if(rs.length>=8){
+      const abs=rs.map(Math.abs).sort((a,b)=>a-b); const medA=abs[Math.floor(abs.length/2)];
+      const pos=rs.filter(x=>x>0).length/rs.length; const srt=[...rs].sort((a,b)=>a-b); const med=srt[Math.floor(srt.length/2)];
+      if(medA>1e-9) arr.forEach(([c6,v])=>{ if(!inScope(c6)) return; const r=parseFloat(v.result); if(isNaN(r)||r===0) return;
+        const q=Math.abs(r)/medA; const flip=(r>0&&pos<=0.15)||(r<0&&pos>=0.85);
+        let hint='';
+        if(q>=8) hint=`ใหญ่กว่าหน่วยอื่น ${Math.round(q)} เท่า${(q>=9&&q<=11)||(q>=90&&q<=110)?' — ทศนิยมหาย?':''}`;
+        else if(q<=1/8) hint=`เล็กกว่าหน่วยอื่น ${Math.round(1/q)} เท่า`;
+        else if(flip&&q>=0.5&&q<=2) hint='เครื่องหมายกลับ? (หน่วยอื่นเกือบทั้งหมดเป็น'+(r>0?'ลบ':'บวก')+')';
+        if(hint) R.outl.push({code,org:rev[c6]||c6,c6,txt:`ผล <b>${fmt(r)}</b> · ค่ากลางของหน่วยอื่น <b>${fmt(med)}</b> — ${hint}`,sev:Math.abs(Math.log(q||1e-9))+(flip?3:0)}); }); }
   });
   Object.values(R).forEach(a=>a.sort((x,y)=>y.sev-x.sev));
   const DEF=[
