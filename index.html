@@ -1587,8 +1587,8 @@ function renderMobileHero(){
   const g=groups.find(x=>x[1]&&x[1][org]); let rankTxt='';
   if(g){
     const all={...ORG_S_CODES,...ORG_XS_CODES,...ORG_LM_CODES};
-    const arr=Object.keys(g[1]).map(n=>{const p=calcPEATAScore(n,getKpiScoresForOrg(n,all));return {n,s:p?p.score:null};}).filter(x=>x.s!=null).sort((a,b)=>b.s-a.s);
-    const i=arr.findIndex(x=>x.n===org); if(i>=0) rankTxt=`อันดับ ${i+1} จาก ${arr.length} ในกลุ่ม ${g[0]} · `;
+    const arr=Object.keys(g[1]).map(n=>{const p=calcPEATAScore(n,getKpiScoresForOrg(n,all));return {name:n,code6:g[1][n],avg:p?p.score:null,peata:p};}).filter(x=>x.avg!=null).sort(rankCmp);
+    const i=arr.findIndex(x=>x.name===org); if(i>=0) rankTxt=`อันดับ ${i+1} จาก ${arr.length} ในกลุ่ม ${g[0]} · `;
   }
   const per=peataDataMonth()<=6?'รอบ 1':'รอบ 2';
   const sc=ctx.total; const cls=sc>=4.995?'s5':sc>=3.995?'s4':sc>=2.995?'s3':'s1';
@@ -1879,6 +1879,15 @@ function getKpiScoresForOrg(name, orgCodes){
   return kpiScores;
 }
 
+// เรียงอันดับให้เหมือน Looker ต้นฉบับ: คะแนน (ค่าจริงไม่ปัด) มาก→น้อย → ถ้าเท่ากัน น้ำหนักรวมมาก→น้อย → ถ้ายังเท่า รหัสหน่วยงาน น้อย→มาก
+function rankCmp(a,b){
+  if(a.avg==null&&b.avg==null) return 0;
+  if(a.avg==null) return 1; if(b.avg==null) return -1;
+  const d=b.avg-a.avg; if(Math.abs(d)>1e-9) return d;
+  const wa=a.peata?a.peata.totalWeight:0, wb=b.peata?b.peata.totalWeight:0;
+  if(Math.abs(wb-wa)>1e-9) return wb-wa;
+  return String(a.code6||'').localeCompare(String(b.code6||''));
+}
 function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
   const el=document.getElementById(elId);
   if(!el) return;
@@ -1903,11 +1912,7 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
     const avg=peata?peata.score:null;
     return {name,code6,avg,peata};
   });
-  ranks.sort((a,b)=>{
-    if(a.avg===null&&b.avg===null) return 0;
-    if(a.avg===null) return 1; if(b.avg===null) return -1;
-    return b.avg-a.avg;
-  });
+  ranks.sort(rankCmp);
   const displayed=ranks.slice(0,topN);
   // คำนวณ allRankMap: orgName → อันดับจริงในกลุ่ม orgCodes ทั้งหมด (ไม่ filter กลุ่ม)
   const allRankMap={};
@@ -1917,12 +1922,8 @@ function renderRankingFor(elId, orgCodes, expanded, topN=5, twoCol=false){
       const kpiScores=getKpiScoresForOrg(name,orgCodes);
       const peata=calcPEATAScore(name,kpiScores);
       const avg=peata?peata.score:null;
-      return {name,avg};
-    }).sort((a,b)=>{
-      if(a.avg===null&&b.avg===null)return 0;
-      if(a.avg===null)return 1;if(b.avg===null)return -1;
-      return b.avg-a.avg;
-    });
+      return {name,code6:orgCodes[name],avg,peata};
+    }).sort(rankCmp);
     _tmpRanks.forEach((o,i)=>{allRankMap[o.name]=i+1;});
   }
   el.innerHTML=displayed.map((r,i)=>{
