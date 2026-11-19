@@ -150,6 +150,12 @@ td.kl-m{text-align:center;padding:9px 2px !important}
 .kl-m .na{color:#cbd5e1;font-weight:400;width:auto}
 .kl-m .last{outline:2px solid #2563eb;outline-offset:1px}
 .kl-m .est{outline:2px dashed #d97706;outline-offset:1px}
+.al-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:8px 12px;margin-bottom:12px}
+.al-bar span{font-size:13px;font-weight:600;color:#0f172a}
+.al-bar select{font-family:var(--fn);font-size:14px;padding:6px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;min-width:200px}
+.al-bar button{font-family:var(--fn);font-size:12.5px;padding:6px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;color:#1d4ed8;cursor:pointer}
+.al-bar small{font-size:12px;color:#475569;margin-left:auto}
+@media(max-width:768px){.al-bar select{flex:1;font-size:16px;min-width:0}.al-bar small{width:100%;margin-left:0}}
 .an-hd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .an-hd .meta{font-size:12px;color:#475569}
 .an-seg{display:flex;background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:3px}
@@ -618,6 +624,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
 </div>
 
 <div class="page" id="page-alert">
+  <div class="al-bar"><span>🏢 หน่วยงาน</span><select id="alOrg" onchange="setAlertOrg(this.value)"></select><button onclick="setAlertOrg('กฟส.อ่าวลึก')" title="กลับไปที่ กฟส.อ่าวลึก">↺ อ่าวลึก</button><small id="alCnt"></small></div>
   <div class="sl">รายการที่ต้องติดตาม</div>
   <div class="ag">
     <div class="acard">
@@ -1606,7 +1613,7 @@ function mNav(p){
   else window.scrollTo({top:0});
 }
 // ===== ตรวจความผิดปกติ (เมนูติดตาม) =====
-let _kpiDir=null, _anScope='all', _anOpen={};
+let _kpiDir=null, _anScope='org', _anOpen={};
 async function loadKpiDir(){
   if(_kpiDir) return _kpiDir;
   try{
@@ -1632,7 +1639,7 @@ async function renderAnomaly(){
   if(!window.orgCodeMap||!Object.keys(window.orgCodeMap).length){ try{ await loadOrgList(); }catch(e){} }
   const nameMap={...(window.orgCodeMap||{}),...ORG_XS_CODES,...ORG_S_CODES,...ORG_LM_CODES};
   const rev={}; Object.entries(nameMap).forEach(([n,c])=>{ if(!rev[c]) rev[c]=n; });
-  const myOrg=weightOrg(); const myCode=nameMap[myOrg];
+  const myOrg=_alertOrg; const myCode=nameMap[myOrg];
   const inScope=c6=>_anScope==='all'||c6===myCode;
   const fmt=v=>{const n=parseFloat(v); return isNaN(n)?v:n.toLocaleString('th-TH',{maximumFractionDigits:3});};
   const R={formula:[],drop:[],outl:[],gap:[],stale:[],incomp:[]}; let checked=0;
@@ -1694,7 +1701,8 @@ async function renderAnomaly(){
   el.innerHTML=h;
 }
 async function anGo(org,code){
-  if(org&&org!==weightOrg()&&(window.orgCodeMap||{})[org]){ selectOrg(org,org); await new Promise(r=>setTimeout(r,1800)); }
+  const known={...(window.orgCodeMap||{}),...ORG_XS_CODES,...ORG_S_CODES,...ORG_LM_CODES};
+  if(org&&org!==weightOrg()&&known[org]){ selectOrg(org,org); await new Promise(r=>setTimeout(r,1800)); }
   oM(code);
 }
 function mGoImpact(){ mNav('kpilist'); const b=document.querySelector('.tabb[data-t="impact"]'); if(b) sT(b); }
@@ -2245,8 +2253,19 @@ function renderTrendTable(){
 }
 
 // รายการ KPI ของหน่วยงานที่กำลังดู — เฉพาะ KPI ที่หน่วยงานนี้ถูกวัดจริง และใช้คะแนนของหน่วยงานเอง (ไม่เอาคะแนนภาพรวมมาแทน)
+let _alertOrg='กฟส.อ่าวลึก';
+function buildAlertOrgSelect(){
+  const sel=document.getElementById('alOrg'); if(!sel) return;
+  if(!sel.options.length){
+    const grp=(label,m)=>`<optgroup label="${label}">${Object.keys(m).map(n=>`<option value="${n}">${n}</option>`).join('')}</optgroup>`;
+    const gfj=Object.keys(ORG_LM_CODES).filter(n=>n.startsWith('กฟจ.')), lm=Object.keys(ORG_LM_CODES).filter(n=>!n.startsWith('กฟจ.'));
+    sel.innerHTML=grp('กฟจ.',Object.fromEntries(gfj.map(n=>[n,1])))+grp('กฟส. L/M',Object.fromEntries(lm.map(n=>[n,1])))+grp('กฟส. S',ORG_S_CODES)+grp('กฟส. XS',ORG_XS_CODES);
+  }
+  sel.value=_alertOrg;
+}
+function setAlertOrg(v){ _alertOrg=v||'กฟส.อ่าวลึก'; buildAlertOrgSelect(); renderAlert(); renderAnomaly(); }
 function alertItems(){
-  const org=weightOrg();
+  const org=_alertOrg;
   const codes={...(window.orgCodeMap||{}),...ORG_XS_CODES,...ORG_S_CODES,...ORG_LM_CODES};
   const c6=codes[org]; const g=ORG_GFJ_CODE&&ORG_GFJ_CODE[org];
   const kd=g&&orgResultsCache[g]?orgResultsCache[g].kpiOrgData:null;
@@ -2266,7 +2285,8 @@ function renderAlert(){
   const warn=items.filter(d=>d.score!==null&&d.score>=2&&d.score<3).sort((a,b)=>a.score-b.score);
   const pend=items.filter(d=>d.score===null);
   const near=items.filter(d=>d.score!==null&&d.score>=3&&d.score<4.9995).sort((a,b)=>a.score-b.score);
-  const t=document.querySelector('#page-alert .sl'); if(t) t.textContent='รายการที่ต้องติดตาม · '+weightOrg()+' ('+items.length+' KPI ที่ถูกวัด)';
+  buildAlertOrgSelect();
+  const t=document.getElementById('alCnt'); if(t) t.textContent=items.length+' KPI ที่ถูกวัด';
   document.getElementById('aPcnt').textContent=pend.length;
   const mk=(item,scls)=>`<li class="ali" onclick="oM('${item.code}')"><span class="ali-c">${item.code}</span><span class="ali-n">${item.name}</span><span class="ali-s ${scls}">${item.score!==null?item.score.toFixed(3):'รอรายงาน'}</span></li>`;
   document.getElementById('aC').innerHTML=crit.length?crit.map(i=>mk(i,'ds')).join(''):`<li class="ali"><span class="ali-n" style="color:var(--t3)">ไม่มีรายการวิกฤต 👍</span></li>`;
