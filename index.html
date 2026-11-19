@@ -150,6 +150,39 @@ td.kl-m{text-align:center;padding:9px 2px !important}
 .kl-m .na{color:#cbd5e1;font-weight:400;width:auto}
 .kl-m .last{outline:2px solid #2563eb;outline-offset:1px}
 .kl-m .est{outline:2px dashed #d97706;outline-offset:1px}
+.an-hd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.an-hd .meta{font-size:12px;color:#475569}
+.an-seg{display:flex;background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:3px}
+.an-seg button{font-family:var(--fn);font-size:12.5px;padding:5px 12px;border-radius:7px;border:none;background:none;color:#475569;cursor:pointer}
+.an-seg button.on{background:#1d4ed8;color:#fff}
+.an-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.an-chk{background:#fff;border:1px solid #e2e8f0;border-left:4px solid #16a34a;border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.an-chk.r{border-left-color:#dc2626}.an-chk.w{border-left-color:#d97706}.an-chk.i{border-left-color:#2563eb}
+.an-chk .ic{font-size:19px;line-height:1.1}
+.an-chk .n{font-weight:600;font-size:13.5px;color:#0f172a}
+.an-chk .d{font-size:12px;color:#475569;line-height:1.45;margin-top:1px}
+.an-chk .c{margin-left:auto;font-family:var(--mo);font-weight:700;font-size:18px;color:#16a34a}
+.an-chk.r .c{color:#b91c1c}.an-chk.w .c{color:#b45309}.an-chk.i .c{color:#1d4ed8}
+.an-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:10px;overflow:hidden;scroll-margin-top:70px}
+.an-ch{display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid #e2e8f0;background:#f8fafc;flex-wrap:wrap}
+.an-ch b{font-size:14px;color:#0f172a}.an-ch small{font-size:12px;color:#475569;margin-left:auto}
+.an-tag{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:10px}
+.an-tag.r{background:#fee2e2;color:#b91c1c}.an-tag.w{background:#fef3c7;color:#92400e}.an-tag.i{background:#dbeafe;color:#1d4ed8}
+.an-row{display:grid;grid-template-columns:70px 190px 1fr auto;gap:10px;align-items:center;padding:8px 13px;border-bottom:1px solid #f1f5f9;font-size:13px;cursor:pointer}
+.an-row:hover{background:#f8fafc}
+.an-row .k{font-family:var(--mo);font-weight:600;color:#334155}
+.an-row .o{font-weight:500;color:#0f172a}
+.an-row .w{color:#475569;line-height:1.4}.an-row .w b{font-family:var(--mo);color:#0f172a}
+.an-row .a{font-size:12px;color:#1d4ed8;white-space:nowrap}
+.an-more{display:block;width:100%;padding:8px;border:none;background:#f8fafc;color:#1d4ed8;font-family:var(--fn);font-size:12.5px;cursor:pointer;border-top:1px solid #e2e8f0}
+.an-why{font-size:12px;color:#475569;padding:7px 13px 9px;background:#fafbfd;border-top:1px dashed #e2e8f0}
+.an-ok{font-size:13px;color:#166534;background:#dcfce7;border-radius:10px;padding:10px 12px;margin-bottom:10px}
+@media(max-width:768px){
+  .an-sum{grid-template-columns:1fr;gap:6px}
+  .an-chk{padding:8px 10px;align-items:center}.an-chk .d{display:none}
+  .an-row{grid-template-columns:1fr auto;gap:2px 8px}
+  .an-row .k{grid-column:1}.an-row .o{grid-column:1/-1;order:3}.an-row .w{grid-column:1/-1;order:4}.an-row .a{grid-column:2;grid-row:1}
+}
 .kl-w{display:flex;align-items:center;gap:6px;white-space:nowrap}
 .kl-w b{font-family:var(--mo);font-size:13px;min-width:30px;text-align:right;color:#3730a3}
 .kl-w .bar{width:54px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
@@ -604,6 +637,8 @@ tbody td{padding:7px 10px;vertical-align:middle}
       <ul class="alist" id="aP"></ul>
     </div>
   </div>
+  <div class="sl" style="margin-top:16px">🔍 ตรวจความผิดปกติ</div>
+  <div id="anomaly"><div class="nodata">กำลังตรวจ...</div></div>
 </div>
 
 <script src="data/org_data.js"></script>
@@ -1569,6 +1604,90 @@ function mNav(p){
   if(p==='rank'){const r=document.querySelector('#page-overview .rg4'); if(r) setTimeout(()=>r.scrollIntoView({behavior:'smooth',block:'start'}),60);}
   else window.scrollTo({top:0});
 }
+// ===== ตรวจความผิดปกติ (เมนูติดตาม) =====
+let _kpiDir=null, _anScope='all', _anOpen={};
+async function loadKpiDir(){
+  if(_kpiDir) return _kpiDir;
+  try{
+    const r=await fetch('https://docs.google.com/spreadsheets/d/1wNdue0PW9sx0VE2fSbAnRaxacarc6tQnFBQ-RpkI2MM/gviz/tq?tqx=out:json&sheet=KPIMeta&t='+Date.now());
+    const t=await r.text(); const o=JSON.parse(t.slice(t.indexOf('{'),t.lastIndexOf('}')+1));
+    _kpiDir={}; o.table.rows.forEach(rw=>{const c=rw.c||[]; const code=String(c[0]&&(c[0].f||c[0].v)||'').trim(); if(code) _kpiDir[code]=c[7]&&c[7].v;});
+  }catch(e){ _kpiDir={}; }
+  return _kpiDir;
+}
+function anCalcScore(r,t,dir){
+  const L=[1,2,3,4,5].map(i=>parseFloat(t[i])); if(L.some(isNaN)||!dir) return null;
+  const up=dir!=='น้อยกว่า'; const g=v=>up?v:-v; const x=g(r); const T=L.map(g);
+  if(x<=T[0]) return 1; if(x>=T[4]) return 5;
+  for(let i=0;i<4;i++){ if(x<=T[i+1]) return T[i+1]===T[i]?i+2:(i+1)+(x-T[i])/(T[i+1]-T[i]); }
+  return 5;
+}
+async function renderAnomaly(){
+  const el=document.getElementById('anomaly'); if(!el) return;
+  try{ await preloadAndRenderAll(); }catch(e){}
+  const dir=await loadKpiDir();
+  const MK=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  const TH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const rev={}; Object.entries(window.orgCodeMap||{}).forEach(([n,c])=>{ if(!rev[c]) rev[c]=n; });
+  const myOrg=weightOrg(); const myCode=(window.orgCodeMap||{})[myOrg];
+  const inScope=c6=>_anScope==='all'||c6===myCode;
+  const fmt=v=>{const n=parseFloat(v); return isNaN(n)?v:n.toLocaleString('th-TH',{maximumFractionDigits:3});};
+  const R={formula:[],drop:[],outl:[],gap:[],stale:[],incomp:[]}; let checked=0;
+  const byKpi={};
+  Object.values(orgResultsCache).forEach(c=>{ Object.entries(c.kpiOrgData||{}).forEach(([code,od])=>{ Object.entries(od).forEach(([c6,v])=>{
+    if(!/000$/.test(c6)) (byKpi[code]=byKpi[code]||[]).push([c6,v]);
+    if(!inScope(c6)) return;
+    const org=rev[c6]||c6; const ms=v.monthlyScore||{}, mr=v.monthlyRes||{};
+    // 1) สูตรคะแนน
+    if(v.result!=null&&v.score!=null&&v.targets){ const r=parseFloat(v.result); if(!isNaN(r)){ const e=anCalcScore(r,v.targets,dir[code]); if(e!=null){ checked++; if(Math.abs(e-v.score)>0.02) R.formula.push({code,org,c6,txt:`ผล <b>${fmt(r)}</b> ควรได้ <b>${e.toFixed(3)}</b> แต่รายงาน <b>${(+v.score).toFixed(3)}</b>`,sev:Math.abs(e-v.score)}); } } }
+    // 2) ร่วงแรงเดือนล่าสุด
+    const ks=MK.filter(k=>ms[k]!==undefined&&ms[k]!=='');
+    if(ks.length>=2){ const a=+ms[ks[ks.length-2]], b=+ms[ks[ks.length-1]]; if(a-b>=2) R.drop.push({code,org,c6,txt:`คะแนน <b>${a.toFixed(2)} → ${b.toFixed(2)}</b> (${TH[MK.indexOf(ks[ks.length-2])]} → ${TH[MK.indexOf(ks[ks.length-1])]})`,sev:a-b}); }
+    // 4) เดือนขาดหาย
+    const rk=MK.filter(k=>mr[k]!==undefined&&mr[k]!=='');
+    if(rk.length>=2){ const f=MK.indexOf(rk[0]), l=MK.indexOf(rk[rk.length-1]); const miss=[]; for(let i=f;i<=l;i++) if(mr[MK[i]]===undefined||mr[MK[i]]==='') miss.push(TH[i]); if(miss.length) R.gap.push({code,org,c6,txt:`มีผลก่อนและหลัง แต่ <b>${miss.join(', ')}</b> ว่าง`,sev:miss.length}); }
+    // 6) ข้อมูลไม่ครบ / เป้าผิดลำดับ
+    if(v.result!=null&&v.score==null) R.incomp.push({code,org,c6,txt:'มีผล แต่ไม่มีคะแนน',sev:1});
+    if(v.score!=null&&v.result==null) R.incomp.push({code,org,c6,txt:'มีคะแนน แต่ไม่มีผล',sev:1});
+    const T=[1,2,3,4,5].map(i=>parseFloat(v.targets&&v.targets[i]));
+    if(T.every(x=>!isNaN(x))){ const inc=T.every((x,i)=>!i||x>=T[i-1]), dec=T.every((x,i)=>!i||x<=T[i-1]); if(!inc&&!dec) R.incomp.push({code,org,c6,txt:`เป้า 1–5 ไม่เรียงลำดับ: ${T.join(' / ')}`,sev:1}); }
+  });});});
+  // 3) ผลต่างจากหน่วยอื่นมาก  5) รายงานช้า
+  Object.entries(byKpi).forEach(([code,arr])=>{
+    const lm=arr.map(([c6,v])=>{const k=MK.filter(x=>(v.monthlyRes||{})[x]!==undefined&&(v.monthlyRes||{})[x]!=='');return k.length?MK.indexOf(k[k.length-1]):-1;});
+    const valid=lm.filter(x=>x>=0);
+    if(valid.length>=5){ const cnt={}; valid.forEach(x=>cnt[x]=(cnt[x]||0)+1); const mode=+Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];
+      arr.forEach(([c6,v],i)=>{ if(inScope(c6)&&lm[i]>=0&&mode-lm[i]>=2) R.stale.push({code,org:rev[c6]||c6,c6,txt:`ข้อมูลถึง <b>${TH[lm[i]]}</b> · หน่วยอื่นส่วนใหญ่ถึง <b>${TH[mode]}</b>`,sev:mode-lm[i]}); }); }
+    const rs=arr.map(([c6,v])=>parseFloat(v.result)).filter(x=>!isNaN(x)&&x!==0);
+    if(rs.length>=8){ const srt=[...rs].sort((a,b)=>a-b); const med=srt[Math.floor(srt.length/2)];
+      if(Math.abs(med)>1e-9) arr.forEach(([c6,v])=>{ if(!inScope(c6)) return; const r=parseFloat(v.result); if(isNaN(r)||r===0) return; const q=r/med;
+        if(q>=8||q<=1/8){ const hint=q<0?'เครื่องหมายกลับ?':q>=8?`สูงกว่า ${Math.round(q)} เท่า${q>=9.5&&q<=10.5||q>=95&&q<=105?' — ทศนิยมหาย?':''}`:`ต่ำกว่า ${Math.round(1/q)} เท่า`;
+          R.outl.push({code,org:rev[c6]||c6,c6,txt:`ผล <b>${fmt(r)}</b> · ค่ากลางของหน่วยอื่น <b>${fmt(med)}</b> — ${hint}`,sev:Math.abs(Math.log(Math.abs(q)||1e-9))+(q<0?5:0)}); } }); }
+  });
+  Object.values(R).forEach(a=>a.sort((x,y)=>y.sev-x.sev));
+  const DEF=[
+    ['formula','🧮','สูตรคะแนนถูกต้อง','คิดคะแนนใหม่จากผล + เป้า 1–5 + ทิศทาง แล้วเทียบกับคะแนนที่รายงาน','r','ควรตรวจ'],
+    ['drop','📉','คะแนนร่วงแรงเดือนล่าสุด','ลดลง ≥ 2 คะแนนจากเดือนก่อน','r','ควรตรวจ'],
+    ['outl','🔢','ผลต่างจากหน่วยงานอื่นมาก','ห่างจากค่ากลางของ KPI เดียวกันเกิน 8 เท่า — อาจพิมพ์ผิด/หน่วยผิด','w','น่าสงสัย'],
+    ['incomp','🎯','ข้อมูลครบ / เป้าเรียงถูก','มีผลแต่ไม่มีคะแนน, เป้า 1–5 ไม่เรียงลำดับ','w','น่าสงสัย'],
+    ['gap','🕳️','เดือนขาดหาย','มีผลเดือนก่อนและหลัง แต่เดือนกลางว่าง','i','ข้อสังเกต'],
+    ['stale','⏳','รายงานช้ากว่าหน่วยอื่น','ข้อมูลล่าสุดช้ากว่าส่วนใหญ่ ≥ 2 เดือน','i','ข้อสังเกต']];
+  const total=Object.values(R).reduce((s,a)=>s+a.length,0);
+  const scopeName=_anScope==='all'?'ทั้ง กฟต.2':myOrg;
+  let h=`<div class="an-hd"><span class="meta">ตรวจ ${checked.toLocaleString('th-TH')} รายการ (ผล × คะแนน × เป้า) · ${scopeName}</span><div class="an-seg"><button class="${_anScope==='org'?'on':''}" onclick="_anScope='org';renderAnomaly()">${myOrg}</button><button class="${_anScope==='all'?'on':''}" onclick="_anScope='all';renderAnomaly()">ทั้ง กฟต.2</button></div></div>`;
+  h+='<div class="an-sum">'+DEF.map(([k,ic,n,d,sv])=>{const c=R[k].length; return `<div class="an-chk ${c?sv:''}" onclick="const e=document.getElementById('an-${k}');if(e)e.scrollIntoView({behavior:'smooth'})"><span class="ic">${ic}</span><div><div class="n">${c&&k==='formula'?'สูตรคะแนนไม่ตรง':c&&k==='incomp'?'ข้อมูลไม่ครบ / เป้าผิดลำดับ':n}</div><div class="d">${d}</div></div><span class="c">${c?c:'✓'}</span></div>`;}).join('')+'</div>';
+  if(!total) h+=`<div class="an-ok">✅ ไม่พบความผิดปกติใน ${scopeName}</div>`;
+  DEF.forEach(([k,ic,n,d,sv,tag])=>{ const a=R[k]; if(!a.length) return; const open=_anOpen[k]; const show=open?a:a.slice(0,5);
+    h+=`<div class="an-card" id="an-${k}"><div class="an-ch"><span class="an-tag ${sv}">${tag}</span><b>${ic} ${k==='formula'?'สูตรคะแนนไม่ตรง':k==='incomp'?'ข้อมูลไม่ครบ / เป้าผิดลำดับ':n}</b><small>${a.length} รายการ${a.length>5&&!open?' · แสดง 5':''}</small></div>`
+      +show.map(x=>`<div class="an-row" onclick="anGo('${String(x.org).replace(/'/g,"\\'")}','${x.code}')"><span class="k">${x.code}</span><span class="o">${x.org}</span><span class="w">${x.txt}</span><span class="a">ดูรายละเอียด ›</span></div>`).join('')
+      +(a.length>5?`<button class="an-more" onclick="_anOpen['${k}']=!_anOpen['${k}'];renderAnomaly()">${open?'ย่อ ▲':'ดูทั้งหมด '+a.length+' รายการ ▼'}</button>`:'')
+      +(k==='outl'?'<div class="an-why">ไม่ได้แปลว่าผิดเสมอ — บาง KPI หน่วยงานขนาดต่างกันมาก ใช้เป็นจุดให้ "ลองเปิดดู" ก่อน</div>':'')+'</div>'; });
+  el.innerHTML=h;
+}
+async function anGo(org,code){
+  if(org&&org!==weightOrg()&&(window.orgCodeMap||{})[org]){ selectOrg(org,org); await new Promise(r=>setTimeout(r,1800)); }
+  oM(code);
+}
 function mGoImpact(){ mNav('kpilist'); const b=document.querySelector('.tabb[data-t="impact"]'); if(b) sT(b); }
 
 function dC(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
@@ -2397,6 +2516,7 @@ function sP(el){
   document.getElementById('page-'+el.dataset.p).classList.add('on');
   if(el.dataset.p==='trend') setTimeout(()=>{renderTrend();},100);
   if(el.dataset.p==='kpilist') loadNotesPreview();
+  if(el.dataset.p==='alert') renderAnomaly();
 }
 
 function expCSV(){
