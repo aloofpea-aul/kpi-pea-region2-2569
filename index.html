@@ -881,6 +881,8 @@ async function loadData(){
           result: ks.resultLatestAOL!==null&&ks.resultLatestAOL!==''?ks.resultLatestAOL:lp.result||null,
           status: lp.status||'',
           score: ks.scoreLatestAOL!==null&&ks.scoreLatestAOL!==''?parseFloat(ks.scoreLatestAOL)||null:lp.score||null,
+          // คะแนนของ อ่าวลึก เอง (ไม่ fallback ไปคะแนนภาพรวม) — ใช้คำนวณ PEATA/Ranking
+          scoreAOL: ks.scoreLatestAOL!==null&&ks.scoreLatestAOL!==''&&!isNaN(parseFloat(ks.scoreLatestAOL))?parseFloat(ks.scoreLatestAOL):null,
           targets: ks.targets,
           monthly: ks.monthly,
           monthlyRes: ks.monthlyRes,
@@ -1453,7 +1455,7 @@ function rMetrics(){
     scoreItems.forEach(d=>{
       const score = d.score!=null ? d.score : kpiScoresCard[d.code];
       if(score==null) return;
-      const w = W[d.code] ? W[d.code][wKey] : null;
+      const w = peataWeight(d.code,wKey);
       if(w==null) return;
       totalWeight   += w;
       totalWeighted += w * score;
@@ -1563,6 +1565,24 @@ async function preloadAndRenderAll(){
 }
 
 
+// น้ำหนัก PEATA ราย KPI — เลือกรอบตาม "เดือนสถานะล่าสุด" ของ KPI นั้น (เหมือน Looker ต้นฉบับ)
+// สถานะล่าสุด ม.ค.–มิ.ย. → PEATA_W1, ก.ค.–ธ.ค. → PEATA_W2 ; ไม่มีสถานะ → ใช้รอบตามเดือนปัจจุบัน
+const _TH_MON_NUM={'ม.ค.':1,'ก.พ.':2,'มี.ค.':3,'เม.ย.':4,'พ.ค.':5,'มิ.ย.':6,'ก.ค.':7,'ส.ค.':8,'ก.ย.':9,'ต.ค.':10,'พ.ย.':11,'ธ.ค.':12};
+function peataDataMonth(){ const n=new Date(); return n.getMonth()===0?12:n.getMonth(); }
+function kpiStatusMonth(code){
+  const base=allDataBase.length?allDataBase:allData;
+  const it=base.find(d=>d.code===code);
+  const st=String(it&&it.status||'').trim();
+  return _TH_MON_NUM[st]||_TH_MON_NUM[st+'.']||null;
+}
+function peataWeight(code,wKey){
+  const m=kpiStatusMonth(code)||peataDataMonth();
+  const W=m<=6?PEATA_W1:PEATA_W2;
+  const w=W[code]?W[code][wKey]:null;
+  return w==null?null:w;
+}
+const PEATA_ALL_CODES=[...new Set([...Object.keys(PEATA_W1),...Object.keys(PEATA_W2)])];
+
 // คำนวณ PEATA weighted score สำหรับหน่วยงาน
 // orgName: ชื่อหน่วยงาน, kpiScores: {code: score}
 // ตัดสินว่าใช้ PEATA1 หรือ PEATA2 จากเดือนปัจจุบัน (ม.ค.-มิ.ย.=1, ก.ค.-ธ.ค.=2)
@@ -1578,8 +1598,8 @@ function calcPEATAScore(orgName, kpiScores){
   const W = (dataMonth >= 1 && dataMonth <= 6) ? PEATA_W1 : PEATA_W2;
   let totalWeighted = 0;
   let totalWeight = 0;
-  Object.keys(W).forEach(code=>{
-    const w = W[code][wKey];
+  PEATA_ALL_CODES.forEach(code=>{
+    const w = peataWeight(code,wKey);
     const sc = kpiScores[code];
     if(w == null || sc == null) return; // ข้าม KPI ที่ไม่มีน้ำหนักหรือไม่มีคะแนน
     totalWeighted += w * sc;
@@ -1608,7 +1628,7 @@ function getKpiScoresForOrg(name, orgCodes){
   // กฟส.อ่าวลึก ใช้ allDataBase เสมอ
   if(name==='กฟส.อ่าวลึก'){
     const base=allDataBase.length>0?allDataBase:allData;
-    base.forEach(d=>{if(d.score!==null)kpiScores[d.code]=d.score;});
+    base.forEach(d=>{const sc=d.scoreAOL!==undefined?d.scoreAOL:d.score; if(sc!==null&&sc!==undefined)kpiScores[d.code]=sc;});
   }
   return kpiScores;
 }
