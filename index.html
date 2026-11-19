@@ -521,6 +521,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
         <tbody id="tBody"></tbody>
       </table>
     </div>
+    <div id="kCards" class="kcards"></div>
     <div class="kl-legend"><span><i style="background:#dcfce7"></i>คะแนน 5</span><span><i style="background:#dbeafe"></i>4</span><span><i style="background:#fef3c7"></i>3</span><span><i style="background:#fee2e2"></i>1–2 ต้องติดตาม</span><span><i style="outline:2px solid #2563eb;background:#fff"></i>เดือนล่าสุด</span><span><i style="outline:2px dashed #d97706;background:#fff"></i>ประมาณการ</span></div>
   </div>
 </div>
@@ -1925,7 +1926,7 @@ function rT(){
   let d=tData;
   if(q)d=d.filter(x=>x.code.toLowerCase().includes(q)||x.name.toLowerCase().includes(q)||x.dept.toLowerCase().includes(q)||x.responsible.toLowerCase().includes(q));
   const tbody=document.getElementById('tBody');
-  if(!d.length){tbody.innerHTML='<tr><td colspan="19" class="nodata">ไม่พบรายการ</td></tr>';return;}
+  if(!d.length){tbody.innerHTML='<tr><td colspan="19" class="nodata">ไม่พบรายการ</td></tr>';const kc=document.getElementById('kCards');if(kc)kc.innerHTML='<div class="nodata">ไม่พบรายการ</div>';return;}
   const isMon=t=>/^(ม\.ค|ก\.พ|มี\.ค|เม\.ย|พ\.ค|มิ\.ย|ก\.ค|ส\.ค|ก\.ย|ต\.ค|พ\.ย|ธ\.ค)\.?$/.test((t||'').trim());
   tbody.innerHTML=d.map(item=>{
     const res=item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—';
@@ -1942,6 +1943,37 @@ function rT(){
     ${renderMonthCells(item)}
     <td style="text-align:center;padding:4px 8px">${renderNoteBadge(item.code)}</td>
   </tr>`;}).join('');
+  renderKpiCards(d,_ctx);
+}
+
+// การ์ด KPI สำหรับมือถือ (แสดงแทนตารางเมื่อจอแคบ ≤768px)
+function renderKpiCards(d,ctx){
+  const el=document.getElementById('kCards'); if(!el) return;
+  const MS=['ม','ก','มี','เม','พ','มิ','ก','ส','ก','ต','พ','ธ'];
+  const isMon=t=>/^(ม\.ค|ก\.พ|มี\.ค|เม\.ย|พ\.ค|มิ\.ย|ก\.ค|ส\.ค|ก\.ย|ต\.ค|พ\.ย|ธ\.ค)\.?$/.test((t||'').trim());
+  el.innerHTML=d.map(item=>{
+    const sc=item.score; const cls=sc===null?'':sc>=5?'s5':sc>=4?'s4':sc>=3?'s3':'s12';
+    const res=item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—';
+    const st=item.status||'';
+    const when=item.isEstimate?`~ประมาณการ ${item.estimateMonthLabel||''}`:(st?(isMon(st)?'ถึง '+st:st):'');
+    const scA=item.monthlyScoreAOL||{}; const has=MONTH_KEYS.filter(k=>scA[k]!==undefined&&scA[k]!=='');
+    const last=has[has.length-1];
+    const spark=has.length?`<div class="kc-sp">${MONTH_KEYS.map(k=>{const v=parseFloat(scA[k]); if(scA[k]===undefined||scA[k]===''||isNaN(v)) return '<i></i>'; const c=v>=4.995?'s5':v>=3.995?'s4':v>=2.995?'s3':'s1'; return `<i class="${c}${k===last?' last':''}" style="height:${Math.max(12,v/5*100)}%" title="${MONTHS[MONTH_KEYS.indexOf(k)]}: ${v.toFixed(3)}"></i>`;}).join('')}</div>`:'';
+    let wtxt='';
+    if(ctx&&item.weight!=null){
+      const counted=ctx.sc[item.code]!=null;
+      wtxt=`<span>⚖️ ${item.weight}${counted&&item._lost>0.0001?` · <span class="lost">เสีย ${item._lost.toFixed(2)}</span>`:(counted?'':' · ไม่นับ')}</span>`;
+      if(curTab==='impact'&&ctx&&item._lost>0) wtxt=`<span class="lost">เสีย ${item._lost.toFixed(2)} → ถ้าได้ 5 รวม ${(ctx.total+item._lost/ctx.tw).toFixed(3)}</span>`;
+    }
+    const np=_notesPreview&&_notesPreview[item.code];
+    return `<div class="kc ${cls}" onclick="oM('${item.code}')">
+      <div class="kc-h"><span class="kc-c">${item.code}<span class="dtag ${getDC(item.dept)}">${item.dept||''}</span></span><span class="pill ${getPC(sc)}">${sc!==null?sc.toFixed(3):'N/A'}</span></div>
+      <div class="kc-n">${item.name}</div>
+      <div class="kc-m"><span>ผล <b>${res}</b>${when?' · '+when:''}</span>${wtxt}</div>
+      ${spark}
+      ${np?`<div class="kc-note">💬 ${np.author||''}${np.count>1?' ('+np.count+')':''}</div>`:''}
+    </div>`;
+  }).join('');
 }
 
 let _notesPreview={};
@@ -2777,5 +2809,38 @@ window.addEventListener('DOMContentLoaded', ()=>{
   .trend-sel{gap:4px}
   .trend-sel select{font-size:10px}
 }
+/* ===== โหมดมือถือ: รายการ KPI แบบการ์ด ===== */
+.kcards{display:none}
+@media(max-width:768px){
+  #page-kpilist .twrap,#page-kpilist .kl-legend{display:none}
+  #page-kpilist .kcards{display:block;padding:8px 8px 4px}
+  #page-kpilist .thdr{flex-direction:column;align-items:stretch;gap:8px;padding:10px}
+  #page-kpilist .thdr-l{flex-direction:column;align-items:stretch;gap:8px}
+  #page-kpilist .thdr-title{font-size:13px;font-weight:600;color:var(--t);text-transform:none;letter-spacing:0}
+  #page-kpilist .tabg{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  #page-kpilist .tabg::-webkit-scrollbar{display:none}
+  #page-kpilist .tabb{font-size:13px;padding:6px 12px;flex-shrink:0}
+  #page-kpilist .tsrch{width:100%;font-size:16px;padding:8px 12px}
+  #page-kpilist .thdr>div:last-child{flex-direction:column;align-items:stretch}
+  #page-kpilist .sort-btn{flex:1;justify-content:center;font-size:12px;padding:6px}
+  #page-kpilist .thdr>div:last-child>div{display:flex;gap:4px}
+}
+.kc{background:var(--bg2);border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.kc.s5{border-left-color:#16a34a}.kc.s4{border-left-color:#2563eb}.kc.s3{border-left-color:#d97706}.kc.s12{border-left-color:#dc2626}
+.kc-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.kc-c{font-family:var(--mo);font-weight:600;font-size:13px;color:#334155}
+.kc-c .dtag{margin-left:4px;font-size:11px}
+.kc .pill{font-size:14px;padding:2px 10px}
+.kc-n{font-size:14px;line-height:1.45;font-weight:500;color:#0f172a;margin:5px 0 6px}
+.kc-m{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:#475569;flex-wrap:wrap}
+.kc-m b{font-family:var(--mo);color:#0f172a;font-size:13px}
+.kc-m .lost{color:#b91c1c;font-weight:600}
+.kc-sp{display:flex;gap:2px;align-items:flex-end;height:22px;margin-top:7px}
+.kc-sp i{flex:1;border-radius:2px 2px 0 0;min-height:2px;background:#e2e8f0}
+.kc-sp i.s5{background:#86efac}.kc-sp i.s4{background:#93c5fd}.kc-sp i.s3{background:#fcd34d}.kc-sp i.s1{background:#fca5a5}
+.kc-sp i.last{outline:2px solid #2563eb;outline-offset:0}
+.kc-ml{display:flex;gap:2px;font-size:9.5px;color:#64748b;margin-top:2px}
+.kc-ml span{flex:1;text-align:center}
+.kc-note{font-size:11.5px;color:#6d28d9;margin-top:5px}
 </style>
 </html>
