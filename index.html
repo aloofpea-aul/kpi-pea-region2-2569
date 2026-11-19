@@ -1455,7 +1455,7 @@ function rMetrics(){
     scoreItems.forEach(d=>{
       const score = d.score!=null ? d.score : kpiScoresCard[d.code];
       if(score==null) return;
-      const w = peataWeight(d.code,wKey);
+      const w = peataWeight(d.code,wKey,curOrg);
       if(w==null) return;
       totalWeight   += w;
       totalWeighted += w * score;
@@ -1575,10 +1575,18 @@ function kpiStatusMonth(code){
   const st=String(it&&it.status||'').trim();
   return _TH_MON_NUM[st]||_TH_MON_NUM[st+'.']||null;
 }
-function peataWeight(code,wKey){
+// ปรับน้ำหนักรอบ 2 ให้ตรงกับ Looker ต้นฉบับ (ตรวจเทียบทุกหน่วยงาน 19 พ.ย. 2569)
+const PEATA_W2_FIX={'1.2.1':{'กฟจ.L/S':0.7,'กฟส.L/M':0.7,'กฟส.S':0.8}};
+// กฟส. ขนาด L ใช้น้ำหนัก 2.6 / 2.7 = 0.9 (ขนาด M ใช้ 1.2 ตามตาราง)
+const PEATA_L_UNITS=['กฟส.ถลาง','กฟส.ป่าตอง','กฟส.ทุ่งสง','กฟส.พุนพิน','กฟส.เกาะสมุย'];
+const PEATA_L_FIX={'2.6':0.9,'2.7':0.9};
+function peataWeight(code,wKey,orgName){
   const m=kpiStatusMonth(code)||peataDataMonth();
-  const W=m<=6?PEATA_W1:PEATA_W2;
-  const w=W[code]?W[code][wKey]:null;
+  const isW2=m>6;
+  const W=isW2?PEATA_W2:PEATA_W1;
+  let w=W[code]?W[code][wKey]:null;
+  if(isW2&&PEATA_W2_FIX[code]&&PEATA_W2_FIX[code][wKey]!==undefined) w=PEATA_W2_FIX[code][wKey];
+  if(isW2&&orgName&&PEATA_L_UNITS.includes(orgName)&&PEATA_L_FIX[code]!==undefined&&w!=null) w=PEATA_L_FIX[code];
   return w==null?null:w;
 }
 const PEATA_ALL_CODES=[...new Set([...Object.keys(PEATA_W1),...Object.keys(PEATA_W2)])];
@@ -1599,7 +1607,7 @@ function calcPEATAScore(orgName, kpiScores){
   let totalWeighted = 0;
   let totalWeight = 0;
   PEATA_ALL_CODES.forEach(code=>{
-    const w = peataWeight(code,wKey);
+    const w = peataWeight(code,wKey,orgName);
     const sc = kpiScores[code];
     if(w == null || sc == null) return; // ข้าม KPI ที่ไม่มีน้ำหนักหรือไม่มีคะแนน
     totalWeighted += w * sc;
