@@ -2296,7 +2296,19 @@ function oM(code){
       const c=isScore?(n>=4.995?'s5':n>=3.995?'s4':n>=2.995?'s3':'s1'):'r';
       return `<div><span class="mm-l">${ml[i]}</span><b class="${c}${k===last?' last':''}">${isScore?n.toFixed(2):(Math.abs(n)>=1000?n.toLocaleString('th-TH',{maximumFractionDigits:0}):+n.toFixed(2))}</b></div>`;}).join('')}</div>`;
   };
-  const mobileMonths=`<div class="mm-wrap">${buildMonthGrid('⭐ คะแนน '+((curOrg&&curOrg!=='all')?curOrg:'กฟส.อล.'),scAol,true)}${buildMonthGrid('📊 ผล '+((curOrg&&curOrg!=='all')?curOrg:'กฟส.อล.'),aol,false)}</div>`;
+  // มือถือ: คะแนน + ผล ในแถบเดียวกัน เลื่อนพร้อมกัน (แต่ละเดือน = คะแนนบน / ผลล่าง)
+  const buildMonthPair=()=>{
+    const hasS=mk2.some(k=>scAol[k]!==undefined&&scAol[k]!==''), hasR=mk2.some(k=>aol[k]!==undefined&&aol[k]!=='');
+    if(!hasS&&!hasR) return '';
+    const ks=mk2.filter(k=>(scAol[k]!==undefined&&scAol[k]!=='')||(aol[k]!==undefined&&aol[k]!==''));
+    const last=ks[ks.length-1];
+    const cell=(v,isScore,isLast)=>{const n=parseFloat(v); if(v===undefined||v===''||isNaN(n)) return '<b class="na">·</b>';
+      const c=isScore?(n>=4.995?'s5':n>=3.995?'s4':n>=2.995?'s3':'s1'):'r';
+      return `<b class="${c}${isLast?' last':''}">${isScore?n.toFixed(2):(Math.abs(n)>=1000?n.toLocaleString('th-TH',{maximumFractionDigits:0}):+n.toFixed(2))}</b>`;};
+    const org=(curOrg&&curOrg!=='all')?curOrg:'กฟส.อล.';
+    return `<div class="mm-t">${org}</div><div class="mm-p"><div class="mm-leg"><span>&nbsp;</span>${hasS?'<span>⭐ คะแนน</span>':''}${hasR?'<span>📊 ผล</span>':''}</div><div class="mm-g">${mk2.map((k,i)=>`<div><span class="mm-l">${ml[i]}</span>${hasS?cell(scAol[k],true,k===last):''}${hasR?cell(aol[k],false,k===last):''}</div>`).join('')}</div></div>`;
+  };
+  const mobileMonths=`<div class="mm-wrap">${buildMonthPair()}</div>`;
   const tableHTML=hasTable?`<div class="mtrend"><div class="mtrend-t">ผลการดำเนินงานรายเดือน</div>${mobileMonths}<div class="mm-table" style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;min-width:600px"><thead><tr><th style="text-align:left;font-size:9px;color:var(--t2);padding:3px 6px;font-weight:600">รายการ</th>${monthHeader}</tr></thead><tbody>${buildMonthTable('⭐ คะแนน '+orgLabel,scAol,'#15803d')}${buildMonthTable('ผล '+orgLabel,aol,'#166534')}${buildMonthTable('คะแนน กฟต.2',scM,'#1d4ed8')}${buildMonthTable('ผล กฟต.2',res,'#475569')}</tbody></table></div>${hasChart?`<div style="position:relative;height:200px"><canvas id="mChart" role="img" aria-label="monthly trend"></canvas></div>`:''}</div>`:'';
   // คำนวณ progress ไปสู่คะแนน 5
   const gap = sc!==null ? Math.max(0, 5 - sc) : null;
@@ -3034,7 +3046,14 @@ window.addEventListener('DOMContentLoaded', ()=>{
   .mm-t::after{content:'เลื่อน ›';font-size:11px;font-weight:400;color:#64748b}
   .mm-g{display:flex;gap:5px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding:2px 2px 6px;scrollbar-width:none}
   .mm-g::-webkit-scrollbar{display:none}
-  .mm-g>div{text-align:center;flex:0 0 58px;scroll-snap-align:start}
+  .mm-g>div{text-align:center;flex:0 0 58px;scroll-snap-align:start;display:flex;flex-direction:column;gap:4px}
+  .mm-g b{margin-top:0!important}
+  .mm-p{display:flex;gap:6px;align-items:stretch}
+  .mm-leg{display:flex;flex-direction:column;gap:4px;flex-shrink:0;padding:2px 0 6px}
+  .mm-leg span{font-size:11px;color:#475569;height:25px;display:flex;align-items:center;white-space:nowrap}
+  .mm-leg span:first-child{height:15px}
+  .mm-l{height:15px;line-height:15px}
+  .mm-g b{height:25px;line-height:17px}
   .mm-l{display:block;font-size:11px;color:#475569}
   .mm-g b{display:block;font-family:var(--mo);font-size:12.5px;font-weight:600;border-radius:6px;padding:4px 0;margin-top:1px;background:#f1f5f9;color:#0f172a}
   .mm-g b.s5{background:#dcfce7;color:#166534}.mm-g b.s4{background:#dbeafe;color:#1d4ed8}.mm-g b.s3{background:#fef3c7;color:#92400e}.mm-g b.s1{background:#fee2e2;color:#b91c1c}
