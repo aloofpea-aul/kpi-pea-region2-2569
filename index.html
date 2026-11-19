@@ -412,6 +412,13 @@ tbody td{padding:7px 10px;vertical-align:middle}
   </div>
 </nav>
 
+<nav class="bnav-m">
+  <button data-m="overview" class="on" onclick="mNav('overview')"><b>🏠</b>ภาพรวม</button>
+  <button data-m="kpilist" onclick="mNav('kpilist')"><b>📋</b>KPI</button>
+  <button data-m="rank" onclick="mNav('rank')"><b>🏆</b>อันดับ</button>
+  <button data-m="trend" onclick="mNav('trend')"><b>📈</b>แนวโน้ม</button>
+  <button data-m="alert" onclick="mNav('alert')"><b>🔔</b>ติดตาม</button>
+</nav>
 <div class="page on" id="page-overview">
   <div class="fbar">
     <label>กลุ่ม</label>
@@ -439,6 +446,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <span>🏢</span> <strong id="orgBannerName"></strong> — แสดง KPI ที่หน่วยงานนี้รับผิดชอบ
     <span class="org-banner-close" onclick="clearOrg()">✕ ดูทั้งหมด</span>
   </div>
+  <div id="mHero" class="m-hero"></div>
   <div class="sl">ภาพรวม</div>
   <div class="mg" id="mg"></div>
   <div class="sl">การวิเคราะห์</div>
@@ -1528,7 +1536,36 @@ function rMetrics(){
     <div class="mc bl"><div class="mc-i">🏆</div><div class="mc-v">${s5}</div><div class="mc-l">ได้คะแนนเต็ม</div><div class="mc-s">${s5Pct}% ของที่มีผล</div><div class="pb"><div class="pb-f bl" style="width:${s5Pct}%"></div></div></div>
     <div class="mc ${low>0?'rd':'tl'}"><div class="mc-i">${low>0?'⚠️':'👍'}</div><div class="mc-v">${low}</div><div class="mc-l">คะแนนต่ำกว่า 3</div><div class="mc-s">ต้องติดตาม</div></div>
   `;
+  try{renderMobileHero();}catch(e){console.log('hero',e);}
 }
+
+// ===== มือถือ: การ์ดสรุปหน้าภาพรวม + แถบเมนูล่าง =====
+function renderMobileHero(){
+  const el=document.getElementById('mHero'); if(!el) return;
+  const ctx=peataCtx(); if(!ctx||ctx.total==null){el.innerHTML='';return;}
+  const org=ctx.org;
+  const groups=[['กฟส.XS',typeof ORG_XS_CODES!=='undefined'?ORG_XS_CODES:{}],['กฟส.S',typeof ORG_S_CODES!=='undefined'?ORG_S_CODES:{}],['L+M+กฟจ.',typeof ORG_LM_CODES!=='undefined'?ORG_LM_CODES:{}]];
+  const g=groups.find(x=>x[1]&&x[1][org]); let rankTxt='';
+  if(g){
+    const all={...ORG_S_CODES,...ORG_XS_CODES,...ORG_LM_CODES};
+    const arr=Object.keys(g[1]).map(n=>{const p=calcPEATAScore(n,getKpiScoresForOrg(n,all));return {n,s:p?p.score:null};}).filter(x=>x.s!=null).sort((a,b)=>b.s-a.s);
+    const i=arr.findIndex(x=>x.n===org); if(i>=0) rankTxt=`อันดับ ${i+1} จาก ${arr.length} ในกลุ่ม ${g[0]} · `;
+  }
+  const per=peataDataMonth()<=6?'รอบ 1':'รอบ 2';
+  const sc=ctx.total; const cls=sc>=4.995?'s5':sc>=3.995?'s4':sc>=2.995?'s3':'s1';
+  const base=allDataBase.length?allDataBase:allData; const nm=c=>{const it=base.find(d=>d.code===c);return it?it.name:'';};
+  const imp=Object.keys(ctx.w).filter(c=>ctx.sc[c]!=null).map(c=>({c,l:ctx.w[c]*(5-ctx.sc[c])})).filter(x=>x.l>0.0001).sort((a,b)=>b.l-a.l).slice(0,3);
+  el.innerHTML=`<div class="mh-card"><div class="l">คะแนน PEATA ถ่วงน้ำหนัก (${per}) · ${org}</div><div class="v ${cls}">${sc.toFixed(3)}</div><div class="s">${rankTxt}น้ำหนักที่นับ ${ctx.tw.toFixed(2)}</div></div>
+  ${imp.length?`<div class="mh-sec"><span>🎯 ต้องเร่งก่อน</span><a onclick="mGoImpact()">ดูทั้งหมด ›</a></div><div class="mh-list">${imp.map(x=>`<div onclick="oM('${x.c}')"><span><b>${x.c}</b> ${nm(x.c)}</span><em>−${x.l.toFixed(2)}</em></div>`).join('')}</div>`:''}`;
+}
+function mNav(p){
+  const t=p==='rank'?'overview':p;
+  const btn=document.querySelector('.ntab[data-p="'+t+'"]'); if(btn) sP(btn);
+  document.querySelectorAll('.bnav-m button').forEach(b=>b.classList.toggle('on',b.dataset.m===p));
+  if(p==='rank'){const r=document.querySelector('#page-overview .rg4'); if(r) setTimeout(()=>r.scrollIntoView({behavior:'smooth',block:'start'}),60);}
+  else window.scrollTo({top:0});
+}
+function mGoImpact(){ mNav('kpilist'); const b=document.querySelector('.tabb[data-t="impact"]'); if(b) sT(b); }
 
 function dC(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 
@@ -1585,6 +1622,7 @@ function renderAllRankingCards(){
   renderRankingFor('rankList',   ORG_S_CODES,  true, rankViewState.rankList);
   renderRankingFor('rankListXS', ORG_XS_CODES, true, rankViewState.rankListXS);
   renderRankingFor('rankListLM', ORG_LM_CODES, true, rankViewState.rankListLM);
+  try{renderMobileHero();}catch(e){}
 }
 
 function toggleRankView(elId, btnId){
@@ -2863,6 +2901,41 @@ window.addEventListener('DOMContentLoaded', ()=>{
   .m-btns>*{justify-content:center;text-align:center;padding:11px 8px!important;font-size:13px!important;border-radius:10px!important}
 }
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+/* ===== โหมดมือถือ: หน้าภาพรวม + แถบเมนูล่าง ===== */
+.bnav-m,.m-hero{display:none}
+@media(max-width:768px){
+  .ntabs{display:none!important}
+  .bnav-m{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:400;background:#fff;border-top:1px solid #e2e8f0;padding:4px 2px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 14px rgba(15,23,42,.08)}
+  .bnav-m button{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:1px;font-family:var(--fn);font-size:11.5px;color:#475569;padding:4px 0;cursor:pointer}
+  .bnav-m button b{font-size:20px;font-weight:400;line-height:1.2;filter:grayscale(.6);opacity:.8}
+  .bnav-m button.on{color:#1d4ed8;font-weight:600}
+  .bnav-m button.on b{filter:none;opacity:1}
+  .page{padding-bottom:84px!important}
+  #scrollBtns{bottom:84px!important}
+  .m-hero{display:block;margin-bottom:10px}
+  #page-overview .rg4{scroll-margin-top:64px}
+  .mh-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px 14px}
+  .mh-card .l{font-size:12.5px;color:#475569}
+  .mh-card .v{font-family:var(--mo);font-size:38px;font-weight:700;line-height:1.15}
+  .mh-card .v.s5{color:#166534}.mh-card .v.s4{color:#1d4ed8}.mh-card .v.s3{color:#92400e}.mh-card .v.s1{color:#b91c1c}
+  .mh-card .s{font-size:12.5px;color:#475569}
+  .mh-sec{display:flex;justify-content:space-between;align-items:center;margin:12px 2px 6px;font-size:14px;font-weight:600;color:#0f172a}
+  .mh-sec a{font-size:13px;font-weight:500;color:#1d4ed8;cursor:pointer}
+  .mh-list{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:2px 12px}
+  .mh-list div{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:13px;cursor:pointer}
+  .mh-list div:last-child{border:none}
+  .mh-list span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0f172a}
+  .mh-list b{font-family:var(--mo);color:#334155;margin-right:4px}
+  .mh-list em{font-style:normal;font-family:var(--mo);font-weight:600;color:#b91c1c;flex-shrink:0}
+  /* แถบตัวกรอง: เหลือแค่ช่องเลือกหน่วยงาน เต็มความกว้าง */
+  #page-overview .fbar>label,#page-overview .fbar>select,#page-overview .fbar>.fdiv,#page-overview .fbar>.fcnt{display:none}
+  #page-overview .fbar{padding:8px 10px}
+  #orgWrap{display:block!important;width:100%}
+  #orgSearch{width:100%!important;box-sizing:border-box;font-size:16px!important;padding:9px 12px!important;border-radius:10px!important}
+  #orgDrop{width:100%;font-size:14px}
+  .org-banner{flex-wrap:wrap;font-size:12.5px!important;gap:4px 6px!important;padding:8px 12px!important}
+  .org-banner-close{white-space:nowrap;margin-left:auto}
+}
 /* ===== โหมดมือถือ: รายการ KPI แบบการ์ด ===== */
 .kcards{display:none}
 @media(max-width:768px){
