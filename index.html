@@ -1035,7 +1035,7 @@ async function loadData(){
 async function loadOrgList(){
   try{
     const url=`https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:json&sheet=OrgMap&t=${Date.now()}`;
-    const res=await fetchT(url);const txt=await res.text();
+    const res=await fetchT(url,25000);const txt=await res.text();
     const m=txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
     if(!m)throw new Error('no match');
     const rows=JSON.parse(m[1]).table.rows;
@@ -1278,7 +1278,7 @@ async function af(){
       const cache=orgResultsCache[gfjCode];
       if(cache){
         // หา orgCode ของหน่วยงานที่เลือก
-        const orgCode6=window.orgCodeMap&&window.orgCodeMap[org];
+        const orgCode6=(window.orgCodeMap&&window.orgCodeMap[org])||({...ORG_XS_CODES,...ORG_S_CODES,...ORG_LM_CODES})[org];
         if(orgCode6&&cache.kpiOrgData){
           const isAOL = (org==='กฟส.อ่าวลึก');
           // อัปเดต orgKpis จาก Results sheet จริง (ดู KPI ทั้งหมดที่มีแถวสำหรับหน่วยงานนี้)
