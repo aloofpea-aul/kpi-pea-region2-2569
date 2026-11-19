@@ -1138,7 +1138,8 @@ function selectOrg(val,label){
   const inp=document.getElementById('orgSearch');
   if(inp) inp.value=_orgSel==='all'?'':label;
   hideOrgDrop();
-  af(); loadNotesPreview();
+  Promise.resolve(af()).then(()=>{ if(document.getElementById('page-alert')?.classList.contains('on')){ renderAlert(); renderAnomaly(); } });
+  loadNotesPreview();
 }
 
 function clearOrg(){ selectOrg('all',''); }
@@ -2243,11 +2244,29 @@ function renderTrendTable(){
   }).join('');
 }
 
+// รายการ KPI ของหน่วยงานที่กำลังดู — เฉพาะ KPI ที่หน่วยงานนี้ถูกวัดจริง และใช้คะแนนของหน่วยงานเอง (ไม่เอาคะแนนภาพรวมมาแทน)
+function alertItems(){
+  const org=weightOrg();
+  const codes={...(window.orgCodeMap||{}),...ORG_XS_CODES,...ORG_S_CODES,...ORG_LM_CODES};
+  const c6=codes[org]; const g=ORG_GFJ_CODE&&ORG_GFJ_CODE[org];
+  const kd=g&&orgResultsCache[g]?orgResultsCache[g].kpiOrgData:null;
+  if(!kd||!c6) return allData;
+  const wKey=ORG_WEIGHT_KEY&&ORG_WEIGHT_KEY[org];
+  return allData.map(d=>{
+    const ov=kd[d.code]&&kd[d.code][c6];
+    const assigned=!!ov||(!!wKey&&peataWeight(d.code,wKey,org)!=null);
+    if(!assigned) return null;
+    const sc=ov&&ov.score!=null&&!isNaN(parseFloat(ov.score))?parseFloat(ov.score):null;
+    return {...d,score:sc};
+  }).filter(Boolean);
+}
 function renderAlert(){
-  const crit=allData.filter(d=>d.score!==null&&d.score<2);
-  const warn=allData.filter(d=>d.score!==null&&d.score>=2&&d.score<3);
-  const pend=allData.filter(d=>d.score===null);
-  const near=allData.filter(d=>d.score!==null&&d.score>=3&&d.score<4.9995).sort((a,b)=>a.score-b.score);
+  const items=alertItems();
+  const crit=items.filter(d=>d.score!==null&&d.score<2).sort((a,b)=>a.score-b.score);
+  const warn=items.filter(d=>d.score!==null&&d.score>=2&&d.score<3).sort((a,b)=>a.score-b.score);
+  const pend=items.filter(d=>d.score===null);
+  const near=items.filter(d=>d.score!==null&&d.score>=3&&d.score<4.9995).sort((a,b)=>a.score-b.score);
+  const t=document.querySelector('#page-alert .sl'); if(t) t.textContent='รายการที่ต้องติดตาม · '+weightOrg()+' ('+items.length+' KPI ที่ถูกวัด)';
   document.getElementById('aPcnt').textContent=pend.length;
   const mk=(item,scls)=>`<li class="ali" onclick="oM('${item.code}')"><span class="ali-c">${item.code}</span><span class="ali-n">${item.name}</span><span class="ali-s ${scls}">${item.score!==null?item.score.toFixed(3):'รอรายงาน'}</span></li>`;
   document.getElementById('aC').innerHTML=crit.length?crit.map(i=>mk(i,'ds')).join(''):`<li class="ali"><span class="ali-n" style="color:var(--t3)">ไม่มีรายการวิกฤต 👍</span></li>`;
@@ -2538,7 +2557,7 @@ function sP(el){
   document.getElementById('page-'+el.dataset.p).classList.add('on');
   if(el.dataset.p==='trend') setTimeout(()=>{renderTrend();},100);
   if(el.dataset.p==='kpilist') loadNotesPreview();
-  if(el.dataset.p==='alert') renderAnomaly();
+  if(el.dataset.p==='alert'){ (async()=>{ try{await preloadAndRenderAll();}catch(e){} renderAlert(); })(); renderAnomaly(); }
 }
 
 function expCSV(){
