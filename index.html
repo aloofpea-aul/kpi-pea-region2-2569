@@ -2820,7 +2820,12 @@ window.addEventListener('DOMContentLoaded', ()=>{
   #page-kpilist .tabg{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   #page-kpilist .tabg::-webkit-scrollbar{display:none}
   #page-kpilist .tabb{font-size:13px;padding:6px 12px;flex-shrink:0}
-  #page-kpilist .tsrch{width:100%;font-size:16px;padding:8px 12px}
+  #page-kpilist .tsrch{width:100%;box-sizing:border-box;font-size:16px;padding:8px 12px}
+  #page-kpilist .tabg{max-width:100%;box-sizing:border-box}
+  #page-kpilist .thdr>div:last-child>div{width:100%}
+  #page-kpilist .thdr>div{min-width:0;max-width:100%}
+  #page-kpilist .tsrch{min-width:0}
+  .kc .dfwb{color:#1d4ed8}.kc .dfpb{color:#166534}.kc .dfsb{color:#92400e}.kc .dgsx{color:#6d28d9}
   #page-kpilist .thdr>div:last-child{flex-direction:column;align-items:stretch}
   #page-kpilist .sort-btn{flex:1;justify-content:center;font-size:12px;padding:6px}
   #page-kpilist .thdr>div:last-child>div{display:flex;gap:4px}
