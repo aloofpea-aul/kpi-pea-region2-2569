@@ -150,6 +150,18 @@ td.kl-m{text-align:center;padding:9px 2px !important}
 .kl-m .na{color:#cbd5e1;font-weight:400;width:auto}
 .kl-m .last{outline:2px solid #2563eb;outline-offset:1px}
 .kl-m .est{outline:2px dashed #d97706;outline-offset:1px}
+.kl-w{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.kl-w b{font-family:var(--mo);font-size:13px;min-width:30px;text-align:right;color:#3730a3}
+.kl-w .bar{width:54px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.kl-w .bar i{display:block;height:100%;background:#6366f1;border-radius:3px}
+.kl-w small{font-size:10px;color:var(--t3);min-width:32px}
+.kl-w.off b{color:#94a3b8}.kl-w.off .bar i{background:#cbd5e1}
+.kl-imp{text-align:right;white-space:nowrap;font-family:var(--mo)}
+.kl-imp b{color:#b91c1c;font-size:13px}.kl-imp small{display:block;color:#15803d;font-size:10px}
+.mw-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.mw-c{border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;background:var(--bg2)}
+.mw-c .l{font-size:10px;color:var(--t3)}.mw-c .v{font-family:var(--mo);font-size:20px;font-weight:600;margin-top:2px}
+.mw-c .s{font-size:10px;color:var(--t3);margin-top:1px;line-height:1.4}
 .kl-legend{display:flex;gap:14px;padding:9px 16px;border-top:1px solid var(--bdr);font-size:11px;color:var(--t3);flex-wrap:wrap}
 .kl-legend span{display:inline-flex;align-items:center;gap:5px}
 .kl-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
@@ -448,6 +460,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
           <button class="tabb" data-t="duty" onclick="sT(this)">หน้าที่</button>
           <button class="tabb" data-t="low" onclick="sT(this)">⚠ ต้องติดตาม</button>
           <button class="tabb" data-t="pend" onclick="sT(this)">รอรายงาน</button>
+          <button class="tabb" data-t="impact" onclick="sT(this)" title="เรียงตามคะแนนถ่วงน้ำหนักที่เสียไป — แก้ตัวบนสุดก่อน คะแนนรวมขึ้นมากสุด">🎯 ต้องเร่งก่อน</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
@@ -473,6 +486,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
           <th id="th-tgt" style="text-align:center;cursor:default">เป้าหมาย (ระดับ 1 → 5)</th>
           <th onclick="sSort('result')" id="th-res" style="text-align:right">ผลล่าสุด</th>
           <th onclick="sSort('score')" id="th-sc" style="text-align:center">คะแนน</th>
+          <th onclick="sSort('weight')" id="th-w" title="น้ำหนัก PEATA ของหน่วยงานที่เลือก (ค่าเริ่มต้น กฟส.อ่าวลึก)">น้ำหนัก</th>
           <th class="kl-mh">ม.ค.</th><th class="kl-mh">ก.พ.</th><th class="kl-mh">มี.ค.</th><th class="kl-mh">เม.ย.</th><th class="kl-mh">พ.ค.</th><th class="kl-mh">มิ.ย.</th><th class="kl-mh">ก.ค.</th><th class="kl-mh">ส.ค.</th><th class="kl-mh">ก.ย.</th><th class="kl-mh">ต.ค.</th><th class="kl-mh">พ.ย.</th><th class="kl-mh">ธ.ค.</th>
           <th style="text-align:center;cursor:default">💬</th>
         </tr></thead>
@@ -1331,13 +1345,14 @@ function sT(el){
   if(curTab==='duty')d=d.filter(x=>x.group.includes('หน้าที่'));
   if(curTab==='low')d=d.filter(x=>x.score!==null&&x.score<3);
   if(curTab==='pend')d=d.filter(x=>x.score===null);
+  if(curTab==='impact'){const c=peataCtx(); attachWeights(d,c); d=d.filter(x=>x._lost>0.0001);}
   tData=d;applySort();rT();
 }
 
 function sSort(k){
   if(sKey===k)sDir*=-1;else{sKey=k;sDir=1;}
-  ['code','name','dept','resp','res','sc'].forEach(n=>{const e=document.getElementById('th-'+n);if(e)e.className='';});
-  const thMap={code:'th-code',name:'th-name',dept:'th-dept',responsible:'th-resp',result:'th-res',score:'th-sc'};
+  ['code','name','dept','resp','res','sc','w'].forEach(n=>{const e=document.getElementById('th-'+n);if(e)e.className='';});
+  const thMap={code:'th-code',name:'th-name',dept:'th-dept',responsible:'th-resp',result:'th-res',score:'th-sc',weight:'th-w'};
   const el=document.getElementById(thMap[k]);if(el)el.className=sDir===1?'sa':'sd';
   tData.sort((a,b)=>{
     let va=a[k],vb=b[k];
@@ -1590,6 +1605,31 @@ function peataWeight(code,wKey,orgName){
   return w==null?null:w;
 }
 const PEATA_ALL_CODES=[...new Set([...Object.keys(PEATA_W1),...Object.keys(PEATA_W2)])];
+
+// บริบทน้ำหนักของหน่วยงานที่กำลังดู (ไม่ได้เลือก = กฟส.อ่าวลึก ตามข้อมูลหลักของหน้า)
+function weightOrg(){ return curOrg&&curOrg!=='all'?curOrg:'กฟส.อ่าวลึก'; }
+function peataCtx(){
+  const org=weightOrg(); const wKey=ORG_WEIGHT_KEY&&ORG_WEIGHT_KEY[org];
+  if(!wKey) return null;
+  const all={...ORG_S_CODES,...ORG_XS_CODES,...ORG_LM_CODES};
+  const sc=getKpiScoresForOrg(org,all);
+  const w={}; let tw=0,tws=0,maxW=0;
+  PEATA_ALL_CODES.forEach(c=>{const x=peataWeight(c,wKey,org); if(x==null)return; w[c]=x; if(x>maxW)maxW=x; if(sc[c]!=null){tw+=x;tws+=x*sc[c];}});
+  return {org,wKey,w,sc,tw,tws,maxW,total:tw?tws/tw:null};
+}
+function attachWeights(arr,ctx){
+  arr.forEach(it=>{
+    const w=ctx?ctx.w[it.code]:undefined; const s=ctx?ctx.sc[it.code]:undefined;
+    it.weight=w!=null?w:null;
+    it._lost=(w!=null&&s!=null)?w*(5-s):null;
+  });
+}
+function renderWeightCell(it,ctx){
+  if(!ctx||it.weight==null) return '<span style="color:#cbd5e1;font-size:11px">—</span>';
+  const counted=ctx.sc[it.code]!=null;
+  const pct=ctx.tw?it.weight/ctx.tw*100:0;
+  return `<div class="kl-w ${counted?'':'off'}" title="${counted?'นับในคะแนน PEATA':'ยังไม่นับ — หน่วยงานนี้ยังไม่มีผล KPI นี้'}"><b>${it.weight}</b><span class="bar"><i style="width:${ctx.maxW?it.weight/ctx.maxW*100:0}%"></i></span><small>${counted?pct.toFixed(1)+'%':'ไม่นับ'}</small></div>`;
+}
 
 // คำนวณ PEATA weighted score สำหรับหน่วยงาน
 // orgName: ชื่อหน่วยงาน, kpiScores: {code: score}
@@ -1849,11 +1889,15 @@ async function rCharts(){
 
 function rT(){
   const q=document.getElementById('tsrch').value.toLowerCase();
-  if(sKey===null) applySort();
+  const _ctx=peataCtx();
+  attachWeights(tData,_ctx);
+  const _thw=document.getElementById('th-w'); if(_thw) _thw.textContent=curTab==='impact'?'แต้มที่เสีย':'น้ำหนัก';
+  if(curTab==='impact') tData.sort((a,b)=>(b._lost||0)-(a._lost||0)||a.code.localeCompare(b.code,'th',{numeric:true}));
+  else if(sKey===null) applySort();
   let d=tData;
   if(q)d=d.filter(x=>x.code.toLowerCase().includes(q)||x.name.toLowerCase().includes(q)||x.dept.toLowerCase().includes(q)||x.responsible.toLowerCase().includes(q));
   const tbody=document.getElementById('tBody');
-  if(!d.length){tbody.innerHTML='<tr><td colspan="18" class="nodata">ไม่พบรายการ</td></tr>';return;}
+  if(!d.length){tbody.innerHTML='<tr><td colspan="19" class="nodata">ไม่พบรายการ</td></tr>';return;}
   const isMon=t=>/^(ม\.ค|ก\.พ|มี\.ค|เม\.ย|พ\.ค|มิ\.ย|ก\.ค|ส\.ค|ก\.ย|ต\.ค|พ\.ย|ธ\.ค)\.?$/.test((t||'').trim());
   tbody.innerHTML=d.map(item=>{
     const res=item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—';
@@ -1866,6 +1910,7 @@ function rT(){
     <td style="padding:6px 10px">${renderTargetSteps(item.targets,item.score)}</td>
     <td class="kl-res">${res}${sub}</td>
     <td style="text-align:center"><span class="pill ${getPC(item.score)}">${item.score!==null?item.score.toFixed(3):'N/A'}</span></td>
+    ${curTab==='impact'&&_ctx&&item._lost>0?`<td class="kl-imp" title="แต้มที่เสีย = น้ำหนัก × (5 − คะแนน)"><b>−${item._lost.toFixed(2)}</b><small>ถ้าได้ 5 → ${(_ctx.total+item._lost/_ctx.tw).toFixed(3)} (+${(item._lost/_ctx.tw).toFixed(3)})</small></td>`:`<td>${renderWeightCell(item,_ctx)}</td>`}
     ${renderMonthCells(item)}
     <td style="text-align:center;padding:4px 8px">${renderNoteBadge(item.code)}</td>
   </tr>`;}).join('');
@@ -2078,6 +2123,15 @@ function oM(code){
       </div>
       ${gapHTML}
     </div>
+    ${(()=>{const c=peataCtx(); if(!c) return ''; const w=c.w[item.code]; if(w==null) return `<div class="mw-grid" style="grid-template-columns:1fr"><div class="mw-c"><div class="l">⚖️ น้ำหนัก PEATA · ${c.org}</div><div class="s">KPI นี้ไม่มีน้ำหนักสำหรับ ${c.wKey} ในรอบนี้</div></div></div>`;
+      const s=c.sc[item.code]; const per=kpiStatusMonth(item.code)||peataDataMonth(); const rnd=per<=6?'รอบ 1':'รอบ 2';
+      if(s==null) return `<div class="mw-grid" style="grid-template-columns:1fr"><div class="mw-c"><div class="l">⚖️ น้ำหนัก (PEATA ${rnd} · ${c.wKey})</div><div class="v" style="color:#4338ca">${w}</div><div class="s">ยังไม่นับในคะแนน PEATA — ${c.org} ยังไม่มีผล KPI นี้</div></div></div>`;
+      const lost=w*(5-s); const rank=Object.keys(c.w).filter(k=>c.sc[k]!=null).map(k=>c.w[k]*(5-c.sc[k])).filter(x=>x>lost+1e-9).length+1;
+      return `<div class="mw-grid">
+        <div class="mw-c"><div class="l">⚖️ น้ำหนัก (PEATA ${rnd} · ${c.wKey})</div><div class="v" style="color:#4338ca">${w}</div><div class="s">${(w/c.tw*100).toFixed(1)}% ของน้ำหนักรวม ${c.tw.toFixed(2)}</div></div>
+        <div class="mw-c"><div class="l">⭐ คะแนนถ่วงน้ำหนักที่ได้</div><div class="v" style="color:${lost>0.0001?'#b91c1c':'#15803d'}">${(w*s).toFixed(2)} <span style="font-size:12px;color:#64748b">/ ${(w*5).toFixed(2)}</span></div><div class="s">${lost>0.0001?'เสีย '+lost.toFixed(2)+' แต้ม · อันดับ '+rank+' ที่ทำให้คะแนนรวมลด':'ได้เต็ม ไม่เสียแต้ม'}</div></div>
+        <div class="mw-c"><div class="l">📈 ${lost>0.0001?'ถ้าทำได้ 5 คะแนน':'คะแนน PEATA รวม'}</div><div class="v" style="color:#15803d">${(lost>0.0001?c.total+lost/c.tw:c.total).toFixed(3)}</div><div class="s">${lost>0.0001?'คะแนนรวม +'+(lost/c.tw).toFixed(3)+' จาก '+c.total.toFixed(3):c.org}</div></div>
+      </div>`;})()}
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
       <div class="mf"><div class="mf-l">กลุ่ม KPI</div><div class="mf-v">${item.group||'—'}</div></div>
       <div class="mf"><div class="mf-l">ฝ่ายรับผิดชอบ</div><div class="mf-v"><span class="dtag ${getDC(item.dept)}">${item.dept||'—'}</span></div></div>
@@ -2684,6 +2738,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
   .mscnum{font-size:24px}
   /* Popup info cards 3→1 col */
   .mbox [style*="grid-template-columns:1fr 1fr 1fr"]{grid-template-columns:1fr!important}
+  .mw-grid{grid-template-columns:1fr!important}
   /* Alert grid */
   .ag{grid-template-columns:1fr}
   /* Dept grid */
