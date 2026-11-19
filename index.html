@@ -125,6 +125,34 @@ body{font-family:var(--fn);background:var(--bg);color:var(--t);min-height:100vh;
 .twrap{overflow-x:auto;max-height:460px;overflow-y:auto}
 #page-kpilist{max-width:1680px}
 #page-kpilist .twrap{max-height:calc(100vh - 190px);min-height:460px}
+/* ── ตารางรายการ KPI แบบใหม่ ── */
+#page-kpilist table{font-size:13px}
+#page-kpilist thead th{font-size:11px;padding:9px 10px;background:#f1f5f9;color:var(--t2);font-weight:600}
+#page-kpilist thead th.kl-mh{width:46px;padding:9px 0;text-align:center;cursor:default;font-weight:500;color:var(--t3)}
+#page-kpilist tbody tr:nth-child(even){background:#fafbfd}
+#page-kpilist tbody tr:hover{background:#eff6ff}
+#page-kpilist tbody td{padding:9px 10px}
+#page-kpilist .tc{font-size:12px;font-weight:600}
+.kl-name{font-size:13px;font-weight:500;line-height:1.45;max-width:420px;color:var(--t)}
+.kl-sub{margin-top:4px;font-size:11px;color:var(--t3);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.kl-tg{display:flex;gap:3px}
+.kl-tg span{display:flex;flex-direction:column;align-items:center;min-width:42px;border-radius:6px;padding:2px 4px;background:var(--bg4);color:var(--t3);font-family:var(--mo);font-size:11px;line-height:1.25;white-space:nowrap}
+.kl-tg span i{font-style:normal;font-size:9px;opacity:.75}
+.kl-tg span.on{background:#16a34a;color:#fff}
+.kl-tg span.on.l4{background:#2563eb}.kl-tg span.on.l3{background:#d97706}.kl-tg span.on.l2,.kl-tg span.on.l1{background:#dc2626}
+.kl-res{text-align:right;font-family:var(--mo);font-size:15px;font-weight:600;white-space:nowrap;color:var(--t)}
+.kl-res small{display:block;font-family:var(--fn);font-size:10px;color:var(--t3);font-weight:400;margin-top:1px}
+.kl-res small.est{color:#92400e}
+#page-kpilist .pill{font-size:13px;padding:3px 11px}
+td.kl-m{text-align:center;padding:9px 2px !important}
+.kl-m span{display:inline-block;width:42px;padding:4px 0;border-radius:6px;font-family:var(--mo);font-size:11px;font-weight:600}
+.kl-m .s5{background:#dcfce7;color:#166534}.kl-m .s4{background:#dbeafe;color:#1d4ed8}.kl-m .s3{background:#fef3c7;color:#92400e}.kl-m .s1{background:#fee2e2;color:#b91c1c}
+.kl-m .na{color:#cbd5e1;font-weight:400;width:auto}
+.kl-m .last{outline:2px solid #2563eb;outline-offset:1px}
+.kl-m .est{outline:2px dashed #d97706;outline-offset:1px}
+.kl-legend{display:flex;gap:14px;padding:9px 16px;border-top:1px solid var(--bdr);font-size:11px;color:var(--t3);flex-wrap:wrap}
+.kl-legend span{display:inline-flex;align-items:center;gap:5px}
+.kl-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead th{position:sticky;top:0;z-index:5;background:var(--bg3);padding:7px 10px;text-align:left;font-weight:500;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bdr);white-space:nowrap;cursor:pointer;user-select:none}
 thead th:hover{color:var(--t2)}
@@ -441,18 +469,17 @@ tbody td{padding:7px 10px;vertical-align:middle}
       <table>
         <thead><tr>
           <th onclick="sSort('code')" id="th-code">รหัส</th>
-          <th onclick="sSort('name')" id="th-name">ชื่อ KPI</th>
-          <th onclick="sSort('dept')" id="th-dept">ฝ่าย</th>
-          <th onclick="sSort('responsible')" id="th-resp">ผู้รับผิดชอบ</th>
-          <th id="th-tgt" style="text-align:center">เป้าหมาย</th>
+          <th onclick="sSort('name')" id="th-name">ตัวชี้วัด</th>
+          <th id="th-tgt" style="text-align:center;cursor:default">เป้าหมาย (ระดับ 1 → 5)</th>
           <th onclick="sSort('result')" id="th-res" style="text-align:right">ผลล่าสุด</th>
-          <th onclick="sSort('score')" id="th-sc" style="text-align:right">คะแนน</th>
-          <th>สถานะ</th>
-          <th id="th-mon" style="text-align:center">ผลรายเดือน</th>
+          <th onclick="sSort('score')" id="th-sc" style="text-align:center">คะแนน</th>
+          <th class="kl-mh">ม.ค.</th><th class="kl-mh">ก.พ.</th><th class="kl-mh">มี.ค.</th><th class="kl-mh">เม.ย.</th><th class="kl-mh">พ.ค.</th><th class="kl-mh">มิ.ย.</th><th class="kl-mh">ก.ค.</th><th class="kl-mh">ส.ค.</th><th class="kl-mh">ก.ย.</th><th class="kl-mh">ต.ค.</th><th class="kl-mh">พ.ย.</th><th class="kl-mh">ธ.ค.</th>
+          <th style="text-align:center;cursor:default">💬</th>
         </tr></thead>
         <tbody id="tBody"></tbody>
       </table>
     </div>
+    <div class="kl-legend"><span><i style="background:#dcfce7"></i>คะแนน 5</span><span><i style="background:#dbeafe"></i>4</span><span><i style="background:#fef3c7"></i>3</span><span><i style="background:#fee2e2"></i>1–2 ต้องติดตาม</span><span><i style="outline:2px solid #2563eb;background:#fff"></i>เดือนล่าสุด</span><span><i style="outline:2px dashed #d97706;background:#fff"></i>ประมาณการ</span></div>
   </div>
 </div>
 
@@ -1354,6 +1381,31 @@ function renderTargetRow(tgt,score){
   }).join('')+'</div>';
 }
 
+function renderTargetSteps(tgt,score){
+  const lvs=[1,2,3,4,5];
+  if(!tgt||!lvs.some(lv=>tgt[lv]!==null&&tgt[lv]!==undefined&&tgt[lv]!==''))return'<span style="color:var(--t3);font-size:11px">—</span>';
+  const cur=score!==null&&score!==undefined?Math.min(5,Math.max(1,Math.round(score))):0;
+  return'<div class="kl-tg">'+lvs.map(lv=>{
+    const v=tgt[lv];
+    const disp=(v===null||v===undefined||v==='')?'–':(typeof v==='number'?v.toLocaleString('th-TH',{maximumFractionDigits:3}):v);
+    return`<span class="${lv===cur?'on l'+lv:''}"><i>${lv}</i>${disp}</span>`;
+  }).join('')+'</div>';
+}
+
+function renderMonthCells(item){
+  const scAol=item.monthlyScoreAOL||{};
+  const has=MONTH_KEYS.filter(k=>scAol[k]!==undefined&&scAol[k]!=='');
+  const latestKey=has[has.length-1];
+  return MONTH_KEYS.map((k,i)=>{
+    const sa=scAol[k];
+    if(sa===undefined||sa==='') return'<td class="kl-m"><span class="na">·</span></td>';
+    const v=parseFloat(sa);
+    const est=item.isEstimate&&k===latestKey;
+    const cls=(v>=4.995?'s5':v>=3.995?'s4':v>=2.995?'s3':'s1')+(k===latestKey?(est?' est':' last'):'');
+    return`<td class="kl-m"><span class="${cls}" title="${MONTHS[i]}: คะแนน${est?' (ประมาณการ)':''} = ${v.toFixed(3)}">${est?'~':''}${v.toFixed(2)}</span></td>`;
+  }).join('');
+}
+
 function renderMonthRow(item){
   const scAol=item.monthlyScoreAOL||{};
   const hasScAol=MONTH_KEYS.filter(k=>scAol[k]!==undefined&&scAol[k]!=='');
@@ -1773,19 +1825,22 @@ function rT(){
   let d=tData;
   if(q)d=d.filter(x=>x.code.toLowerCase().includes(q)||x.name.toLowerCase().includes(q)||x.dept.toLowerCase().includes(q)||x.responsible.toLowerCase().includes(q));
   const tbody=document.getElementById('tBody');
-  if(!d.length){tbody.innerHTML='<tr><td colspan="10" class="nodata">ไม่พบรายการ</td></tr>';return;}
-  tbody.innerHTML=d.map(item=>`<tr onclick="oM('${item.code}')" style="cursor:pointer">
+  if(!d.length){tbody.innerHTML='<tr><td colspan="18" class="nodata">ไม่พบรายการ</td></tr>';return;}
+  const isMon=t=>/^(ม\.ค|ก\.พ|มี\.ค|เม\.ย|พ\.ค|มิ\.ย|ก\.ค|ส\.ค|ก\.ย|ต\.ค|พ\.ย|ธ\.ค)\.?$/.test((t||'').trim());
+  tbody.innerHTML=d.map(item=>{
+    const res=item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—';
+    const st=item.status||'';
+    const sub=item.isEstimate?`<small class="est">~ประมาณการ ${item.estimateMonthLabel||''}</small>`
+      :(st?`<small>${isMon(st)?'ข้อมูลถึง '+st:st}</small>`:'');
+    return`<tr onclick="oM('${item.code}')" style="cursor:pointer">
     <td class="tc">${item.code}</td>
-    <td class="tn">${item.name}</td>
-    <td><span class="dtag ${getDC(item.dept)}">${item.dept}</span></td>
-    <td style="font-size:10px;color:var(--t3);max-width:130px;line-height:1.4">${item.responsible}</td>
-    <td style="white-space:nowrap;padding:4px 10px">${renderTargetRow(item.targets,item.score)}</td>
-    <td class="tr2">${item.result!==null?Number(item.result).toLocaleString('th-TH',{maximumFractionDigits:3}):'—'}${item.isEstimate?`<br><span style="font-size:9px;color:#92400e;font-family:var(--fn)">~ประมาณการ ${item.estimateMonthLabel}</span>`:''}  </td>
-    <td class="ts"><span class="pill ${getPC(item.score)}">${item.score!==null?item.score.toFixed(3):'N/A'}</span></td>
-    <td class="${item.score!==null?'sok':'spnd'}" style="font-size:10px;white-space:nowrap">${item.status||'—'}</td>
-    <td style="padding:4px 8px;min-width:160px">${renderMonthRow(item)}</td>
+    <td><div class="kl-name">${item.name}</div><div class="kl-sub"><span class="dtag ${getDC(item.dept)}">${item.dept}</span>${item.responsible||''}</div></td>
+    <td style="padding:6px 10px">${renderTargetSteps(item.targets,item.score)}</td>
+    <td class="kl-res">${res}${sub}</td>
+    <td style="text-align:center"><span class="pill ${getPC(item.score)}">${item.score!==null?item.score.toFixed(3):'N/A'}</span></td>
+    ${renderMonthCells(item)}
     <td style="text-align:center;padding:4px 8px">${renderNoteBadge(item.code)}</td>
-  </tr>`).join('');
+  </tr>`;}).join('');
 }
 
 let _notesPreview={};
