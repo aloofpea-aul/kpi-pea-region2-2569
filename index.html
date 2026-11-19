@@ -237,7 +237,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
 .acard{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden}
 .ahdr{padding:9px 13px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:7px}
 .abadge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
-.abadge.d{background:rgba(185,28,28,.1);color:#b91c1c}.abadge.w{background:var(--ambg);color:#92400e}.abadge.i{background:var(--blbg);color:#1d4ed8}
+.abadge.d{background:rgba(185,28,28,.1);color:#b91c1c}.abadge.w{background:var(--ambg);color:#92400e}.abadge.i{background:var(--blbg);color:#1d4ed8}.abadge.n{background:#ccfbf1;color:#0f766e}.ns{color:#0f766e}
 .atitle{font-size:12px;font-weight:500;color:var(--t2)}
 .alist{list-style:none}
 .ali{padding:7px 13px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .1s}
@@ -594,6 +594,10 @@ tbody td{padding:7px 10px;vertical-align:middle}
     <div class="acard">
       <div class="ahdr"><span class="abadge w">เฝ้าระวัง</span><span class="atitle">คะแนน 2–3</span></div>
       <ul class="alist" id="aW"></ul>
+    </div>
+    <div class="acard" style="grid-column:1/-1">
+      <div class="ahdr"><span class="abadge n">ยังไม่เต็ม 5</span><span class="atitle">คะแนน 3–4.99 (<span id="aNcnt">0</span> รายการ) · เติมอีกนิดก็เต็ม</span></div>
+      <ul class="alist" id="aN"></ul>
     </div>
     <div class="acard" style="grid-column:1/-1">
       <div class="ahdr"><span class="abadge i">รอรายงาน</span><span class="atitle">ยังไม่พร้อมรายงาน (<span id="aPcnt">0</span> รายการ)</span></div>
@@ -2115,11 +2119,14 @@ function renderAlert(){
   const crit=allData.filter(d=>d.score!==null&&d.score<2);
   const warn=allData.filter(d=>d.score!==null&&d.score>=2&&d.score<3);
   const pend=allData.filter(d=>d.score===null);
+  const near=allData.filter(d=>d.score!==null&&d.score>=3&&d.score<4.9995).sort((a,b)=>a.score-b.score);
   document.getElementById('aPcnt').textContent=pend.length;
   const mk=(item,scls)=>`<li class="ali" onclick="oM('${item.code}')"><span class="ali-c">${item.code}</span><span class="ali-n">${item.name}</span><span class="ali-s ${scls}">${item.score!==null?item.score.toFixed(3):'รอรายงาน'}</span></li>`;
   document.getElementById('aC').innerHTML=crit.length?crit.map(i=>mk(i,'ds')).join(''):`<li class="ali"><span class="ali-n" style="color:var(--t3)">ไม่มีรายการวิกฤต 👍</span></li>`;
   document.getElementById('aW').innerHTML=warn.length?warn.map(i=>mk(i,'ws')).join(''):`<li class="ali"><span class="ali-n" style="color:var(--t3)">ไม่มีรายการเฝ้าระวัง</span></li>`;
   document.getElementById('aP').innerHTML=pend.map(i=>mk(i,'is')).join('');
+  const nc=document.getElementById('aNcnt'); if(nc) nc.textContent=near.length;
+  const an=document.getElementById('aN'); if(an) an.innerHTML=near.length?near.map(i=>mk(i,'ns')).join(''):`<li class="ali"><span class="ali-n" style="color:var(--t3)">ไม่มีรายการ — ทุกตัวที่ผ่าน 3 ได้เต็ม 5 แล้ว 👍</span></li>`;
 }
 
 function oM(code){
