@@ -2382,25 +2382,36 @@ function oM(code){
   let resultGapHTML = '';
   if(tgt5!==null && currentResult!==null && sc<5){
     const tgt5num = parseFloat(tgt5);
-    const resultGap = tgt5num - currentResult;
-    // บางตัวยิ่งน้อยยิ่งดี (เช่น SAIDI, ข้อร้องเรียน) → resultGap อาจติดลบ
-    const resultGapFmt = Math.abs(resultGap).toLocaleString('th-TH',{maximumFractionDigits:3});
-    const dirLabel = resultGap > 0 ? 'ต้องเพิ่มอีก' : resultGap < 0 ? 'ทำได้เกินเป้าแล้ว' : 'ถึงเป้าพอดี';
-    const dirColor = resultGap <= 0 ? 'var(--tl2)' : 'var(--am2)';
-    const tgt5Fmt = parseFloat(tgt5).toLocaleString('th-TH',{maximumFractionDigits:3});
+    // ทิศทางดูจากเป้า: ถ้าเป้าระดับ 5 น้อยกว่าระดับ 1 → ยิ่งน้อยยิ่งดี
+    const tgt1num = item.targets&&item.targets[1]!=null ? parseFloat(item.targets[1]) : NaN;
+    const lowerBetter = !isNaN(tgt1num) && tgt5num < tgt1num;
+    const need = lowerBetter ? currentResult - tgt5num : tgt5num - currentResult;   // >0 = ยังไม่ถึงเป้า
+    const needFmt = Math.abs(need).toLocaleString('th-TH',{maximumFractionDigits:3});
+    const dirLabel = need > 0 ? (lowerBetter ? 'ต้องลดลงอีก' : 'ต้องเพิ่มอีก') : 'ถึงเป้าแล้ว';
+    const dirColor = need > 0 ? 'var(--rd2)' : 'var(--tl2)';
+    const tgt5Fmt = tgt5num.toLocaleString('th-TH',{maximumFractionDigits:3});
+    const resFmt = currentResult.toLocaleString('th-TH',{maximumFractionDigits:3});
+    // คำอธิบายเฉพาะ KPI 2.11: ผลเป็น % เทียบค่าเฉลี่ย 3 ปีย้อนหลัง (ลบ = ลดลง ดี / บวก = เพิ่มขึ้น แย่)
+    const note211 = item.code==='2.11' ? `<div style="font-size:11.5px;margin-top:6px;padding:6px 8px;border-radius:6px;background:${currentResult>0?'#fef2f2':'#f0fdf4'};color:${currentResult>0?'#991b1b':'#166534'};line-height:1.5">
+        ${currentResult>0?'⚠️':'✅'} ผล <b>${currentResult>0?'+':''}${resFmt}%</b> = จำนวนครั้ง Trip <b>${currentResult>0?'มากกว่า':'น้อยกว่า'}</b>ค่าเฉลี่ย 3 ปีย้อนหลัง ${Math.abs(currentResult).toLocaleString('th-TH',{maximumFractionDigits:2})}% ${currentResult>0?'(แย่ลง — ต้องลดให้ได้ถึง '+tgt5Fmt+'%)':'(ดีขึ้น)'}<br>
+        <span style="color:#475569">ค่าติดลบ = ลดลงจากปีที่ผ่านมา (ดี) · ค่าบวก = เกินกว่าปีที่ผ่านมา (ต้องปรับปรุง)</span></div>` : '';
     resultGapHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;
         background:rgba(0,0,0,0.03);border-radius:6px;padding:6px 10px;margin-top:4px;
         border:1px solid var(--bdr)">
         <div>
-          <div style="font-size:9px;color:var(--t3);margin-bottom:2px">ผลดำเนินการเป้า Lv5</div>
+          <div style="font-size:9px;color:var(--t3);margin-bottom:2px">เป้าระดับ 5 ${lowerBetter?'(ยิ่งน้อยยิ่งดี)':'(ยิ่งมากยิ่งดี)'}</div>
           <div style="font-size:12px;font-weight:600;color:#15803d;font-family:var(--mo)">${tgt5Fmt} ${tgtUnit}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:var(--t3);margin-bottom:2px">ผลปัจจุบัน</div>
+          <div style="font-size:12px;font-weight:600;color:#0f172a;font-family:var(--mo)">${resFmt} ${tgtUnit}</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:9px;color:var(--t3);margin-bottom:2px">${dirLabel}</div>
-          <div style="font-size:12px;font-weight:600;color:${dirColor};font-family:var(--mo)">${resultGap<=0?'✓':''} ${resultGapFmt} ${tgtUnit}</div>
+          <div style="font-size:12px;font-weight:600;color:${dirColor};font-family:var(--mo)">${need<=0?'✓':''} ${need>0?needFmt+' '+tgtUnit:''}</div>
         </div>
-      </div>`;
+      </div>${note211}`;
   }
 
   const gapHTML = gap===null ? '' : gap===0
