@@ -2339,6 +2339,7 @@ async function exportKpi(fmt){
         const b=doc.querySelector('.mbox'); if(!b) return;
         b.style.maxHeight='none'; b.style.height='auto'; b.style.overflow='visible'; b.style.transform='none'; b.style.animation='none'; b.style.width='1040px'; b.style.maxWidth='none'; b.style.borderRadius='0'; b.style.boxShadow='none';
         doc.querySelectorAll('.m-btns,.mclose,.notes-panel,#notesWrap,.mm-wrap').forEach(e=>e.remove());
+        doc.querySelectorAll('.mhdr').forEach(e=>{e.style.position='static';e.style.top='auto';});
         const t=doc.querySelector('.mm-table'); if(t) t.style.display='block';
         const nm=doc.getElementById('mName'); if(nm){nm.style.webkitLineClamp='unset';nm.style.display='block';}
         const h=doc.createElement('div');
