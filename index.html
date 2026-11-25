@@ -294,6 +294,15 @@ tbody td{padding:7px 10px;vertical-align:middle}
 #toast.on{transform:translateY(0);opacity:1}
 #toast.ok{border-color:rgba(26,127,94,.4)}
 #toast.er{border-color:rgba(218,54,51,.4)}
+.kl-dl{position:relative}
+.kl-dlb{background:#eef2ff!important;border-color:#c7d2fe!important;color:#3730a3!important;font-weight:600}
+.kl-dlm{display:none;position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 10px 25px rgba(15,23,42,.15);width:270px;padding:6px;z-index:50}
+.kl-dl.on .kl-dlm{display:block}
+.kl-dlm button{display:flex;gap:8px;width:100%;text-align:left;background:none;border:0;padding:8px 10px;border-radius:7px;font:13px var(--fn);color:#0f172a;cursor:pointer}
+.kl-dlm button:hover{background:#f1f5f9}
+.kl-dlm small{display:block;color:#475569;font-size:11.5px}
+.kl-dlm hr{border:none;border-top:1px solid #e2e8f0;margin:4px 0}
+@media(max-width:768px){.kl-dlb{font-size:13px!important;padding:7px 10px!important}.kl-dlm{width:min(290px,92vw)}}
 .sort-btn{display:flex;align-items:center;gap:3px;padding:4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t3);font-family:var(--fn);font-size:10px;cursor:pointer;transition:all .15s;white-space:nowrap}
 .sort-btn:hover{color:var(--t);border-color:var(--bdr2)}
 .sort-btn.sort-on{background:var(--blbg);border-color:#1d4ed8;color:#1d4ed8}
@@ -538,7 +547,7 @@ tbody td{padding:7px 10px;vertical-align:middle}
           <button class="tabb" data-t="impact" onclick="sT(this)" title="เรียงตามคะแนนถ่วงน้ำหนักที่เสียไป — แก้ตัวบนสุดก่อน คะแนนรวมขึ้นมากสุด">🎯 ต้องเร่งก่อน</button>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div id="klTools" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
         <input type="text" class="tsrch" id="tsrch" placeholder="ค้นหา KPI..." oninput="rT()">
         <div style="display:flex;gap:3px">
           <button id="sortBtn-default" class="sort-btn sort-on" onclick="setSortMode('default')" title="เรียงตามรหัส KPI">
@@ -550,6 +559,16 @@ tbody td{padding:7px 10px;vertical-align:middle}
           <button id="sortBtn-desc" class="sort-btn" onclick="setSortMode('desc')" title="คะแนนมาก→น้อย">
             <span>คะแนน</span><span class="sort-icon">↓</span>
           </button>
+        </div>
+        <div class="kl-dl" id="klDl">
+          <button class="sort-btn kl-dlb" id="klDlBtn" onclick="toggleDl(event)" title="บันทึกเป็น PDF / รูปภาพ">📥 ดาวน์โหลด ▾</button>
+          <div class="kl-dlm">
+            <button onclick="exportList('pdf')">📄 <span>PDF — รายการที่แสดงอยู่<small>ตามแท็บ/คำค้นที่เลือก · A4 แนวนอน</small></span></button>
+            <button onclick="exportList('png')">🖼️ <span>รูปภาพ (PNG) — ตารางที่แสดงอยู่<small>ภาพยาวต่อเนื่อง ส่ง LINE ได้</small></span></button>
+            <hr>
+            <button onclick="exportList('all')">📚 <span>PDF รายละเอียดทุก KPI<small>1 หน้า/KPI ของรายการที่แสดงอยู่</small></span></button>
+            <button onclick="exportList('csv')">📊 <span>Excel / CSV<small>ข้อมูลดิบ เปิดใน Excel ได้</small></span></button>
+          </div>
         </div>
       </div>
     </div>
@@ -2122,6 +2141,7 @@ function rT(){
   else if(sKey===null) applySort();
   let d=tData;
   if(q)d=d.filter(x=>x.code.toLowerCase().includes(q)||x.name.toLowerCase().includes(q)||x.dept.toLowerCase().includes(q)||x.responsible.toLowerCase().includes(q));
+  window._listShown=d;
   const tbody=document.getElementById('tBody');
   if(!d.length){tbody.innerHTML='<tr><td colspan="19" class="nodata">ไม่พบรายการ</td></tr>';const kc=document.getElementById('kCards');if(kc)kc.innerHTML='<div class="nodata">ไม่พบรายการ</div>';return;}
   const isMon=t=>/^(ม\.ค|ก\.พ|มี\.ค|เม\.ย|พ\.ค|มิ\.ย|ก\.ค|ส\.ค|ก\.ย|ต\.ค|พ\.ย|ธ\.ค)\.?$/.test((t||'').trim());
@@ -2324,45 +2344,119 @@ async function _saveBlob(blob,name){
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
 }
+const _TH_M=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function _xStamp(){const n=new Date(),yy=n.getFullYear()+543,p=v=>String(v).padStart(2,'0');
+  return {file:`${p(n.getDate())}-${p(n.getMonth()+1)}-${yy}`, text:`${n.getDate()} ${_TH_M[n.getMonth()]} ${yy} ${p(n.getHours())}:${p(n.getMinutes())}`};}
+function _xHeader(doc,left,right){const h=doc.createElement('div');
+  h.style.cssText='background:linear-gradient(90deg,#1e3a8a,#2563eb);color:#fff;padding:10px 16px;font-family:IBM Plex Sans Thai,sans-serif;display:flex;justify-content:space-between;gap:16px;font-size:13px';
+  h.innerHTML=`<b>${left}</b><span>${right}</span>`; return h;}
+async function _xLibs(pdf){
+  await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  if(pdf) await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+}
+// ใส่ canvas ลง PDF ตัดหน้าตามจุดตัด (px ของ canvas) ถ้ามี เพื่อไม่ให้แถวขาดกลาง
+function _pdfAdd(pdf,canvas,newPage,breaks){
+  const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight(), m=8, w=pw-m*2;
+  const pxPerMm=canvas.width/w, pageH=Math.floor((ph-m*2)*pxPerMm);
+  let y=0, first=true;
+  while(y<canvas.height-2){
+    let end=Math.min(y+pageH,canvas.height);
+    if(end<canvas.height&&breaks&&breaks.length){const ok=breaks.filter(v=>v>y+pageH*0.3&&v<=end); if(ok.length) end=ok[ok.length-1];}
+    const h=end-y, c=document.createElement('canvas'); c.width=canvas.width; c.height=h;
+    const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,h); g.drawImage(canvas,0,y,canvas.width,h,0,0,canvas.width,h);
+    if(newPage||!first) pdf.addPage(); first=false;
+    pdf.addImage(c.toDataURL('image/jpeg',0.9),'JPEG',m,m,w,h/pxPerMm);
+    y=end;
+  }
+}
+function _xBtns(sel,on,label){document.querySelectorAll(sel).forEach(b=>{if(on){b.disabled=false;if(b.dataset.t)b.textContent=b.dataset.t;}else{b.disabled=true;if(!b.dataset.t)b.dataset.t=b.textContent;b.textContent=label;}});}
+async function _captureKpi(scale){
+  const code=window._mCode; const box=document.querySelector('.mbox');
+  const org=weightOrg(); const item=allData.find(d=>d.code===code)||{}; const st=_xStamp();
+  return html2canvas(box,{scale,backgroundColor:'#ffffff',useCORS:true,windowWidth:1100,
+    onclone:(doc)=>{
+      const b=doc.querySelector('.mbox'); if(!b) return;
+      b.style.maxHeight='none'; b.style.height='auto'; b.style.overflow='visible'; b.style.transform='none'; b.style.animation='none'; b.style.width='1040px'; b.style.maxWidth='none'; b.style.borderRadius='0'; b.style.boxShadow='none';
+      doc.querySelectorAll('.m-btns,.mclose,.notes-panel,#notesWrap,.mm-wrap').forEach(e=>e.remove());
+      doc.querySelectorAll('.mhdr').forEach(e=>{e.style.position='static';e.style.top='auto';});
+      const t=doc.querySelector('.mm-table'); if(t) t.style.display='block';
+      const nm=doc.getElementById('mName'); if(nm){nm.style.webkitLineClamp='unset';nm.style.display='block';}
+      b.insertBefore(_xHeader(doc,`KPI กฟต.2 ปี 2569 · ${org}`,`ข้อมูลถึง ${item.status||'-'} · พิมพ์ ${st.text}`),b.firstChild);
+    }});
+}
 async function exportKpi(fmt){
-  const code=window._mCode; const box=document.querySelector('.mbox'); if(!code||!box) return;
-  const btns=[...document.querySelectorAll('.x-exp')]; btns.forEach(b=>{b.disabled=true;b.dataset.t=b.textContent;b.textContent='⏳ กำลังสร้างไฟล์...';});
+  const code=window._mCode; if(!code||!document.querySelector('.mbox')) return;
+  _xBtns('.x-exp',false,'⏳ กำลังสร้างไฟล์...');
   try{
-    await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-    if(fmt==='pdf') await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-    const org=weightOrg(); const item=allData.find(d=>d.code===code)||{};
-    const now=new Date(); const dd=String(now.getDate()).padStart(2,'0'), mm=String(now.getMonth()+1).padStart(2,'0'), yy=now.getFullYear()+543;
-    const stamp=`${now.getDate()} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][now.getMonth()]} ${yy} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    const canvas=await html2canvas(box,{scale:2,backgroundColor:'#ffffff',useCORS:true,
-      windowWidth:Math.max(1040,box.scrollWidth),
-      onclone:(doc)=>{
-        const b=doc.querySelector('.mbox'); if(!b) return;
-        b.style.maxHeight='none'; b.style.height='auto'; b.style.overflow='visible'; b.style.transform='none'; b.style.animation='none'; b.style.width='1040px'; b.style.maxWidth='none'; b.style.borderRadius='0'; b.style.boxShadow='none';
-        doc.querySelectorAll('.m-btns,.mclose,.notes-panel,#notesWrap,.mm-wrap').forEach(e=>e.remove());
-        doc.querySelectorAll('.mhdr').forEach(e=>{e.style.position='static';e.style.top='auto';});
-        const t=doc.querySelector('.mm-table'); if(t) t.style.display='block';
-        const nm=doc.getElementById('mName'); if(nm){nm.style.webkitLineClamp='unset';nm.style.display='block';}
-        const h=doc.createElement('div');
-        h.style.cssText='background:linear-gradient(90deg,#1e3a8a,#2563eb);color:#fff;padding:10px 16px;font-family:IBM Plex Sans Thai,sans-serif;display:flex;justify-content:space-between;font-size:13px';
-        h.innerHTML=`<b>KPI กฟต.2 ปี 2569 · ${org}</b><span>ข้อมูลถึง ${item.status||'-'} · พิมพ์ ${stamp}</span>`;
-        b.insertBefore(h,b.firstChild);
-      }});
-    const base=`KPI_${code}_${org}_${dd}-${mm}-${yy}`;
+    await _xLibs(fmt==='pdf');
+    const canvas=await _captureKpi(2);
+    const base=`KPI_${code}_${weightOrg()}_${_xStamp().file}`;
     if(fmt==='png'){
-      const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
-      await _saveBlob(blob,base+'.png');
+      await _saveBlob(await new Promise(r=>canvas.toBlob(r,'image/png')),base+'.png');
     }else{
-      const {jsPDF}=window.jspdf; const pdf=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
-      const pw=210, ph=297, m=8, w=pw-m*2; const pxPerMm=canvas.width/w; const pageH=Math.floor((ph-m*2)*pxPerMm);
-      for(let y=0,i=0;y<canvas.height;y+=pageH,i++){
-        const h=Math.min(pageH,canvas.height-y); const c=document.createElement('canvas'); c.width=canvas.width; c.height=h;
-        c.getContext('2d').drawImage(canvas,0,y,canvas.width,h,0,0,canvas.width,h);
-        if(i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',m,m,w,h/pxPerMm);
-      }
-      await _saveBlob(pdf.output('blob'),base+'.pdf');
+      const pdf=new window.jspdf.jsPDF({orientation:'p',unit:'mm',format:'a4'});
+      _pdfAdd(pdf,canvas,false); await _saveBlob(pdf.output('blob'),base+'.pdf');
     }
   }catch(e){ console.error(e); alert('สร้างไฟล์ไม่สำเร็จ: '+(e&&e.message||e)); }
-  finally{ btns.forEach(b=>{b.disabled=false;b.textContent=b.dataset.t;}); }
+  finally{ _xBtns('.x-exp',true); }
+}
+
+/* ===== ดาวน์โหลดจากหน้ารายการ KPI ===== */
+function toggleDl(ev){ev&&ev.stopPropagation();document.getElementById('klDl').classList.toggle('on');}
+document.addEventListener('click',e=>{const m=document.getElementById('klDl');if(m&&!m.contains(e.target))m.classList.remove('on');});
+function _listTabLabel(){const b=document.querySelector('#tabg .tabb.on');return b?b.textContent.trim():'ทั้งหมด';}
+function _listBase(kind){return `KPI_${kind}_${_listTabLabel().replace(/[^฀-๿a-zA-Z0-9]+/g,'')}_${weightOrg()}_${_xStamp().file}`;}
+async function _captureList(){
+  const card=document.querySelector('#page-kpilist .tcard'); const st=_xStamp(); let rows=[];
+  const q=(document.getElementById('tsrch').value||'').trim();
+  const canvas=await html2canvas(card,{scale:2,backgroundColor:'#ffffff',useCORS:true,windowWidth:1720,
+    onclone:(doc)=>{
+      const c=doc.querySelector('#page-kpilist .tcard'); if(!c) return;
+      const pg=doc.getElementById('page-kpilist'); if(pg){pg.style.display='block';}
+      c.style.width='1680px'; c.style.maxWidth='none'; c.style.borderRadius='0'; c.style.boxShadow='none';
+      const tw=c.querySelector('.twrap'); if(tw){tw.style.display='block';tw.style.overflow='visible';tw.style.maxHeight='none';tw.style.minHeight='0';tw.style.height='auto';}
+      const kc=c.querySelector('#kCards'); if(kc) kc.style.display='none';
+      const tl=c.querySelector('#klTools'); if(tl) tl.remove();
+      c.querySelectorAll('thead th').forEach(th=>{th.style.position='static';});
+      c.insertBefore(_xHeader(doc,`KPI กฟต.2 ปี 2569 · รายการ KPI · ${_listTabLabel()}${q?' · ค้นหา “'+q+'”':''} · ${weightOrg()}`,`พิมพ์ ${st.text}`),c.firstChild);
+      const top=c.getBoundingClientRect().top;
+      rows=[...c.querySelectorAll('tbody tr')].map(tr=>tr.getBoundingClientRect().bottom-top);
+    }});
+  return {canvas,breaks:rows.map(v=>Math.round(v*2))};
+}
+async function exportList(kind){
+  document.getElementById('klDl').classList.remove('on');
+  if(kind==='csv'){expCSV();return;}
+  _xBtns('#klDlBtn',false,'⏳ กำลังสร้าง...');
+  try{
+    if(kind==='all'){await exportAllKpi();return;}
+    await _xLibs(kind==='pdf');
+    const {canvas,breaks}=await _captureList();
+    if(kind==='png'){
+      await _saveBlob(await new Promise(r=>canvas.toBlob(r,'image/png')),_listBase('รายการ')+'.png');
+    }else{
+      const pdf=new window.jspdf.jsPDF({orientation:'l',unit:'mm',format:'a4'});
+      _pdfAdd(pdf,canvas,false,breaks); await _saveBlob(pdf.output('blob'),_listBase('รายการ')+'.pdf');
+    }
+  }catch(e){ console.error(e); alert('สร้างไฟล์ไม่สำเร็จ: '+(e&&e.message||e)); }
+  finally{ _xBtns('#klDlBtn',true); }
+}
+async function exportAllKpi(){
+  const list=(window._listShown||tData||[]).map(x=>x.code);
+  if(!list.length){alert('ไม่มีรายการ KPI ให้บันทึก');return;}
+  if(list.length>20&&!confirm(`สร้าง PDF รายละเอียด ${list.length} KPI (1 หน้าต่อ KPI) ใช้เวลาประมาณ ${Math.ceil(list.length*1.2/60)} นาที — ทำต่อไหม?`)) return;
+  await _xLibs(true);
+  const btn=document.getElementById('klDlBtn'); const anim=window.Chart&&Chart.defaults.animation; if(window.Chart) Chart.defaults.animation=false;
+  const pdf=new window.jspdf.jsPDF({orientation:'p',unit:'mm',format:'a4'});
+  try{
+    for(let i=0;i<list.length;i++){
+      btn.textContent=`⏳ ${i+1}/${list.length}`;
+      oM(list[i]); await new Promise(r=>setTimeout(r,list[i]==='2.11'?1500:450));
+      _pdfAdd(pdf,await _captureKpi(1.5),i>0);
+    }
+    cM();
+    await _saveBlob(pdf.output('blob'),_listBase('รายละเอียดทุกKPI')+'.pdf');
+  }finally{ if(window.Chart) Chart.defaults.animation=anim; }
 }
 
 function oM(code){
