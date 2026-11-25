@@ -969,6 +969,9 @@ async function loadData(){
         // ลอง lookup ด้วย code ที่ตัด trailing zero ด้วย เช่น '2.30'→'2.3', '1.10'→'1.1'
         const lpTrim=code.replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
         const lp=lpMap[code]||lpMap[lpTrim]||{};
+        // ค่า ณ เดือนสถานะ (เหมือน Looker)
+        const _at=atStatusMonth(lp.status,ks.monthlyAOL,ks.monthlyScoreAOL);
+        if(_at){ if(_at.res!==undefined) ks.resultLatestAOL=_at.res; if(_at.sc!==undefined) ks.scoreLatestAOL=_at.sc; }
         ndFinal.push({
           code,
           name: ks.name||lp.name||code,
@@ -1152,6 +1155,18 @@ function selectOrg(val,label){
 function clearOrg(){ selectOrg('all',''); }
 
 // โหลด Results_Kxx sheet แล้ว merge ข้อมูลเข้า allData
+// ใช้ผล/คะแนน "ณ เดือนสถานะของ KPI" เหมือน Looker ต้นฉบับ
+// ถ้าหน่วยงานกรอกเดือนที่เลยสถานะของ KPI ไปแล้ว (เช่น สถานะ ก.ย. แต่มีข้อมูล ต.ค.) ให้ใช้ค่าเดือนสถานะ
+const _ST_IDX={'ม.ค.':0,'ก.พ.':1,'มี.ค.':2,'เม.ย.':3,'พ.ค.':4,'มิ.ย.':5,'ก.ค.':6,'ส.ค.':7,'ก.ย.':8,'ต.ค.':9,'พ.ย.':10,'ธ.ค.':11};
+const _MK12=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+function atStatusMonth(status,mRes,mSc){
+  const si=_ST_IDX[String(status||'').trim()]; if(si===undefined) return null;
+  const later=_MK12.slice(si+1).some(k=>(mSc&&mSc[k]!==undefined&&mSc[k]!=='')||(mRes&&mRes[k]!==undefined&&mRes[k]!==''));
+  if(!later) return null;
+  const k=_MK12[si];
+  return {res:mRes&&mRes[k]!==''?mRes[k]:undefined, sc:mSc&&mSc[k]!==''?mSc[k]:undefined};
+}
+function kpiStatusText(code){ const b=(typeof allDataBase!=='undefined'&&allDataBase.length)?allDataBase:allData; const it=b&&b.find(d=>d.code===code); return it?it.status:''; }
 async function loadOrgResults(gfjCode){
   if(orgResultsCache[gfjCode]) return orgResultsCache[gfjCode]; // ใช้ cache
   try{
@@ -1229,10 +1244,13 @@ async function loadOrgResults(gfjCode){
         const hasAnyData = result!==null || score!==null ||
           Object.keys(monthlyScore).length>0 || Object.keys(monthlyRes).length>0;
         if(hasAnyData){
+          let _r=result, _s=score!==null&&!isNaN(parseFloat(score))?parseFloat(score):null;
+          const _at=atStatusMonth(kpiStatusText(kpiCode),monthlyRes,monthlyScore);
+          if(_at){ if(_at.res!==undefined) _r=_at.res; if(_at.sc!==undefined&&!isNaN(parseFloat(_at.sc))) _s=parseFloat(_at.sc); }
           kpiOrgData[kpiCode][orgCode]={
             targets,
-            result,
-            score:score!==null?parseFloat(score)||null:null,
+            result:_r,
+            score:_s,
             monthlyScore,
             monthlyRes
           };
