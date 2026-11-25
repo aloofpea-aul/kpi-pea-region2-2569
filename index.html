@@ -2314,8 +2314,59 @@ function renderAlert(){
   const an=document.getElementById('aN'); if(an) an.innerHTML=near.length?near.map(i=>mk(i,'ns')).join(''):`<li class="ali"><span class="ali-n" style="color:var(--t3)">ไม่มีรายการ — ทุกตัวที่ผ่าน 3 ได้เต็ม 5 แล้ว 👍</span></li>`;
 }
 
+// ===== ดาวน์โหลดรายละเอียด KPI เป็นรูป / PDF (สร้างในเครื่องผู้ใช้) =====
+function _loadScript(src){return new Promise((ok,err)=>{if(document.querySelector('script[src="'+src+'"]'))return ok();const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=err;document.head.appendChild(s);});}
+async function _saveBlob(blob,name){
+  const file=new File([blob],name,{type:blob.type});
+  if(/iPhone|iPad|Android/i.test(navigator.userAgent)&&navigator.canShare&&navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file],title:name}); return; }catch(e){ if(e&&e.name==='AbortError') return; }
+  }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+}
+async function exportKpi(fmt){
+  const code=window._mCode; const box=document.querySelector('.mbox'); if(!code||!box) return;
+  const btns=[...document.querySelectorAll('.x-exp')]; btns.forEach(b=>{b.disabled=true;b.dataset.t=b.textContent;b.textContent='⏳ กำลังสร้างไฟล์...';});
+  try{
+    await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    if(fmt==='pdf') await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    const org=weightOrg(); const item=allData.find(d=>d.code===code)||{};
+    const now=new Date(); const dd=String(now.getDate()).padStart(2,'0'), mm=String(now.getMonth()+1).padStart(2,'0'), yy=now.getFullYear()+543;
+    const stamp=`${now.getDate()} ${['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][now.getMonth()]} ${yy} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const canvas=await html2canvas(box,{scale:2,backgroundColor:'#ffffff',useCORS:true,
+      windowWidth:Math.max(1040,box.scrollWidth),
+      onclone:(doc)=>{
+        const b=doc.querySelector('.mbox'); if(!b) return;
+        b.style.maxHeight='none'; b.style.height='auto'; b.style.overflow='visible'; b.style.transform='none'; b.style.animation='none'; b.style.width='1040px'; b.style.maxWidth='none'; b.style.borderRadius='0'; b.style.boxShadow='none';
+        doc.querySelectorAll('.m-btns,.mclose,.notes-panel,#notesWrap,.mm-wrap').forEach(e=>e.remove());
+        const t=doc.querySelector('.mm-table'); if(t) t.style.display='block';
+        const nm=doc.getElementById('mName'); if(nm){nm.style.webkitLineClamp='unset';nm.style.display='block';}
+        const h=doc.createElement('div');
+        h.style.cssText='background:linear-gradient(90deg,#1e3a8a,#2563eb);color:#fff;padding:10px 16px;font-family:IBM Plex Sans Thai,sans-serif;display:flex;justify-content:space-between;font-size:13px';
+        h.innerHTML=`<b>KPI กฟต.2 ปี 2569 · ${org}</b><span>ข้อมูลถึง ${item.status||'-'} · พิมพ์ ${stamp}</span>`;
+        b.insertBefore(h,b.firstChild);
+      }});
+    const base=`KPI_${code}_${org}_${dd}-${mm}-${yy}`;
+    if(fmt==='png'){
+      const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+      await _saveBlob(blob,base+'.png');
+    }else{
+      const {jsPDF}=window.jspdf; const pdf=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+      const pw=210, ph=297, m=8, w=pw-m*2; const pxPerMm=canvas.width/w; const pageH=Math.floor((ph-m*2)*pxPerMm);
+      for(let y=0,i=0;y<canvas.height;y+=pageH,i++){
+        const h=Math.min(pageH,canvas.height-y); const c=document.createElement('canvas'); c.width=canvas.width; c.height=h;
+        c.getContext('2d').drawImage(canvas,0,y,canvas.width,h,0,0,canvas.width,h);
+        if(i) pdf.addPage(); pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',m,m,w,h/pxPerMm);
+      }
+      await _saveBlob(pdf.output('blob'),base+'.pdf');
+    }
+  }catch(e){ console.error(e); alert('สร้างไฟล์ไม่สำเร็จ: '+(e&&e.message||e)); }
+  finally{ btns.forEach(b=>{b.disabled=false;b.textContent=b.dataset.t;}); }
+}
+
 function oM(code){
   const item=allData.find(d=>d.code===code);if(!item)return;
+  window._mCode=code;
   document.getElementById('mCode').textContent=item.code;
   document.getElementById('mName').textContent=item.name;
   const sc=item.score;
@@ -2467,6 +2518,8 @@ function oM(code){
     ${tableHTML}
     ${item.code==='2.11'?'<div id="kpi211Widget"></div>':''}
     <div class="m-btns" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;margin-bottom:4px">
+      <button class="notes-btn x-exp" onclick="exportKpi('png')" style="background:#eef2ff;border-color:#c7d2fe;color:#3730a3">🖼️ บันทึกเป็นรูป</button>
+      <button class="notes-btn x-exp" onclick="exportKpi('pdf')" style="background:#eef2ff;border-color:#c7d2fe;color:#3730a3">📄 บันทึกเป็น PDF</button>
       ${KPI_DOC_LINKS[item.code]?`<a href="${KPI_DOC_LINKS[item.code]}" target="_blank" class="notes-btn"
         style="background:rgba(56,139,253,.08);border-color:rgba(56,139,253,.25);color:#1d4ed8">
         📄 อธิบาย KPI ${item.code}</a>`:''}
